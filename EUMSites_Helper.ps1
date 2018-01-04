@@ -371,6 +371,157 @@ function ImportContentTypes
 
 }
 
+function ImportLists
+{
+    param ( [Parameter(Position=0,Mandatory=$true)][string]$ImportFile,
+	        [Parameter(Position=1,Mandatory=$true)][string] $SiteUrl)
+
+    if ($SiteURL -ne $null -and $SiteURL -ne "" -and $SiteURL -ne $WebAppUrl) {
+        $siteContext = New-Object Microsoft.SharePoint.Client.ClientContext($SiteURL)
+	    $MixedModeAuthentication = $false;
+        $siteContext.Credentials = $SPCredentials
+    } else {
+        $siteContext = $spContext
+    }
+
+    $spWeb = $siteContext.Web
+	$lists = $spWeb.Lists
+	$contentTypes = $spWeb.ContentTypes
+    $siteContext.Load($spWeb)
+	$siteContext.Load($lists)
+	$siteContext.Load($contentTypes)
+    $siteContext.ExecuteQuery()
+
+    $listXML = [xml](Get-Content($ImportFile))
+    $listXML.Lists.List | ForEach-Object {
+		Write-Host "Creating List" $_.Title -foregroundcolor black -backgroundcolor yellow  
+		$exists = $true
+		#find if list already exist, if yes, update instead of creating new one
+		foreach($ls in $lists) {
+			if( $ls.Title -eq $_.Title){
+				 $exists = $false
+				break;
+			}
+		}
+
+		if($exists -eq $false){
+			Write-Host "Skipping existing List" $_.Listname -foregroundcolor black -backgroundcolor red
+			#continue;
+		}
+		else
+		{
+		 $ListInfo = New-Object Microsoft.SharePoint.Client.ListCreationInformation
+		 $ListInfo.Title = $_.Title
+
+		 if($_.ServerTemplate -eq "101") {
+			$ListInfo.TemplateType =  [Microsoft.SharePoint.Client.ListTemplateType]::DocumentLibrary
+		 }
+		 else {
+			$ListInfo.TemplateType = [Microsoft.SharePoint.Client.ListTemplateType]::GenericList
+		 }
+   
+		 $ListInfo.Description = $_.Description;
+		 $featureId = [Guid]($_.TemplateFeatureId); 
+		 $ListInfo.TemplateFeatureId = $featureId;
+		 $NewList = $lists.Add($ListInfo);
+		 $siteContext.Load($NewList); 
+		 $siteContext.ExecuteQuery();
+		 if($listXML.VersioningEnabled -eq "TRUE")
+		 {
+		   $NewList.EnableVersioning = $true;
+		 }
+		 else
+		 {
+		   $NewList.EnableVersioning = $false;
+		 }
+		 if($listXML.OnQuickLaunch -eq "TRUE")
+		 {
+		   $NewList.OnQuickLaunch = $true;
+		 }
+		 else
+		 {
+		   $NewList.OnQuickLaunch = $false;
+		 }
+		 if($listXML.EnableContentTypes -eq "TRUE")
+		 {
+		   $NewList.ContentTypesEnabled = $true;
+		 }
+		 else
+		 {
+		   $NewList.ContentTypesEnabled = $false;
+		 }
+		 if($listXML.FolderCreation -eq "TRUE")
+		 {
+		   $NewList.EnableFolderCreation = $true;
+		 }
+		 else
+		 {
+		   $NewList.EnableFolderCreation = $false;
+		 }
+		 $NewList.Update()
+		 $siteContext.ExecuteQuery();
+
+		 #Views
+		 foreach ($view in $listXML.MetaData.Views.View)
+		 {
+		 #disregard hidden view
+		  if(-Not $view.Hidden)
+		  {
+			 $viewName = $view.DisplayName;
+			 $viewType = $view.Type;
+			 $viewFields=@();
+			 foreach($field in $view.ViewFields.FieldRef)
+			 {
+			  $viewFields += $field.Name;
+			 }
+			 $rowLimit = [convert]::ToInt32($view.RowLimit.InnerText,10);
+			 $paged = $view.RowLimit.Paged
+			 if( $view.DefaultView -eq "TRUE")
+			 {
+			  $defaultView = $true;
+			 }
+			 else
+			 {
+			  $defaultView = $false;
+			 }
+			$query = $view.Query
+        
+			# View
+			 $ViewCreationInformation  = New-Object Microsoft.SharePoint.Client.ViewCreationInformation;
+			 $viewCreationInformation.Title = $viewName;
+			 $viewCreationInformation.ViewTypeKind = $viewType;
+			 $viewCreationInformation.RowLimit = $rowLimit;
+			 $viewCreationInformation.ViewFields = $viewFields;
+			 $viewCreationInformation.PersonalView = $false;
+			 $viewCreationInformation.SetAsDefaultView = $defaultView;
+			 $viewCreationInformation.Paged = $paged;
+			 $viewCreationInformation.Query = $query;
+          
+			 $AddedView = $list.Views.Add($viewCreationInformation);
+			 $siteContext.Load($AddedView);
+			 $siteContext.ExecuteQuery();
+		 }
+		}#finish looping through views
+		#Content Types
+		 # Get the content type by id from the web site
+		 foreach ($ct in $listXML.MetaData.ContentTypes.ContentType)
+		 {
+		   try
+		   {
+			$contentType = $web.ContentTypes|?{$_.Name -eq $ct.Name}
+			$list.ContentTypes.AddExistingContentType($contentType);
+			$list.Update();
+			$siteContext.ExecuteQuery();
+		   }
+		   catch
+		   {
+			Write-Host "Error  adding content type " $contentTypeName $_.Exception.Message -foregroundcolor "Red" 
+		   }
+		 }
+	   }
+    } #foreach List
+}
+
 function CheckIfSiteCollection()
 {
     Param
