@@ -412,20 +412,20 @@ function ImportLists
 		{
 		 $ListInfo = New-Object Microsoft.SharePoint.Client.ListCreationInformation
 		 $ListInfo.Title = $_.Title
-
 		 if($_.ServerTemplate -eq "101") {
 			$ListInfo.TemplateType =  [Microsoft.SharePoint.Client.ListTemplateType]::DocumentLibrary
 		 }
 		 else {
 			$ListInfo.TemplateType = [Microsoft.SharePoint.Client.ListTemplateType]::GenericList
-		 }
-   
+		 }   
 		 $ListInfo.Description = $_.Description;
 		 $featureId = [Guid]($_.TemplateFeatureId); 
 		 $ListInfo.TemplateFeatureId = $featureId;
+		 $ListInfo.QuickLaunchOption = [Microsoft.SharePoint.Client.QuickLaunchOptions]::Off; 
 		 $NewList = $lists.Add($ListInfo);
 		 $siteContext.Load($NewList); 
 		 $siteContext.ExecuteQuery();
+         #Update List Properties
 		 if($listXML.VersioningEnabled -eq "TRUE")
 		 {
 		   $NewList.EnableVersioning = $true;
@@ -497,7 +497,7 @@ function ImportLists
 			 $viewCreationInformation.Paged = $paged;
 			 $viewCreationInformation.Query = $query;
           
-			 $AddedView = $list.Views.Add($viewCreationInformation);
+			 $AddedView = $NewList.Views.Add($viewCreationInformation);
 			 $siteContext.Load($AddedView);
 			 $siteContext.ExecuteQuery();
 		 }
@@ -509,13 +509,14 @@ function ImportLists
 		   try
 		   {
 			$contentType = $web.ContentTypes|?{$_.Name -eq $ct.Name}
-			$list.ContentTypes.AddExistingContentType($contentType);
-			$list.Update();
+			$NewList.ContentTypes.AddExistingContentType($contentType);
+			$NewList.Update();
 			$siteContext.ExecuteQuery();
 		   }
 		   catch
 		   {
-			Write-Host "Error  adding content type " $contentTypeName $_.Exception.Message -foregroundcolor "Red" 
+			Write-Host "Error  adding content type " $contentTypeName $_.Exception.Message -foregroundcolor "Red" -ErrorAction SilentlyContinue 
+
 		   }
 		 }
 	   }

@@ -22,6 +22,7 @@
             <FieldRef Name="EUMParentURL" />
             <FieldRef Name="EUMPublicGroup" />
             <FieldRef Name="EUMBreadcrumbHTML" />
+            <FieldRef Name="EUMBrandingDeploymentType" />
             <FieldRef Name="EUMSetMasterPage" />
             <FieldRef Name="EUMSetComposedLook" />
             <FieldRef Name="EUMSiteTemplate" />
