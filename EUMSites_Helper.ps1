@@ -391,10 +391,9 @@ function ImportLists
 	$siteContext.Load($lists)
 	$siteContext.Load($contentTypes)
     $siteContext.ExecuteQuery()
-
+	Connect-PnPOnline -Url $SiteURL  
     $listXML = [xml](Get-Content($ImportFile))
     $listXML.Lists.List | ForEach-Object {
-		Write-Host "Creating List" $_.Title -foregroundcolor black -backgroundcolor yellow  
 		$exists = $true
 		#find if list already exist, if yes, update instead of creating new one
 		foreach($ls in $lists) {
@@ -403,121 +402,78 @@ function ImportLists
 				break;
 			}
 		}
-
 		if($exists -eq $false){
 			Write-Host "Skipping existing List" $_.Listname -foregroundcolor black -backgroundcolor red
 			#continue;
 		}
 		else
 		{
-		 $ListInfo = New-Object Microsoft.SharePoint.Client.ListCreationInformation
-		 $ListInfo.Title = $_.Title
-		 if($_.ServerTemplate -eq "101") {
-			$ListInfo.TemplateType =  [Microsoft.SharePoint.Client.ListTemplateType]::DocumentLibrary
-		 }
-		 else {
-			$ListInfo.TemplateType = [Microsoft.SharePoint.Client.ListTemplateType]::GenericList
-		 }   
-		 $ListInfo.Description = $_.Description;
-		 $featureId = [Guid]($_.TemplateFeatureId); 
-		 $ListInfo.TemplateFeatureId = $featureId;
-		 $ListInfo.QuickLaunchOption = [Microsoft.SharePoint.Client.QuickLaunchOptions]::Off; 
-		 $NewList = $lists.Add($ListInfo);
-		 $siteContext.Load($NewList); 
-		 $siteContext.ExecuteQuery();
-         #Update List Properties
-		 if($listXML.VersioningEnabled -eq "TRUE")
-		 {
-		   $NewList.EnableVersioning = $true;
-		 }
-		 else
-		 {
-		   $NewList.EnableVersioning = $false;
-		 }
-		 if($listXML.OnQuickLaunch -eq "TRUE")
-		 {
-		   $NewList.OnQuickLaunch = $true;
-		 }
-		 else
-		 {
-		   $NewList.OnQuickLaunch = $false;
-		 }
-		 if($listXML.EnableContentTypes -eq "TRUE")
-		 {
-		   $NewList.ContentTypesEnabled = $true;
-		 }
-		 else
-		 {
-		   $NewList.ContentTypesEnabled = $false;
-		 }
-		 if($listXML.FolderCreation -eq "TRUE")
-		 {
-		   $NewList.EnableFolderCreation = $true;
-		 }
-		 else
-		 {
-		   $NewList.EnableFolderCreation = $false;
-		 }
-		 $NewList.Update()
-		 $siteContext.ExecuteQuery();
-
-		 #Views
-		 foreach ($view in $listXML.MetaData.Views.View)
-		 {
-		 #disregard hidden view
-		  if(-Not $view.Hidden)
-		  {
-			 $viewName = $view.DisplayName;
-			 $viewType = $view.Type;
-			 $viewFields=@();
-			 foreach($field in $view.ViewFields.FieldRef)
-			 {
-			  $viewFields += $field.Name;
-			 }
-			 $rowLimit = [convert]::ToInt32($view.RowLimit.InnerText,10);
-			 $paged = $view.RowLimit.Paged
-			 if( $view.DefaultView -eq "TRUE")
-			 {
-			  $defaultView = $true;
-			 }
-			 else
-			 {
-			  $defaultView = $false;
-			 }
-			$query = $view.Query
-        
-			# View
-			 $ViewCreationInformation  = New-Object Microsoft.SharePoint.Client.ViewCreationInformation;
-			 $viewCreationInformation.Title = $viewName;
-			 $viewCreationInformation.ViewTypeKind = $viewType;
-			 $viewCreationInformation.RowLimit = $rowLimit;
-			 $viewCreationInformation.ViewFields = $viewFields;
-			 $viewCreationInformation.PersonalView = $false;
-			 $viewCreationInformation.SetAsDefaultView = $defaultView;
-			 $viewCreationInformation.Paged = $paged;
-			 $viewCreationInformation.Query = $query;
-          
-			 $AddedView = $NewList.Views.Add($viewCreationInformation);
-			 $siteContext.Load($AddedView);
-			 $siteContext.ExecuteQuery();
-		 }
-		}#finish looping through views
-		#Content Types
-		 # Get the content type by id from the web site
-		 foreach ($ct in $listXML.MetaData.ContentTypes.ContentType)
-		 {
-		   try
-		   {
-			$contentType = $web.ContentTypes|?{$_.Name -eq $ct.Name}
-			$NewList.ContentTypes.AddExistingContentType($contentType);
-			$NewList.Update();
-			$siteContext.ExecuteQuery();
-		   }
-		   catch
-		   {
-			Write-Host "Error  adding content type " $contentTypeName $_.Exception.Message -foregroundcolor "Red" -ErrorAction SilentlyContinue 
-
-		   }
+			try 
+			{			 
+				#Write-Host -Template $_.TemplateType -Title $_.Title -EnableContentTypes:$ContentTypesEnabled -EnableVersioning:$EnableVersioning -OnQuickLaunch:$OnQuickLaunch -Url $_.Url
+				New-PnPList -Template $_.TemplateType -Title $_.Title -EnableContentTypes -EnableVersioning -Url $_.Url
+				Write-Host "Creating List" $_.Title -foregroundcolor black -backgroundcolor yellow 
+				#Add Content Types
+				foreach ($ct in $_.Metadata.ContentTypeBindings.ContentTypeBinding) 
+				{		
+					try
+					{
+						$CType = Get-PnPContentType -Identity $ct.ContentTypeId -InSiteHierarchy
+						Write-Host "Applying Content Type " $ct.Title -foregroundcolor black -backgroundcolor yellow 						
+						if ($ct.Default) 
+						{ 
+							if ($ct.Default = "true")
+							{
+								Add-PnPContentTypeToList -List $_.Title -ContentType $CType -DefaultContentType
+							}
+						}
+						else
+						{
+							Add-PnPContentTypeToList -List $_.Title -ContentType $CType 
+						}
+					}
+				    catch
+				    {
+					Write-Host "Error adding Content Type " $ct.ContentTypeId $_.Exception.Message -foregroundcolor "Red"  
+				    }
+				}
+				#Add Views
+				foreach ($view in $_.MetaData.Views.View)
+				{
+					try
+					{
+						 $viewName = $view.DisplayName;
+						 $viewType = $view.Type;
+						 $viewFields=@();
+						 foreach($field in $view.ViewFields.FieldRef)
+						 {
+						  $viewFields += $field.Name;
+						 }
+						 if ($view.DefaultView) 
+						 { 
+							 if ($view.DefaultView = "TRUE")
+							 {
+								 Add-PnPView -List $_.Title -Title $viewName -Fields $viewFields -ViewType $viewType -SetAsDefault 
+							 }
+						 }
+						 else
+						 {
+							 Add-PnPView -List $_.Title -Title $viewName -Fields $viewFields -ViewType $viewType 
+						 }  
+					}
+				    catch
+				    {
+					Write-Host "Error adding View " $contentTypeName $_.Exception.Message -foregroundcolor "Red" -ErrorAction SilentlyContinue 
+				    }
+				}
+			}
+			catch [Exception]
+			{
+					Write-Host "... ERROR Creating List" $_.Title -ForegroundColor Red 
+					Write-Host $_.Exception.Message -ForegroundColor Red 
+					if ($_.Exception.ServerErrorTraceCorrelationId -ne $null -and $_.Exception.ServerErrorTraceCorrelationId -ne '') {
+					#Write-Host "Server Correlation Id " $_.Exception.ServerErrorTraceCorrelationId -ForegroundColor Red 
+			}
 		 }
 	   }
     } #foreach List
