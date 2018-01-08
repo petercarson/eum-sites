@@ -2,37 +2,42 @@
 {
 	[xml]$config = Get-Content -Path "$DistributionFolder\sharepoint.config"
 
-	#-----------------------------------------------------------------------
-	# Prompt for the environment defined in the config
-	#-----------------------------------------------------------------------
-  Write-Host "`n***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
-  $config.settings.environments.environment | ForEach {
-      Write-Host "$($_.id)`t $($_.name) - $($_.webApp.adminSiteURL)"
-  }
-  Write-Host "***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
+    $environmentId = $config.settings.common.defaultEnvironment
 
-  Do
-  {
-      [int]$environmentId = Read-Host "Enter the ID of the environment from the above list"
-  }
-  Until ($environmentId -gt 0)
+    if ($environmentId -eq "") {
+	    #-----------------------------------------------------------------------
+	    # Prompt for the environment defined in the config
+	    #-----------------------------------------------------------------------
 
-  [System.Xml.XmlLinkedNode]$Global:environment = $config.settings.environments.environment | Where { $_.id -eq $environmentId }
+        Write-Host "`n***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
+        $config.settings.environments.environment | ForEach {
+            Write-Host "$($_.id)`t $($_.name) - $($_.webApp.adminSiteURL)"
+        }
+        Write-Host "***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
 
-  # Set variables based on environment selected
-  [string]$Global:WebAppURL = $environment.webApp.url
-  [string]$Global:TenantAdminURL = $environment.webApp.adminSiteURL
-  [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
-  [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
-  [string]$Global:ManagedCredentials = $environment.webApp.managedCredentials
+        Do
+        {
+            [int]$environmentId = Read-Host "Enter the ID of the environment from the above list"
+        }
+        Until ($environmentId -gt 0)
+    }
 
-  [string]$Global:EUMClientID = $environment.EUM.clientID
-  [string]$Global:EUMSecret = $environment.EUM.secret
-  [string]$Global:Domain_FK = $environment.EUM.domain_FK
-  [string]$Global:SystemConfiguration_FK = $environment.EUM.systemConfiguration_FK
-  [string]$Global:EUMURL = $environment.EUM.EUMURL
+    [System.Xml.XmlLinkedNode]$Global:environment = $config.settings.environments.environment | Where { $_.id -eq $environmentId }
 
-  Write-Host "Environment set to $($environment.name) - $($environment.webApp.adminSiteURL) `n" -ForegroundColor Cyan
+    # Set variables based on environment selected
+    [string]$Global:WebAppURL = $environment.webApp.url
+    [string]$Global:TenantAdminURL = $environment.webApp.adminSiteURL
+    [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
+    [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
+    [string]$Global:ManagedCredentials = $environment.webApp.managedCredentials
+
+    [string]$Global:EUMClientID = $environment.EUM.clientID
+    [string]$Global:EUMSecret = $environment.EUM.secret
+    [string]$Global:Domain_FK = $environment.EUM.domain_FK
+    [string]$Global:SystemConfiguration_FK = $environment.EUM.systemConfiguration_FK
+    [string]$Global:EUMURL = $environment.EUM.EUMURL
+
+    Write-Host "Environment set to $($environment.name) - $($environment.webApp.adminSiteURL) `n" -ForegroundColor Cyan
 
 	#-----------------------------------------------------------------------
 	# SharePoint Deployment
