@@ -6,7 +6,7 @@
     LoadEnvironmentSettings
 
     # Check the Site Collection List in master site for any sites that need to be created
-    Connect-PnPOnline -Url $SitesListSiteURL -Credentials $credentials
+    Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials
 
     $pendingSiteCollections = Get-PnPListItem -List $SiteListName -Query "
     <View>
@@ -34,7 +34,7 @@
     if ($pendingSiteCollections.Count -gt 0)
     {
         # Get the time zone of the master site
-        [Microsoft.SharePoint.Client.Web]$spWeb = Get-PnPWeb -Includes RegionalSettings.TimeZone
+        $spWeb = Get-PnPWeb -Includes RegionalSettings.TimeZone
         [int]$timeZoneId = $spWeb.RegionalSettings.TimeZone.Id
 
         # Iterate through the pending sites. Create them if needed, and apply template
@@ -87,7 +87,6 @@
                     $baseSiteType = "TeamSite"
                     $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Client-Template-Template.xml"
                     }
-
             }
 
             # Classic style sites
