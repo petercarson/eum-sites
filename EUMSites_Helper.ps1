@@ -1,88 +1,102 @@
 ﻿function LoadEnvironmentSettings()
 {
-	[xml]$config = Get-Content -Path "$DistributionFolder\sharepoint.config"
+    [string]$Global:WebAppURL = $env.url
+    [string]$Global:TenantAdminURL = $env.adminSiteURL
+    [string]$Global:SitesListSiteURL = $env.sitesListSiteCollectionPath
+    [string]$Global:SiteListName = $env.siteListName
+    [string]$Global:AppClientID = $env.AppClientID
+    [string]$Global:AppClientSecret = $env.AppClientSecret
 
-    $environmentId = $config.settings.common.defaultEnvironment
-
-    if ($environmentId -eq "") {
-	    #-----------------------------------------------------------------------
-	    # Prompt for the environment defined in the config
-	    #-----------------------------------------------------------------------
-
-        Write-Host "`n***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
-        $config.settings.environments.environment | ForEach {
-            Write-Host "$($_.id)`t $($_.name) - $($_.webApp.adminSiteURL)"
-        }
-        Write-Host "***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
-
-        Do
-        {
-            [int]$environmentId = Read-Host "Enter the ID of the environment from the above list"
-        }
-        Until ($environmentId -gt 0)
+    if ($WebAppURL -ne "")
+    {
+        Write-Host $WebAppURL
     }
+    else
+    {
+	    [xml]$config = Get-Content -Path "$DistributionFolder\sharepoint.config"
 
-    [System.Xml.XmlLinkedNode]$Global:environment = $config.settings.environments.environment | Where { $_.id -eq $environmentId }
+        $environmentId = $config.settings.common.defaultEnvironment
 
-    # Set variables based on environment selected
-    [string]$Global:WebAppURL = $environment.webApp.url
-    [string]$Global:TenantAdminURL = $environment.webApp.adminSiteURL
-    [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
-    [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
-    [string]$Global:ManagedCredentials = $environment.webApp.managedCredentials
-    [string]$Global:ManagedCredentialsType = $environment.webApp.managedCredentialsType
+        if ($environmentId -eq "") {
+	        #-----------------------------------------------------------------------
+	        # Prompt for the environment defined in the config
+	        #-----------------------------------------------------------------------
 
-    [string]$Global:EUMClientID = $environment.EUM.clientID
-    [string]$Global:EUMSecret = $environment.EUM.secret
-    [string]$Global:Domain_FK = $environment.EUM.domain_FK
-    [string]$Global:SystemConfiguration_FK = $environment.EUM.systemConfiguration_FK
-    [string]$Global:EUMURL = $environment.EUM.EUMURL
+            Write-Host "`n***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
+            $config.settings.environments.environment | ForEach {
+                Write-Host "$($_.id)`t $($_.name) - $($_.webApp.adminSiteURL)"
+            }
+            Write-Host "***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
 
-    Write-Host "Environment set to $($environment.name) - $($environment.webApp.adminSiteURL) `n" -ForegroundColor Cyan
-
-	#-----------------------------------------------------------------------
-	# Get credentials from Windows Credential Manager
-	#-----------------------------------------------------------------------
-	if (Get-InstalledModule -Name "CredentialManager" -RequiredVersion "2.0") 
-	{
-		$Global:credentials = Get-StoredCredential -Target $managedCredentials 
-        if ($managedCredentialsType -eq "UsernamePassword") {
-		    if ($credentials -eq $null) {
-			    $UserName = Read-Host "Enter the username to connect with"
-			    $Password = Read-Host "Enter the password for $UserName" -AsSecureString 
-			    $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
-			    if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
-				    $temp = New-StoredCredential -Target $managedCredentials -UserName $UserName -SecurePassword $Password
-			    }
-			    $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName,$Password
-		    }
-		    else {
-			    $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $credentials.UserName,$credentials.Password
-                Write-Host "Connecting with username" $credentials.UserName
-		    }
+            Do
+            {
+                [int]$environmentId = Read-Host "Enter the ID of the environment from the above list"
+            }
+            Until ($environmentId -gt 0)
         }
-        else
-        {
-		    if ($credentials -eq $null) {
-                [string]$Global:AppClientID = Read-Host "Enter the Client Id to connect with"
-                [string]$Global:AppClientSecret = Read-Host "Enter the Secret"
-			    $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
-			    if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
-				    $temp = New-StoredCredential -Target $managedCredentials -UserName $AppClientID -Password $AppClientSecret
-			    }
-		    }
-		    else {
-                [string]$Global:AppClientID = $credentials.UserName
-                [string]$Global:AppClientSecret = $credentials.GetNetworkCredential().password
-                Write-Host "Connecting with Client Id" $AppClientID
-		    }
-        }
-	}
-	else
-	{
-		Write-Host "Required Windows Credential Manager 2.0 PowerShell Module not found. Please install the module by entering the following command in PowerShell: ""Install-Module -Name ""CredentialManager"" -RequiredVersion 2.0"""
-		break
-	}
+
+        [System.Xml.XmlLinkedNode]$Global:environment = $config.settings.environments.environment | Where { $_.id -eq $environmentId }
+
+        # Set variables based on environment selected
+        [string]$Global:WebAppURL = $environment.webApp.url
+        [string]$Global:TenantAdminURL = $environment.webApp.adminSiteURL
+        [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
+        [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
+        [string]$Global:ManagedCredentials = $environment.webApp.managedCredentials
+        [string]$Global:ManagedCredentialsType = $environment.webApp.managedCredentialsType
+
+        [string]$Global:EUMClientID = $environment.EUM.clientID
+        [string]$Global:EUMSecret = $environment.EUM.secret
+        [string]$Global:Domain_FK = $environment.EUM.domain_FK
+        [string]$Global:SystemConfiguration_FK = $environment.EUM.systemConfiguration_FK
+        [string]$Global:EUMURL = $environment.EUM.EUMURL
+
+        Write-Host "Environment set to $($environment.name) - $($environment.webApp.adminSiteURL) `n" -ForegroundColor Cyan
+
+	    #-----------------------------------------------------------------------
+	    # Get credentials from Windows Credential Manager
+	    #-----------------------------------------------------------------------
+	    if (Get-InstalledModule -Name "CredentialManager" -RequiredVersion "2.0") 
+	    {
+		    $Global:credentials = Get-StoredCredential -Target $managedCredentials 
+            if ($managedCredentialsType -eq "UsernamePassword") {
+		        if ($credentials -eq $null) {
+			        $UserName = Read-Host "Enter the username to connect with"
+			        $Password = Read-Host "Enter the password for $UserName" -AsSecureString 
+			        $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
+			        if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
+				        $temp = New-StoredCredential -Target $managedCredentials -UserName $UserName -SecurePassword $Password
+			        }
+			        $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName,$Password
+		        }
+		        else {
+			        $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $credentials.UserName,$credentials.Password
+                    Write-Host "Connecting with username" $credentials.UserName
+		        }
+            }
+            else
+            {
+		        if ($credentials -eq $null) {
+                    [string]$Global:AppClientID = Read-Host "Enter the Client Id to connect with"
+                    [string]$Global:AppClientSecret = Read-Host "Enter the Secret"
+			        $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
+			        if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
+				        $temp = New-StoredCredential -Target $managedCredentials -UserName $AppClientID -Password $AppClientSecret
+			        }
+		        }
+		        else {
+                    [string]$Global:AppClientID = $credentials.UserName
+                    [string]$Global:AppClientSecret = $credentials.GetNetworkCredential().password
+                    Write-Host "Connecting with Client Id" $AppClientID
+		        }
+            }
+	    }
+	    else
+	    {
+		    Write-Host "Required Windows Credential Manager 2.0 PowerShell Module not found. Please install the module by entering the following command in PowerShell: ""Install-Module -Name ""CredentialManager"" -RequiredVersion 2.0"""
+		    break
+	    }
+    }
 }
 
 function Helper-Connect-PnPOnline()
