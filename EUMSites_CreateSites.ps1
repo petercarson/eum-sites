@@ -48,6 +48,7 @@ if ($listItemID -ne $null)
             <FieldRef Name='EUMBreadcrumbHTML'></FieldRef>
             <FieldRef Name='EUMParentURL'></FieldRef>
             <FieldRef Name='EUMSiteTemplate'></FieldRef>
+            <FieldRef Name='Author'></FieldRef>
         </ViewFields>
     </View>"
 }
@@ -76,6 +77,7 @@ else
             <FieldRef Name='EUMBreadcrumbHTML'></FieldRef>
             <FieldRef Name='EUMParentURL'></FieldRef>
             <FieldRef Name='EUMSiteTemplate'></FieldRef>
+            <FieldRef Name='Author'></FieldRef>
         </ViewFields>
     </View>"
 }
@@ -107,6 +109,8 @@ if ($pendingSiteCollections.Count -gt 0)
         [bool]$siteCollection = CheckIfSiteCollection -siteURL $siteURL
 
         [string]$eumSiteTemplate = $pendingSite["EUMSiteTemplate"]
+
+        [string]$author = $pendingSite["Author"].Email
 
         $baseSiteTemplate = ""
         $baseSiteType = ""
@@ -146,7 +150,7 @@ if ($pendingSiteCollections.Count -gt 0)
             {
                 # Create site (if it exists, it will error but not modify the existing site)
                 Write-Output "Creating site collection $($siteURL) with base template $($baseSiteTemplate). Please wait..."
-                New-PnPTenantSite -Title $siteTitle -Url $siteURL -Owner $AdminUserName -TimeZone $timeZoneId -Template $baseSiteTemplate -RemoveDeletedSite -Wait -Force
+                New-PnPTenantSite -Title $siteTitle -Url $siteURL -Owner $author -TimeZone $timeZoneId -Template $baseSiteTemplate -RemoveDeletedSite -Wait -Force
             }
             else
             {

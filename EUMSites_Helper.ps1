@@ -15,6 +15,9 @@
     {
 	    [xml]$config = Get-Content -Path "$DistributionFolder\sharepoint.config"
 
+        [System.Array]$Global:managedPaths = $config.settings.common.managedPaths.path
+        [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
+
         $environmentId = $config.settings.common.defaultEnvironment
 
         if ($environmentId -eq "") {
@@ -41,7 +44,6 @@
         [string]$Global:WebAppURL = $environment.webApp.url
         [string]$Global:TenantAdminURL = $environment.webApp.adminSiteURL
         [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
-        [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
         [string]$Global:ManagedCredentials = $environment.webApp.managedCredentials
         [string]$Global:ManagedCredentialsType = $environment.webApp.managedCredentialsType
 
