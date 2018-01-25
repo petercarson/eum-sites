@@ -4,8 +4,8 @@
     [string]$Global:TenantAdminURL = $Env:adminSiteURL
     [string]$Global:SitesListSiteURL = "$($WebAppURL)$($Env:sitesListSiteCollectionPath)"
     [string]$Global:SiteListName = $Env:siteListName
-    [string]$Global:AppClientID = $Env:AppClientID
-    [string]$Global:AppClientSecret = $Env:AppClientSecret
+    [string]$Global:O365ClientID = $Env:O365ClientID
+    [string]$Global:O365ClientSecret = $Env:O365ClientSecret
 
     if ($WebAppURL -ne "")
     {
@@ -46,6 +46,7 @@
         [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
         [string]$Global:ManagedCredentials = $environment.webApp.managedCredentials
         [string]$Global:ManagedCredentialsType = $environment.webApp.managedCredentialsType
+        [string]$Global:TenantId = $environment.webApp.tenantId
 
         [string]$Global:EUMClientID = $environment.EUM.clientID
         [string]$Global:EUMSecret = $environment.EUM.secret
@@ -61,36 +62,64 @@
 	    if (Get-InstalledModule -Name "CredentialManager" -RequiredVersion "2.0") 
 	    {
 		    $Global:credentials = Get-StoredCredential -Target $managedCredentials 
-            if ($managedCredentialsType -eq "UsernamePassword") {
-		        if ($credentials -eq $null) {
-			        $UserName = Read-Host "Enter the username to connect with"
-			        $Password = Read-Host "Enter the password for $UserName" -AsSecureString 
-			        $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
-			        if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
-				        $temp = New-StoredCredential -Target $managedCredentials -UserName $UserName -SecurePassword $Password
-			        }
-			        $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName,$Password
-		        }
-		        else {
-			        $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $credentials.UserName,$credentials.Password
-                    Write-Output "Connecting with username" $credentials.UserName
-		        }
-            }
-            else
+            switch ($managedCredentialsType) 
             {
-		        if ($credentials -eq $null) {
-                    [string]$Global:AppClientID = Read-Host "Enter the Client Id to connect with"
-                    [string]$Global:AppClientSecret = Read-Host "Enter the Secret"
-			        $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
-			        if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
-				        $temp = New-StoredCredential -Target $managedCredentials -UserName $AppClientID -Password $AppClientSecret
-			        }
+                "UsernamePassword"
+                {
+		            if ($credentials -eq $null) {
+			            $UserName = Read-Host "Enter the username to connect with"
+			            $Password = Read-Host "Enter the password for $UserName" -AsSecureString 
+			            $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
+			            if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
+				            $temp = New-StoredCredential -Target $managedCredentials -UserName $UserName -SecurePassword $Password
+			            }
+			            $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName,$Password
+		            }
+		            else {
+			            $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $credentials.UserName,$credentials.Password
+                        Write-Output "Connecting with username" $credentials.UserName
+		            }
 		        }
-		        else {
-                    [string]$Global:AppClientID = $credentials.UserName
-                    [string]$Global:AppClientSecret = $credentials.GetNetworkCredential().password
-                    Write-Output "Connecting with Client Id" $AppClientID
-		        }
+
+                "ClientIdSecret"
+                {
+		            if ($credentials -eq $null) {
+                        [string]$Global:O365ClientID = Read-Host "Enter the Client Id to connect with"
+                        [string]$Global:O365ClientSecret = Read-Host "Enter the Secret"
+			            $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
+			            if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
+				            $temp = New-StoredCredential -Target $managedCredentials -UserName $O365ClientID -Password $O365ClientSecret
+			            }
+		            }
+		            else {
+                        [string]$Global:O365ClientID = $credentials.UserName
+                        [string]$Global:O365ClientSecret = $credentials.GetNetworkCredential().password
+                        Write-Output "Connecting with Client Id" $O365ClientID
+		            }
+                }
+
+                "AzureKeyVault"
+                {
+		            if ($credentials -eq $null) {
+                        [string]$Global:AKVClientID = Read-Host "Enter the Azure Key Vault Client Id to connect with"
+                        [string]$Global:AKVClientSecret = Read-Host "Enter the Secret"
+			            $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
+			            if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
+				            $temp = New-StoredCredential -Target $managedCredentials -UserName $AKVClientID -Password $AKVClientSecret
+			            }
+		            }
+		            else {
+                        [string]$Global:AKVClientID = $credentials.UserName
+                        [string]$Global:AKVClientSecret = $credentials.GetNetworkCredential().password
+		            }
+
+		            $cred = New-Object -typename System.Management.Automation.PSCredential -argumentlist $AKVClientID, $AKVClientSecret
+		            Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $TenantId
+		            $AdminUserNameSecret = Get-AzureKeyVaultSecret -VaultName $VaultName -Name 'ServiceAccount'
+                    $AdminUserName = $AdminUserNameSecret.SecretValueText
+		            $AdminPasswordSecret = Get-AzureKeyVaultSecret -VaultName $VaultName -Name 'ServiceAccountPassword'
+                    $AdminPassword = $AdminPasswordSecret.SecretValueText
+                }
             }
 	    }
 	    else
@@ -108,8 +137,8 @@ function Helper-Connect-PnPOnline()
         [Parameter(Mandatory=$true)][string] $URL
     )
 
-    if (($AppClientID -ne "") -and ($AppClientSecret -ne "")) {
-        Connect-PnPOnline -Url $URL -AppId $AppClientID -AppSecret $AppClientSecret
+    if (($O365ClientID -ne "") -and ($O365ClientSecret -ne "")) {
+        Connect-PnPOnline -Url $URL -AppId $O365ClientID -AppSecret $O365ClientSecret
         }
     else {
         Connect-PnPOnline -Url $URL -Credentials $credentials
