@@ -21,7 +21,7 @@
 
         $environmentId = $config.settings.common.defaultEnvironment
 
-        if ($environmentId -eq "") {
+        if (-not $environmentId) {
 	        #-----------------------------------------------------------------------
 	        # Prompt for the environment defined in the config
 	        #-----------------------------------------------------------------------
@@ -137,7 +137,7 @@ function Helper-Connect-PnPOnline()
         [Parameter(Mandatory=$true)][string] $URL
     )
 
-    if (($O365ClientID -ne "") -and ($O365ClientSecret -ne "")) {
+    if ($O365ClientID -and $O365ClientSecret) {
         Connect-PnPOnline -Url $URL -AppId $O365ClientID -AppSecret $O365ClientSecret
         }
     else {

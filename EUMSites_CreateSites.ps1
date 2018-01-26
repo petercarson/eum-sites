@@ -1,6 +1,4 @@
-﻿[string]$DistributionFolder = $Env:distributionFolder
-
-if ($Env:POSTMethod -ne $null)
+﻿if ($Env:POSTMethod)
 {
     # POST method: $req
     $requestBody = Get-Content $req -Raw | ConvertFrom-Json
@@ -9,7 +7,9 @@ if ($Env:POSTMethod -ne $null)
     Write-Output $ID
 }
 
-if ($DistributionFolder -eq "")
+[string]$DistributionFolder = $Env:distributionFolder
+
+if (-not $DistributionFolder)
 {
     $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
 }
@@ -17,7 +17,7 @@ if ($DistributionFolder -eq "")
 . $DistributionFolder\EUMSites_Helper.ps1
 LoadEnvironmentSettings
 
-if ($listItemID -ne $null)
+if ($listItemID)
 {
     # Get the specific Site Collection List item in master site for the site that needs to be created
     Helper-Connect-PnPOnline -Url $SitesListSiteURL
