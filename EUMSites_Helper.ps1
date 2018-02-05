@@ -1,16 +1,40 @@
 ﻿function LoadEnvironmentSettings()
 {
-    [string]$Global:WebAppURL = $Env:url
+    [string]$Global:WebAppURL = $Env:webAppURL
 
     if ($WebAppURL -ne "")
     {
-        Write-Output $WebAppURL
-
-        [string]$Global:TenantAdminURL = $Env:adminSiteURL
         [string]$Global:SitesListSiteURL = "$($WebAppURL)$($Env:sitesListSiteCollectionPath)"
         [string]$Global:SiteListName = $Env:siteListName
-        [string]$Global:O365ClientID = $Env:O365ClientID
-        [string]$Global:O365ClientSecret = $Env:O365ClientSecret
+
+        # MSI Variables via Function Application Settings Variables
+        # Endpoint and Password
+        $endpoint = $env:MSI_ENDPOINT
+        $secret = $env:MSI_SECRET
+
+        # Vault URI to get AuthN Token
+        $vaultTokenURI = 'https://vault.azure.net&api-version=2017-09-01'
+        # Create AuthN Header with our Function App Secret
+        $header = @{'Secret' = $secret}
+
+        # Get Key Vault AuthN Token
+        $authenticationResult = Invoke-RestMethod -Method Get -Headers $header -Uri ($endpoint +'?resource=' +$vaultTokenURI)
+        # Use Key Vault AuthN Token to create Request Header
+        $requestHeader = @{ Authorization = "Bearer $($authenticationResult.access_token)" }
+
+        # Our Key Vault Credential that we want to retreive URI
+        # NOTE: API Ver for this is 2015-06-01
+
+        # Call the Vault and Retrieve Creds
+        $vaultSecretURI  = $Env:serviceAccountURI
+        $Secret = Invoke-RestMethod -Method GET -Uri $vaultSecretURI -ContentType 'application/json' -Headers $requestHeader
+        $UserName = $Secret.Value
+
+        $vaultSecretURI = $Env:serviceAccountPasswordURI
+        $Secret = Invoke-RestMethod -Method GET -Uri $vaultSecretURI -ContentType 'application/json' -Headers $requestHeader
+        $Password = ConvertTo-SecureString $Secret.Value -AsPlainText -Force
+
+        $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName, $Password
     }
     else
     {
@@ -43,7 +67,6 @@
 
         # Set variables based on environment selected
         [string]$Global:WebAppURL = $environment.webApp.url
-        [string]$Global:TenantAdminURL = $environment.webApp.adminSiteURL
         [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
         
         $ManagedCredentials = $environment.webApp.managedCredentials

@@ -3,8 +3,6 @@
     # POST method: $req
     $requestBody = Get-Content $req -Raw | ConvertFrom-Json
     $ID = $requestBody.id
-
-    Write-Output $ID
 }
 
 [string]$DistributionFolder = $Env:distributionFolder
