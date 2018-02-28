@@ -10,6 +10,9 @@
 if (-not $DistributionFolder)
 {
     $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
+    $DistributionFolderArray = $DistributionFolder.Split('\')
+    $DistributionFolderArray[$DistributionFolderArray.Count - 1] = ""
+    $DistributionFolder = $DistributionFolderArray -join "\"
 }
 
 . $DistributionFolder\EUMSites_Helper.ps1
