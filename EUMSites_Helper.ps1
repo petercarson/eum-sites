@@ -52,7 +52,7 @@
 
             Write-Output "`n***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
             $config.settings.environments.environment | ForEach {
-                Write-Output "$($_.id)`t $($_.name) - $($_.webApp.adminSiteURL)"
+                Write-Output "$($_.id)`t $($_.name) - $($_.webApp.URL)"
             }
             Write-Output "***** AVAILABLE ENVIRONMENTS *****"
 
@@ -80,7 +80,7 @@
         [string]$Global:SystemConfiguration_FK = $environment.EUM.systemConfiguration_FK
         [string]$Global:EUMURL = $environment.EUM.EUMURL
 
-        Write-Output "Environment set to $($environment.name) - $($environment.webApp.adminSiteURL) `n"
+        Write-Output "Environment set to $($environment.name) - $($environment.webApp.URL) `n"
 
 	    #-----------------------------------------------------------------------
 	    # Get credentials from Windows Credential Manager
