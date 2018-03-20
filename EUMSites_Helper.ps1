@@ -74,8 +74,7 @@
         $TenantId = $environment.webApp.tenantId
         $VaultName = $environment.webApp.vaultName
 
-        [string]$Global:EUMClientID = $environment.EUM.clientID
-        [string]$Global:EUMSecret = $environment.EUM.secret
+        $ManagedEUMCredentials = $environment.EUM.managedEUMCredentials
         [string]$Global:Domain_FK = $environment.EUM.domain_FK
         [string]$Global:SystemConfiguration_FK = $environment.EUM.systemConfiguration_FK
         [string]$Global:EUMURL = $environment.EUM.EUMURL
@@ -143,6 +142,24 @@
                     $Password = ConvertTo-SecureString (Get-AzureKeyVaultSecret -VaultName $VaultName -Name 'ServiceAccountPassword').SecretValueText -AsPlainText -Force
 			        $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName, $Password
                 }
+            }
+            if ($ManagedEUMCredentials -ne "")
+            {
+    		    $EUMCredentials = Get-StoredCredential -Target $managedEUMCredentials
+		        if ($EUMCredentials -eq $null) {
+			        $Global:EUMClientID = Read-Host "Enter the Client ID to connect to EUM with"
+			        $SecureEUMSecret = Read-Host "Enter the secret for $EUMClientID" -AsSecureString
+			        $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
+			        if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
+				        $temp = New-StoredCredential -Target $ManagedEUMCredentials -UserName $EUMClientID -SecurePassword $SecureEUMSecret
+			        }
+                    $Global:EUMSecret = (New-Object PSCredential "user",$SecureEUMSecret).GetNetworkCredential().Password
+		        }
+		        else {
+			        $Global:EUMClientID = $EUMCredentials.UserName
+			        $Global:EUMSecret = (New-Object PSCredential "user",$EUMCredentials.Password).GetNetworkCredential().Password
+                    Write-Output "Connecting to EUM with Client ID" $EUMClientID
+		        }
             }
 	    }
 	    else

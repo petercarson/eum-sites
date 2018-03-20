@@ -117,7 +117,7 @@ $siteCollectionListItems | ForEach {
 # ---------------------------------------------------------
 Write-Output "Adding tenant site collections to ($SiteListName). Please wait..."
 Helper-Connect-PnPOnline -Url $SitesListSiteURL
-$siteCollections = Get-PnPTenantSite
+$siteCollections = Get-PnPTenantSite -IncludeOneDriveSites
 
 $siteCollections | ForEach {
     [string]$SiteRelativeURL = ($_.Url).Replace($WebAppURL, "")
