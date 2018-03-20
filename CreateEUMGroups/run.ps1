@@ -148,8 +148,11 @@ if ($pendingSiteCollections.Count -gt 0)
 
             $groupName = $pendingSite["EUMEUMGroup"]
 
-            # Add the appropriate permission to the site for the group
+            # Enable external sharing
             Connect-PnPOnline -url ($pendingSite["EUMSiteURL"]).Url -Credentials $credentials
+            Set-PnPTenantSite -Url ($pendingSite["EUMSiteURL"]).Url -Sharing ExistingExternalUserSharingOnly
+
+            # Add the appropriate permission to the site for the group
             Set-PnPWebPermission -User $groupName -AddRole $pendingSite["EUMEUMPermission"]
 
             switch ($eumSiteTemplate)

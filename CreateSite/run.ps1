@@ -141,6 +141,12 @@ if ($pendingSiteCollections.Count -gt 0)
                 $baseSiteType = "TeamSite"
                 $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Client-Template-Template.xml"
                 }
+            "Modern Project Site"
+                {
+                $baseSiteTemplate = ""
+                $baseSiteType = "TeamSite"
+                $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Project-Template-Template.xml"
+                }
         }
 
         # Classic style sites

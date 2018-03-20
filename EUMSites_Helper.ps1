@@ -143,7 +143,7 @@
 			        $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName, $Password
                 }
             }
-            if ($ManagedEUMCredentials -ne "")
+            if ($ManagedEUMCredentials -ne $null)
             {
     		    $EUMCredentials = Get-StoredCredential -Target $managedEUMCredentials
 		        if ($EUMCredentials -eq $null) {
