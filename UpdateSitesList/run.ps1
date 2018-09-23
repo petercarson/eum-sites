@@ -40,6 +40,7 @@ $siteCollectionListItems = Get-PnPListItem -List $SiteListName -Query "
 # -----------------------------------------
 Write-Output "Checking $($SiteListName) for deleted sites. Please wait..."
 $siteCollectionListItems | ForEach {
+    Write-Output "Checking if $($_["Title"]), URL:$($_["EUMSiteURL"].Url) still exists..."
     if (-not(CheckIfSiteExists -siteURL $_["EUMSiteURL"].Url -disconnect))
     {
         Write-Output "$($_["Title"]), URL:$($_["EUMSiteURL"].Url) does not exist. Deleting from list..."
@@ -109,6 +110,7 @@ $siteCollectionListItems | ForEach {
 
     $spSubWebs = GetSubWebs -siteURL "$($WebAppURL)$($SiteRelativeURL)" -disconnect
 
+    Write-Output "Checking if $($_["Title"]), URL:$($_["EUMSiteURL"].Url) needs updating..."
 	AddOrUpdateSiteEntry -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL -breadcrumbHTML $breadcrumbHTML -spSubWebs $spSubWebs    
 }
     
@@ -142,6 +144,9 @@ $siteCollections | ForEach {
             [Microsoft.SharePoint.Client.Web]$spWeb = Get-PnPWeb -Includes Created
             [DateTime]$siteCreatedDate = $spWeb.Created.Date
 
+            [string]$SiteRelativeURL = ($_.Url).Replace($WebAppURL, "")
+            [string]$siteTitle = $_.Title
+            Write-Output "Checking if $($_["Title"]), $($_["Url"]) needs to be added..."
 	        AddSiteEntry -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL -breadcrumbHTML $breadcrumbHTML -spSubWebs $spSubWebs -siteCreatedDate $siteCreatedDate    
         }
 }

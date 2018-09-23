@@ -150,7 +150,8 @@ if ($pendingSiteCollections.Count -gt 0)
 
             # Enable external sharing
             Connect-PnPOnline -url ($pendingSite["EUMSiteURL"]).Url -Credentials $credentials
-            Set-PnPTenantSite -Url ($pendingSite["EUMSiteURL"]).Url -Sharing ExistingExternalUserSharingOnly
+            # Possible values Disabled, ExternalUserSharingOnly, ExternalUserAndGuestSharing, ExistingExternalUserSharingOnly
+            Set-PnPTenantSite -Url ($pendingSite["EUMSiteURL"]).Url -Sharing ExternalUserAndGuestSharing
 
             # Add the appropriate permission to the site for the group
             Set-PnPWebPermission -User $groupName -AddRole $pendingSite["EUMEUMPermission"]
