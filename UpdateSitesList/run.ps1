@@ -40,6 +40,7 @@ $siteCollectionListItems = Get-PnPListItem -List $SiteListName -Query "
 # -----------------------------------------
 Write-Output "Checking $($SiteListName) for deleted sites. Please wait..."
 $siteCollectionListItems | ForEach {
+    Write-Output "Checking if $($_["Title"]), URL:$($_["EUMSiteURL"].Url) still exists..."
     if (-not(CheckIfSiteExists -siteURL $_["EUMSiteURL"].Url -disconnect))
     {
         Write-Output "$($_["Title"]), URL:$($_["EUMSiteURL"].Url) does not exist. Deleting from list..."
@@ -57,15 +58,9 @@ $siteCollectionListItems = Get-PnPListItem -List $SiteListName -Query "
 <View>
     <Query>
         <Where>
-            <And>
-                <IsNotNull>
-                    <FieldRef Name='EUMSiteCreated'/>
-                </IsNotNull>
-                <Eq>
-                    <FieldRef Name='EUMIsSubsite'/>
-                    <Value Type='Integer'>0</Value>
-                </Eq>
-            </And>
+            <IsNotNull>
+                <FieldRef Name='EUMSiteCreated'/>
+            </IsNotNull>
         </Where>
         <OrderBy>
             <FieldRef Name='EUMParentURL' Ascending='TRUE' />
@@ -88,27 +83,11 @@ $siteCollectionListItems = Get-PnPListItem -List $SiteListName -Query "
 $siteCollectionListItems | ForEach {
     [string]$SiteRelativeURL = ($_["EUMSiteURL"].Url).Replace($WebAppURL, "")
     [string]$siteTitle = $_["Title"]
-    [string]$parentURL = $_["EUMParentURL"].Url
-    [string]$parentBreadcrumbHTML = ""
-
-    if ($parentURL)
-    {
-        $parentURL = $parentURL.Replace($WebAppURL, "")
-        $parentListItem = GetSiteEntry -siteRelativeURL $parentURL
-        if (-not($parentListItem))
-        {
-            # parent no longer exists so set to null
-            $parentURL = ""
-        }
-        else
-        {
-            [string]$parentBreadcrumbHTML = $parentListItem["EUMBreadcrumbHTML"]
-        }
-    }
-    [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentBreadcrumbHTML $parentBreadcrumbHTML
+    [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $_["EUMParentURL"].Url
 
     $spSubWebs = GetSubWebs -siteURL "$($WebAppURL)$($SiteRelativeURL)" -disconnect
 
+    Write-Output "Checking if $($_["Title"]), URL:$($_["EUMSiteURL"].Url) needs updating..."
 	AddOrUpdateSiteEntry -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL -breadcrumbHTML $breadcrumbHTML -spSubWebs $spSubWebs    
 }
     
@@ -142,6 +121,9 @@ $siteCollections | ForEach {
             [Microsoft.SharePoint.Client.Web]$spWeb = Get-PnPWeb -Includes Created
             [DateTime]$siteCreatedDate = $spWeb.Created.Date
 
+            [string]$SiteRelativeURL = ($_.Url).Replace($WebAppURL, "")
+            [string]$siteTitle = $_.Title
+            Write-Output "Checking if $($_["Title"]), $($_["Url"]) needs to be added..."
 	        AddSiteEntry -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL -breadcrumbHTML $breadcrumbHTML -spSubWebs $spSubWebs -siteCreatedDate $siteCreatedDate    
         }
 }

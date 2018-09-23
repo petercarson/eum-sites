@@ -304,8 +304,22 @@ function GetBreadcrumbHTML()
     (
         [Parameter(Mandatory=$true)][string] $siteRelativeURL,
         [Parameter(Mandatory=$true)][string] $siteTitle,
-        [Parameter(Mandatory=$false)][string] $parentBreadcrumbHTML
+        [Parameter(Mandatory=$false)][string] $parentURL
     )
+    [string]$parentBreadcrumbHTML = ""
+
+    if ($parentURL)
+    {
+        $parentURL = $parentURL.Replace($WebAppURL, "")
+        $parentListItem = GetSiteEntry -siteRelativeURL $parentURL
+        if ($parentListItem)
+        {
+            [string]$parentRelativeURL = ($parentListItem["EUMSiteURL"].Url).Replace($WebAppURL, "")
+            [string]$parentTitle = $parentListItem["Title"]
+            [string]$parentBreadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $parentRelativeURL -siteTitle $parentTitle -parentURL $parentListItem["EUMParentURL"].Url
+        }
+    }
+
     [string]$breadcrumbHTML = "<a href=`"$($siteRelativeURL)`">$($siteTitle)</a>"
 	if ($parentBreadcrumbHTML)
 	{
@@ -454,17 +468,7 @@ function AddOrUpdateSiteEntry()
 
             [string]$parentURL = GetParentWebURL -siteURL "$($WebAppURL)$($siteRelativeURL)" -disconnect
 
-            if ($parentURL)
-            {
-                $parentListItem = GetSiteEntry -siteRelativeURL $parentURL -disconnect
-                
-                if ($parentListItem)
-                {
-                    [string]$parentBreadcrumbHTML = $parentListItem["EUMBreadcrumbHTML"]
-                }
-            }
-
-            [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentBreadcrumbHTML $parentBreadcrumbHTML
+            [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL
 
             [hashtable]$newListItemValues = PrepareSiteItemValues -siteRelativeURL $siteRelativeURL -siteTitle $siteTitle -parentURL $parentURL `
                 -breadcrumbHTML $breadcrumbHTML -brandingDeploymentType $brandingDeploymentType -selectedThemeName $selectedTheme.name `
@@ -539,17 +543,7 @@ function AddSiteEntry()
 
                 [string]$parentURL = GetParentWebURL -siteURL "$($WebAppURL)$($siteRelativeURL)" -disconnect
 
-                if ($parentURL)
-                {
-                    $parentListItem = GetSiteEntry -siteRelativeURL $parentURL -disconnect
-                
-                    if ($parentListItem)
-                    {
-                        [string]$parentBreadcrumbHTML = $parentListItem["EUMBreadcrumbHTML"]
-                    }
-                }
-
-                [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentBreadcrumbHTML $parentBreadcrumbHTML
+                [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL
 
                 [hashtable]$newListItemValues = PrepareSiteItemValues -siteRelativeURL $siteRelativeURL -siteTitle $siteTitle -parentURL $parentURL `
                     -breadcrumbHTML $breadcrumbHTML -brandingDeploymentType $brandingDeploymentType -selectedThemeName $selectedTheme.name `
