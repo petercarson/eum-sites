@@ -2,6 +2,8 @@
 {
     [string]$Global:WebAppURL = $Env:webAppURL
 
+    Set-PnPTraceLog -On -Level Debug
+
     if ($WebAppURL -ne "")
     {
         [string]$Global:SitesListSiteURL = "$($WebAppURL)$($Env:sitesListSiteCollectionPath)"
