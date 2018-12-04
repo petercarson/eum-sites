@@ -143,12 +143,6 @@ if ($pendingSiteCollections.Count -gt 0)
                 $baseSiteType = "TeamSite"
                 $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Client-Template-Template.xml"
                 }
-            "Modern Project Site"
-                {
-                $baseSiteTemplate = ""
-                $baseSiteType = "TeamSite"
-                $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Project-Template-Template.xml"
-                }
         }
 
         # Classic style sites
@@ -216,7 +210,8 @@ if ($pendingSiteCollections.Count -gt 0)
 
             if ($pnpSiteTemplate)
             {
-                Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate -ExcludeHandlers Publishing, ComposedLook, Navigation
+                Set-PnPTraceLog -On -Level Debug
+                Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate
             }
 
             Disconnect-PnPOnline
