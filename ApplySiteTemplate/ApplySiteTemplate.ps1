@@ -14,7 +14,8 @@ LoadEnvironmentSettings
 [string]$SiteURL = Read-Host "Enter the URL of the site to apply the template to"
 
 Helper-Connect-PnPOnline -Url $siteURL
+Set-PnPTraceLog -On -Level Debug
 $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Client-Template-Template.xml"
-Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate -ExcludeHandlers Publishing, ComposedLook, Navigation
+Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate
 Disconnect-PnPOnline
             

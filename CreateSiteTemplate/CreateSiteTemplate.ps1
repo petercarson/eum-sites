@@ -29,4 +29,4 @@ $TemplateLocalFolder = $DistributionFolder + "\SiteTemplates\" + $siteTemplateTi
 # -------------------------
 # Create the site template
 # -------------------------
-Get-PnPProvisioningTemplate -out $TemplateLocalFolder -ExcludeHandlers Pages, Publishing, ComposedLook, Navigation
+Get-PnPProvisioningTemplate -out $TemplateLocalFolder -Handlers Fields, Lists, SiteSecurity, ContentTypes
