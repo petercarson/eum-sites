@@ -18,6 +18,8 @@ if (-not $DistributionFolder)
 . $DistributionFolder\EUMSites_Helper.ps1
 LoadEnvironmentSettings
 
+. $DistributionFolder\masthead.ps1 -username $SPCredentials.UserName -password $SPCredentials.Password -MastheadInstallerSite "https://envisionit.sharepoint.com/sites/home"
+
 if ($listItemID)
 {
     # Get the specific Site Collection List item in master site for the site that needs to be created
@@ -141,12 +143,6 @@ if ($pendingSiteCollections.Count -gt 0)
                 $baseSiteType = "TeamSite"
                 $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Client-Template-Template.xml"
                 }
-            "Modern Project Site"
-                {
-                $baseSiteTemplate = ""
-                $baseSiteType = "TeamSite"
-                $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Project-Template-Template.xml"
-                }
         }
 
         # Classic style sites
@@ -205,12 +201,20 @@ if ($pendingSiteCollections.Count -gt 0)
 
         if ($siteCreated)
         {
+            Helper-Connect-PnPOnline -Url $siteURL
+            
+            # Set the site collection admins
+            Add-PnPSiteCollectionAdmin -Owners "pcarson@envisionit.com"
+
+            Start-Sleep -Seconds 15
+
             if ($pnpSiteTemplate)
             {
-                Helper-Connect-PnPOnline -Url $siteURL
-                Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate -ExcludeHandlers Publishing, ComposedLook, Navigation
-                Disconnect-PnPOnline
+                Set-PnPTraceLog -On -Level Debug
+                Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate
             }
+
+            Disconnect-PnPOnline
             
             # Reconnect to the master site and update the site collection list
             Helper-Connect-PnPOnline -Url $SitesListSiteURL
@@ -230,7 +234,10 @@ if ($pendingSiteCollections.Count -gt 0)
             [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentBreadcrumbHTML $parentBreadcrumbHTML
 
             # Set the site created date, breadcrumb, and site URL
-            [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteRelativeURL }
+            Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteRelativeURL }
+
+            # Install Masthead on the site
+            Install-To-Site $siteURL
         }
 
         # Reconnect to the master site for the next iteration
