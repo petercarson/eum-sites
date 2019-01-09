@@ -1,0 +1,23 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "site-listing-web-part-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/siteListingWebPart/SiteListingWebPartWebPart.js",
+          "manifest": "./src/webparts/siteListingWebPart/SiteListingWebPartWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {
+    "@pnp/pnpjs": {
+      "path": "https://cdnjs.cloudflare.com/ajax/libs/pnp-pnpjs/1.2.7/pnpjs.es5.umd.bundle.min.js",
+      "globalName": "pnp"
+    }
+  },
+  "localizedResources": {
+    "SiteListingWebPartWebPartStrings": "lib/webparts/siteListingWebPart/loc/{locale}.js"
+  }
+}

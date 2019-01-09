@@ -1,0 +1,40 @@
+@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+
+.siteListingWebPart {
+  .azTabs {
+    padding: 0 1em;
+
+    li > a,
+    li > a:active,
+    li > a:visited,
+    li > a:focus {
+        font-size: 1.1em;
+    }
+
+    li.active > a {
+      font-weight: bold;
+    }
+
+    li.active > a,
+    li.active > a:hover,
+    li.active > a:focus,
+    li > a:hover {
+        border: none;
+    }
+  }
+  .azTabsContent {
+      -webkit-box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
+      box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
+      padding: 1em;
+
+      ul {
+        list-style: none;
+      }
+  }
+
+  .siteslist {
+    ul {
+      list-style: none;
+    }
+  }
+}

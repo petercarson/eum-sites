@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "site-listing-web-part-client-side-solution",
+    "id": "af9fb105-177c-4a74-8c6a-50cc2aef5e93",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true
+  },
+  "paths": {
+    "zippedPackage": "solution/site-listing-web-part.sppkg"
+  }
+}
