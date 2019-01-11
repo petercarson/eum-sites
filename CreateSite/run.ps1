@@ -221,17 +221,7 @@ if ($pendingSiteCollections.Count -gt 0)
 
             # Set the breadcrumb HTML
             [string]$siteRelativeURL = $siteURL.Replace($($WebAppURL), "")
-            [string]$parentRelativeURL = $parentURL.Replace($($WebAppURL), "")
-            $parentBreadcrumbHTML = ""
-            if ($parentRelativeURL)
-            {
-                $parentListItem = GetSiteEntry -siteRelativeURL $parentRelativeURL
-                if ($parentListItem)
-                {
-                    [string]$parentBreadcrumbHTML = $parentListItem["EUMBreadcrumbHTML"]
-                }
-            }
-            [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentBreadcrumbHTML $parentBreadcrumbHTML
+            [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL
 
             # Set the site created date, breadcrumb, and site URL
             Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteRelativeURL }
