@@ -214,6 +214,24 @@ if ($pendingSiteCollections.Count -gt 0)
                 Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate
             }
 
+            IF ($eumSiteTemplate = "Modern Client Site")
+            {
+                Add-PnPFolder -Name "Quotes" -Folder "/Shared Documents"
+                Add-PnPFolder -Name "Signed Quotes" -Folder "/Shared Documents/Quotes"
+                Add-PnPFolder -Name "Invoices" -Folder "/Shared Documents"
+
+                Add-PnPFolder -Name "Business Development" -Folder "/Private Documents"
+                Add-PnPFolder -Name "Confidential" -Folder "/Private Documents"
+                Add-PnPFolder -Name "Quotes" -Folder "/Private Documents"
+
+                Remove-PnPContentTypeFromList -List "Shared Documents" -ContentType "Document"
+                Remove-PnPContentTypeFromList -List "Private Documents" -ContentType "Document"
+
+                Remove-PnPGroup -Identity "$siteTitle Members" -Force
+                Remove-PnPGroup -Identity "$siteTitle Owners" -Force
+                Remove-PnPGroup -Identity "$siteTitle Visitors" -Force
+            }
+
             Disconnect-PnPOnline
             
             # Reconnect to the master site and update the site collection list
@@ -224,7 +242,7 @@ if ($pendingSiteCollections.Count -gt 0)
             [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL
 
             # Set the site created date, breadcrumb, and site URL
-            Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteRelativeURL }
+            $result = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteRelativeURL }
 
             # Install Masthead on the site
             Install-To-Site $siteURL

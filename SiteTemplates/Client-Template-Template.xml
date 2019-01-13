@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2017/05/ProvisioningSchema">
-  <pnp:Preferences Generator="OfficeDevPnP.Core, Version=2.19.1710.1, Culture=neutral, PublicKeyToken=3751622786b357c2" />
-  <pnp:Templates ID="CONTAINER-TEMPLATE-3BF38898D1B64D5EA5E3F1A44397D66C">
-    <pnp:ProvisioningTemplate ID="TEMPLATE-3BF38898D1B64D5EA5E3F1A44397D66C" Version="1" BaseSiteTemplate="GROUP#0" Scope="RootSite">
-      <pnp:Security>
+<pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2018/07/ProvisioningSchema">
+  <pnp:Preferences Generator="OfficeDevPnP.Core, Version=3.2.1810.0, Culture=neutral, PublicKeyToken=5e633289e95c321a" />
+  <pnp:Templates ID="CONTAINER-TEMPLATE-3E5AE2D9374C4C1E87A3AB66DA7CA169">
+    <pnp:ProvisioningTemplate ID="TEMPLATE-3E5AE2D9374C4C1E87A3AB66DA7CA169" Version="1" BaseSiteTemplate="GROUP#0" Scope="RootSite">
+      <pnp:Security RemoveExistingUniqueRoleAssignments="false">
         <pnp:AdditionalAdministrators>
           <pnp:User Name="c:0o.c|federateddirectoryclaimprovider|ec84ce1c-8fa7-40a2-8491-e03b459f3edf_o" />
         </pnp:AdditionalAdministrators>
@@ -17,14 +17,10 @@
       <pnp:SiteFields>
         <Field Type="Note" DisplayName="PrivateDocumentType_0" StaticName="nd123acb789c47589e1076ab9b3c68fe" Name="nd123acb789c47589e1076ab9b3c68fe" ID="{28dfd642-8d5c-4878-863c-4f5df3c22178}" ShowInViewForms="FALSE" Required="FALSE" CanToggleHidden="TRUE" SourceID="{6dc06d5a-a41a-4819-83cb-d1b1bba0b5c4}" Hidden="TRUE" />
         <Field Type="Note" DisplayName="DocumentType_0" StaticName="nac203b12d3d49939e97b97deac009da" Name="nac203b12d3d49939e97b97deac009da" ID="{c67f225a-acd5-410d-a42e-4dd8853e5c49}" ShowInViewForms="FALSE" Required="FALSE" CanToggleHidden="TRUE" SourceID="{6dc06d5a-a41a-4819-83cb-d1b1bba0b5c4}" Hidden="TRUE" />
-        <Field ID="{36193413-DD5C-4096-8C1E-1B40098B9BA3}" Name="_OriginalSourceSiteId" StaticName="_OriginalSourceSiteId" DisplayName="Original Source Site ID" Type="Guid" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
-        <Field ID="{0E7B982F-698A-4D0C-AACB-F16906F66D30}" Name="_OriginalSourceUrl" StaticName="_OriginalSourceUrl" DisplayName="Original Source Url" Type="Text" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
-        <Field ID="{91E86A43-75F2-426F-80DA-35EDFB47D55D}" Name="_OriginalSourceItemId" StaticName="_OriginalSourceItemId" DisplayName="Original Source Item ID" Type="Guid" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
-        <Field ID="{139DA674-DBF6-439F-98E0-4EB05FA9A669}" Name="_OriginalSourceListId" StaticName="_OriginalSourceListId" DisplayName="Original Source List ID" Type="Guid" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
         <Field ID="{ef991a83-108d-4407-8ee5-ccc0c3d836b9}" Type="UserMulti" DisplayName="Shared With" Mult="TRUE" Name="SharedWithUsers" StaticName="SharedWithUsers" Group="_Hidden" AllowDeletion="FALSE" ShowInDisplayForm="FALSE" ShowInEditForm="FALSE" ShowInListSettings="FALSE" Viewable="FALSE" SourceID="{6dc06d5a-a41a-4819-83cb-d1b1bba0b5c4}" Sealed="TRUE" ReadOnly="TRUE" />
         <Field Type="DateTime" DisplayName="Document Date" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="DateOnly" Group="EIT Client Site Columns" FriendlyDisplayFormat="Disabled" ID="{1d9ae69b-9129-443b-8330-734a6b6e0f01}" SourceID="{6dc06d5a-a41a-4819-83cb-d1b1bba0b5c4}" StaticName="DocumentDate" Name="DocumentDate" CustomFormatter="" CalType="0">
         </Field>
-        <Field Type="TaxonomyFieldType" DisplayName="Document Type" List="{{listid:TaxonomyHiddenList}}" WebId="6dc06d5a-a41a-4819-83cb-d1b1bba0b5c4" ShowField="Term1033" Required="FALSE" EnforceUniqueValues="FALSE" Group="EIT Client Site Columns" ID="{7ac203b1-2d3d-4993-9e97-b97deac009da}" SourceID="{6dc06d5a-a41a-4819-83cb-d1b1bba0b5c4}" StaticName="DocumentType" Name="DocumentType">
+        <Field Type="TaxonomyFieldType" DisplayName="Document Type" List="{{listid:TaxonomyHiddenList}}" WebId="{siteid}" ShowField="Term1033" Required="FALSE" EnforceUniqueValues="FALSE" Group="EIT Client Site Columns" ID="{7ac203b1-2d3d-4993-9e97-b97deac009da}" SourceID="{{siteid}}" StaticName="DocumentType" Name="DocumentType">
           <Default>
           </Default>
           <Customization>
@@ -90,8 +86,7 @@
             </ArrayOfProperty>
           </Customization>
         </Field>
-        <Field ID="{3477A5BC-C605-4B2E-A7C1-8DB8F13C017E}" Name="_OriginalSourceWebId" StaticName="_OriginalSourceWebId" DisplayName="Original Source Web ID" Type="Guid" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
-        <Field Type="TaxonomyFieldType" DisplayName="Private Document Type" List="{{listid:TaxonomyHiddenList}}" WebId="6dc06d5a-a41a-4819-83cb-d1b1bba0b5c4" ShowField="Term1033" Required="FALSE" EnforceUniqueValues="FALSE" Group="EIT Client Site Columns" ID="{7d123acb-789c-4758-9e10-76ab9b3c68fe}" SourceID="{6dc06d5a-a41a-4819-83cb-d1b1bba0b5c4}" StaticName="PrivateDocumentType" Name="PrivateDocumentType">
+        <Field Type="TaxonomyFieldType" DisplayName="Private Document Type" List="{{listid:TaxonomyHiddenList}}" WebId="{siteid}" ShowField="Term1033" Required="FALSE" EnforceUniqueValues="FALSE" Group="EIT Client Site Columns" ID="{7d123acb-789c-4758-9e10-76ab9b3c68fe}" SourceID="{{siteid}}" StaticName="PrivateDocumentType" Name="PrivateDocumentType">
           <Default>
           </Default>
           <Customization>
@@ -157,10 +152,7 @@
             </ArrayOfProperty>
           </Customization>
         </Field>
-        <Field ID="{6C5CC2D0-706C-4BC2-9549-F774A75D5488}" Name="UserExpiration" SourceID="http://schemas.microsoft.com/sharepoint/v3" StaticName="UserExpiration" Group="_Hidden" DisplayName="User Expiration" ReadOnly="TRUE" ReadOnlyEnforced="TRUE" Type="DateTime" FromBaseType="TRUE" />
-        <Field ID="{1A7348E7-1BB7-4A47-9790-088E7CB20B58}" Name="_AuthorByline" StaticName="_AuthorByline" DisplayName="Author Byline" Type="UserMulti" Mult="TRUE" List="UserInfo" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
         <Field ID="{d3c9caf7-044c-4c71-ae64-092981e54b33}" Type="Note" DisplayName="Shared With Details" Name="SharedWithDetails" StaticName="SharedWithDetails" Group="_Hidden" AllowDeletion="FALSE" ShowInDisplayForm="FALSE" ShowInEditForm="FALSE" ShowInListSettings="FALSE" Viewable="FALSE" SourceID="{6dc06d5a-a41a-4819-83cb-d1b1bba0b5c4}" Sealed="TRUE" ReadOnly="TRUE" />
-        <Field ID="{D60D65FF-FF42-4044-A684-AC3F7A5E598C}" Name="_TopicHeader" StaticName="_TopicHeader" DisplayName="Topic header" Type="Text" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
       </pnp:SiteFields>
       <pnp:ContentTypes>
         <pnp:ContentType ID="0x0101007C47157C6AC0AE4088AA1B5330B18014" Name="Private Document" Description="" Group="EIT Client Site Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
@@ -179,36 +171,6 @@
             <pnp:FieldRef ID="7d123acb-789c-4758-9e10-76ab9b3c68fe" Name="PrivateDocumentType" />
             <pnp:FieldRef ID="1d9ae69b-9129-443b-8330-734a6b6e0f01" Name="DocumentDate" />
           </pnp:FieldRefs>
-        </pnp:ContentType>
-        <pnp:ContentType ID="0x0101009D1CB255DA76424F860D91F20E6C4118002A50BFCFB7614729B56886FADA02339B" Name="Repost Page" Description="Create a new repost page." Group="Document Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
-          <pnp:FieldRefs>
-            <pnp:FieldRef ID="c042a256-787d-4a6f-8a8a-cf6ab767f12d" Name="ContentType" />
-            <pnp:FieldRef ID="5f47e085-2150-41dc-b661-442f3027f552" Name="SelectFilename" />
-            <pnp:FieldRef ID="8553196d-ec8d-4564-9861-3dbe931050c8" Name="FileLeafRef" Required="true" />
-            <pnp:FieldRef ID="8c06beca-0777-48f7-91c7-6da68bc07b69" Name="Created" Hidden="true" />
-            <pnp:FieldRef ID="fa564e0f-0c70-4ab9-b863-0177e6ddd247" Name="Title" />
-            <pnp:FieldRef ID="28cf69c5-fa48-462a-b5cd-27b6f9d2bd5f" Name="Modified" Hidden="true" />
-            <pnp:FieldRef ID="822c78e3-1ea9-4943-b449-57863ad33ca9" Name="Modified_x0020_By" />
-            <pnp:FieldRef ID="4dd7e525-8d6b-4cb4-9d3e-44ee25f973eb" Name="Created_x0020_By" />
-            <pnp:FieldRef ID="82642ec8-ef9b-478f-acf9-31f7d45fbc31" Name="LinkTitle" />
-            <pnp:FieldRef ID="7efc33c1-b56b-490e-9c9b-1097e971ba96" Name="ClientSideApplicationId" />
-            <pnp:FieldRef ID="daef58d7-ccfd-43fc-b776-2e292cc66bba" Name="PageLayoutType" />
-            <pnp:FieldRef ID="4966388e-6e12-4bc6-8990-5b5b66153eae" Name="CanvasContent1" />
-            <pnp:FieldRef ID="5baf6db5-9d25-4738-b15e-db5789298e82" Name="BannerImageUrl" />
-            <pnp:FieldRef ID="fb3259ac-bd07-4397-b7aa-03e885b0838e" Name="BannerImageOffset" />
-            <pnp:FieldRef ID="3f155110-a6a2-4d70-926c-94648101f0e8" Name="Description" />
-            <pnp:FieldRef ID="f5ad16a2-85be-46b2-b5f0-2bb8b4a5074a" Name="PromotedState" />
-            <pnp:FieldRef ID="c84f8697-331e-457d-884a-c4fb8f30ea74" Name="FirstPublishedDate" />
-            <pnp:FieldRef ID="261075db-0525-4fb8-a6ea-772014186599" Name="LayoutWebpartsContent" />
-            <pnp:FieldRef ID="1a7348e7-1bb7-4a47-9790-088e7cb20b58" Name="_AuthorByline" />
-            <pnp:FieldRef ID="0e7b982f-698a-4d0c-aacb-f16906f66d30" Name="_OriginalSourceUrl" />
-            <pnp:FieldRef ID="36193413-dd5c-4096-8c1e-1b40098b9ba3" Name="_OriginalSourceSiteId" />
-            <pnp:FieldRef ID="3477a5bc-c605-4b2e-a7c1-8db8f13c017e" Name="_OriginalSourceWebId" />
-            <pnp:FieldRef ID="139da674-dbf6-439f-98e0-4eb05fa9a669" Name="_OriginalSourceListId" />
-            <pnp:FieldRef ID="91e86a43-75f2-426f-80da-35edfb47d55d" Name="_OriginalSourceItemId" />
-            <pnp:FieldRef ID="d60d65ff-ff42-4044-a684-ac3f7a5e598c" Name="_TopicHeader" />
-          </pnp:FieldRefs>
-          <pnp:DocumentTemplate TargetName="/_layouts/15/CreateSitePage.aspx" />
         </pnp:ContentType>
         <pnp:ContentType ID="0x010100DBE9670BCD7A09499E45CD48306376C4" Name="Project Document" Description="" Group="EIT Client Site Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
           <pnp:FieldRefs>
@@ -229,65 +191,7 @@
         </pnp:ContentType>
       </pnp:ContentTypes>
       <pnp:Lists>
-        <pnp:ListInstance Title="Documents" Description="" DocumentTemplate="{site}/Shared Documents/Forms/template.dotx" OnQuickLaunch="true" TemplateType="101" Url="Shared Documents" EnableVersioning="true" MinorVersionLimit="0" MaxVersionLimit="500" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-e717-4e80-aa17-d0c71b360101" ContentTypesEnabled="true" EnableAttachments="false" ListExperience="NewExperience" DefaultDisplayFormUrl="{site}/Shared Documents/Forms/DispForm.aspx" DefaultEditFormUrl="{site}/Shared Documents/Forms/EditForm.aspx" DefaultNewFormUrl="{site}/Shared Documents/Forms/Upload.aspx" ImageUrl="/_layouts/15/images/itdl.png?rev=44" ValidationFormula="" ValidationMessage="">
-          <pnp:ContentTypeBindings>
-            <pnp:ContentTypeBinding ContentTypeID="0x010100DBE9670BCD7A09499E45CD48306376C4" Default="true" />
-            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
-          </pnp:ContentTypeBindings>
-          <pnp:Views>
-            <View Name="{AD91583D-07F8-45BA-85D7-EC73923D59A3}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Documents" Url="/sites/ClientTemplate2/Shared Documents/Forms/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
-              <Query>
-                <OrderBy>
-                  <FieldRef Name="Modified" Ascending="FALSE" />
-                </OrderBy>
-              </Query>
-              <ViewFields>
-                <FieldRef Name="DocIcon" />
-                <FieldRef Name="LinkFilename" />
-                <FieldRef Name="DocumentType" />
-                <FieldRef Name="DocumentDate" />
-                <FieldRef Name="Modified" />
-                <FieldRef Name="Editor" />
-              </ViewFields>
-              <RowLimit Paged="TRUE">30</RowLimit>
-              <Aggregations Value="Off" />
-              <JSLink>clienttemplates.js</JSLink>
-            </View>
-            <View Name="{18C81A57-658B-4709-806B-EBCD7A56F656}" Type="HTML" DisplayName="Group by Document Type" Url="/sites/ClientTemplate2/Shared Documents/Forms/Group by Document Type.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
-              <Query>
-                <OrderBy>
-                  <FieldRef Name="Modified" Ascending="FALSE" />
-                </OrderBy>
-                <GroupBy Collapse="FALSE" GroupLimit="30">
-                  <FieldRef Name="DocumentType" />
-                </GroupBy>
-              </Query>
-              <ViewFields>
-                <FieldRef Name="DocIcon" />
-                <FieldRef Name="LinkFilename" />
-                <FieldRef Name="DocumentDate" />
-                <FieldRef Name="Modified" />
-                <FieldRef Name="Editor" />
-              </ViewFields>
-              <RowLimit Paged="TRUE">30</RowLimit>
-              <JSLink>clienttemplates.js</JSLink>
-            </View>
-          </pnp:Views>
-          <pnp:Fields>
-            <Field ID="{1a53ab5a-11f9-4b92-a377-8cfaaf6ba7be}" Name="_DisplayName" DisplaceOnUpgrade="TRUE" Sortable="FALSE" Filterable="FALSE" Hidden="FALSE" ReadOnly="TRUE" ShowInFileDlg="FALSE" Type="Lookup" DisplayName="Sensitivity" List="Docs" ListInternal="IpLabelCache" FieldRef="LabelId" ShowField="DisplayName" LeftList="Docs" LeftColumnName="IpLabelId" JoinColName="LabelId" JoinRowOrdinal="0" JoinType="LEFT OUTER" SchemaVersion="16.0.162.0" RecreateIfMissing="TRUE" SourceID="http://schemas.microsoft.com/sharepoint/v3" StaticName="_DisplayName" FromBaseType="TRUE" />
-          </pnp:Fields>
-          <pnp:FieldRefs>
-            <pnp:FieldRef ID="c67f225a-acd5-410d-a42e-4dd8853e5c49" Name="nac203b12d3d49939e97b97deac009da" Hidden="true" DisplayName="DocumentType_0" />
-            <pnp:FieldRef ID="7ac203b1-2d3d-4993-9e97-b97deac009da" Name="DocumentType" DisplayName="Document Type" />
-            <pnp:FieldRef ID="1d9ae69b-9129-443b-8330-734a6b6e0f01" Name="DocumentDate" DisplayName="Document Date" />
-            <pnp:FieldRef ID="ef991a83-108d-4407-8ee5-ccc0c3d836b9" Name="SharedWithUsers" DisplayName="Shared With" />
-            <pnp:FieldRef ID="d3c9caf7-044c-4c71-ae64-092981e54b33" Name="SharedWithDetails" DisplayName="Shared With Details" />
-          </pnp:FieldRefs>
-          <pnp:Webhooks>
-            <pnp:Webhook ServerNotificationUrl="https://0-canadacentral1.pushp.svc.ms/notifications?token=w0-42da95d1-5544-4a0e-8c97-7ee3f2a1317d" ExpiresInDays="1" />
-          </pnp:Webhooks>
-        </pnp:ListInstance>
-        <pnp:ListInstance Title="Private Documents" Description="" DocumentTemplate="{site}/Private Documents/Forms/template.dotx" OnQuickLaunch="true" TemplateType="101" Url="Private Documents" EnableVersioning="true" MinorVersionLimit="0" MaxVersionLimit="500" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-e717-4e80-aa17-d0c71b360101" ContentTypesEnabled="true" EnableAttachments="false" DefaultDisplayFormUrl="{site}/Private Documents/Forms/DispForm.aspx" DefaultEditFormUrl="{site}/Private Documents/Forms/EditForm.aspx" DefaultNewFormUrl="{site}/Private Documents/Forms/Upload.aspx" ImageUrl="/_layouts/15/images/itdl.png?rev=44" ValidationFormula="" ValidationMessage="">
+        <pnp:ListInstance Title="Private Documents" Description="" DocumentTemplate="{site}/Private Documents/Forms/template.dotx" OnQuickLaunch="true" TemplateType="101" Url="Private Documents" EnableVersioning="true" MinorVersionLimit="0" MaxVersionLimit="500" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-e717-4e80-aa17-d0c71b360101" ContentTypesEnabled="true" EnableAttachments="false" DefaultDisplayFormUrl="{site}/Private Documents/Forms/DispForm.aspx" DefaultEditFormUrl="{site}/Private Documents/Forms/EditForm.aspx" DefaultNewFormUrl="{site}/Private Documents/Forms/Upload.aspx" ImageUrl="/_layouts/15/images/itdl.png?rev=44" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
           <pnp:ContentTypeBindings>
             <pnp:ContentTypeBinding ContentTypeID="0x0101007C47157C6AC0AE4088AA1B5330B18014" Default="true" />
             <pnp:ContentTypeBinding ContentTypeID="0x0120" />
@@ -332,9 +236,6 @@
               <JSLink>clienttemplates.js</JSLink>
             </View>
           </pnp:Views>
-          <pnp:Fields>
-            <Field ID="{1a53ab5a-11f9-4b92-a377-8cfaaf6ba7be}" Name="_DisplayName" DisplaceOnUpgrade="TRUE" Sortable="FALSE" Filterable="FALSE" Hidden="FALSE" ReadOnly="TRUE" ShowInFileDlg="FALSE" Type="Lookup" DisplayName="Sensitivity" List="Docs" ListInternal="IpLabelCache" FieldRef="LabelId" ShowField="DisplayName" LeftList="Docs" LeftColumnName="IpLabelId" JoinColName="LabelId" JoinRowOrdinal="0" JoinType="LEFT OUTER" SchemaVersion="16.0.162.0" RecreateIfMissing="TRUE" SourceID="http://schemas.microsoft.com/sharepoint/v3" StaticName="_DisplayName" FromBaseType="TRUE" />
-          </pnp:Fields>
           <pnp:FieldRefs>
             <pnp:FieldRef ID="28dfd642-8d5c-4878-863c-4f5df3c22178" Name="nd123acb789c47589e1076ab9b3c68fe" Hidden="true" DisplayName="PrivateDocumentType_0" />
             <pnp:FieldRef ID="7d123acb-789c-4758-9e10-76ab9b3c68fe" Name="PrivateDocumentType" DisplayName="Private Document Type" />
@@ -347,8 +248,86 @@
             </pnp:BreakRoleInheritance>
           </pnp:Security>
           <pnp:Webhooks>
-            <pnp:Webhook ServerNotificationUrl="https://0-canadacentral1.pushp.svc.ms/notifications?token=w0-c3082eaf-bdb8-4396-bb4a-a2994d8e8233" ExpiresInDays="1" />
+            <pnp:Webhook ServerNotificationUrl="https://0-canadacentral1.pushp.svc.ms/notifications?token=w0-c3082eaf-bdb8-4396-bb4a-a2994d8e8233" ExpiresInDays="-35" />
           </pnp:Webhooks>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="Shared Documents" Description="" DocumentTemplate="{site}/Shared Documents/Forms/template.dotx" OnQuickLaunch="true" TemplateType="101" Url="Shared Documents" EnableVersioning="true" MinorVersionLimit="0" MaxVersionLimit="500" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-e717-4e80-aa17-d0c71b360101" ContentTypesEnabled="true" EnableAttachments="false" ListExperience="NewExperience" DefaultDisplayFormUrl="{site}/Shared Documents/Forms/DispForm.aspx" DefaultEditFormUrl="{site}/Shared Documents/Forms/EditForm.aspx" DefaultNewFormUrl="{site}/Shared Documents/Forms/Upload.aspx" ImageUrl="/_layouts/15/images/itdl.png?rev=44" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x010100DBE9670BCD7A09499E45CD48306376C4" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{AD91583D-07F8-45BA-85D7-EC73923D59A3}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Documents" Url="/sites/ClientTemplate2/Shared Documents/Forms/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="Modified" Ascending="FALSE" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="DocumentType" />
+                <FieldRef Name="DocumentDate" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Editor" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <Aggregations Value="Off" />
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+            <View Name="{18C81A57-658B-4709-806B-EBCD7A56F656}" Type="HTML" DisplayName="Group by Document Type" Url="/sites/ClientTemplate2/Shared Documents/Forms/Group by Document Type.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="Modified" Ascending="FALSE" />
+                </OrderBy>
+                <GroupBy Collapse="FALSE" GroupLimit="30">
+                  <FieldRef Name="DocumentType" />
+                </GroupBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="DocumentDate" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Editor" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="c67f225a-acd5-410d-a42e-4dd8853e5c49" Name="nac203b12d3d49939e97b97deac009da" Hidden="true" DisplayName="DocumentType_0" />
+            <pnp:FieldRef ID="7ac203b1-2d3d-4993-9e97-b97deac009da" Name="DocumentType" DisplayName="Document Type" />
+            <pnp:FieldRef ID="1d9ae69b-9129-443b-8330-734a6b6e0f01" Name="DocumentDate" DisplayName="Document Date" />
+            <pnp:FieldRef ID="ef991a83-108d-4407-8ee5-ccc0c3d836b9" Name="SharedWithUsers" DisplayName="Shared With" />
+            <pnp:FieldRef ID="d3c9caf7-044c-4c71-ae64-092981e54b33" Name="SharedWithDetails" DisplayName="Shared With Details" />
+          </pnp:FieldRefs>
+          <pnp:Webhooks>
+            <pnp:Webhook ServerNotificationUrl="https://0-canadacentral1.pushp.svc.ms/notifications?token=w0-42da95d1-5544-4a0e-8c97-7ee3f2a1317d" ExpiresInDays="-34" />
+          </pnp:Webhooks>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="Teams Wiki Data" Description="sharepoint list" DocumentTemplate="{site}/Teams Wiki Data/Forms/template.dotx" TemplateType="101" Url="Teams Wiki Data" EnableVersioning="true" MinorVersionLimit="0" MaxVersionLimit="500" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-e717-4e80-aa17-d0c71b360101" ContentTypesEnabled="true" EnableAttachments="false" DefaultDisplayFormUrl="{site}/Teams Wiki Data/Forms/DispForm.aspx" DefaultEditFormUrl="{site}/Teams Wiki Data/Forms/EditForm.aspx" DefaultNewFormUrl="{site}/Teams Wiki Data/Forms/Upload.aspx" ImageUrl="/_layouts/15/images/itdl.png?rev=44" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x0101" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{3AD0F4E7-C275-40F0-ACF5-C6DCB454A229}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Documents" Url="/sites/ClientTemplate2/Teams Wiki Data/Forms/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="FileLeafRef" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Editor" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
         </pnp:ListInstance>
       </pnp:Lists>
     </pnp:ProvisioningTemplate>
