@@ -242,8 +242,20 @@ function CheckIfSiteExists()
         }
         else
         {
-            Write-Output "Exception Type: $($_.Exception.GetType().FullName)"
-            Write-Output "Exception Message: $($_.Exception.Message)"
+            try {
+                $spContext = New-Object Microsoft.SharePoint.Client.ClientContext($siteURL)
+                $spContext.Credentials = New-Object Microsoft.SharePoint.Client.SharePointOnlineCredentials($SPCredentials.UserName, $SPCredentials.Password)
+                $web = $spContext.Web
+                $spContext.Load($web)
+                $spContext.ExecuteQuery()
+            }
+            catch
+            {      
+                if (($_.Exception.Message -like "*Cannot contact site at the specified URL*") -and ($_.Exception.Message -like "*There is no Web named*"))
+                {
+                    return $false
+                }
+            }
         }
     }
     catch

@@ -206,7 +206,7 @@ if ($pendingSiteCollections.Count -gt 0)
             # Set the site collection admins
             Add-PnPSiteCollectionAdmin -Owners "pcarson@envisionit.com"
 
-            Start-Sleep -Seconds 15
+            Start-Sleep -Seconds 90
 
             if ($pnpSiteTemplate)
             {
