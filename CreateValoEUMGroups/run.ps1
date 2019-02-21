@@ -1,14 +1,28 @@
-﻿if ($Env:POSTMethod)
-{
-    # POST method: $req
-    $requestBody = Get-Content $req -Raw | ConvertFrom-Json
-    $ID = $requestBody.id
+﻿#Param
+#(
+#    [Parameter (Mandatory = $true)][string]$siteURL,
+#    [Parameter (Mandatory = $true)][string]$siteTitle
+#)
+
+$siteURL = "https://eumdemo.sharepoint.com/sites/webinardemo4"
+$siteTitle = "Webinar Demo 4"
+
+$Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -ErrorAction SilentlyContinue)
+if ($AzureAutomation) { 
+    $DistributionFolder = Get-Location
+
+    # Get automation variables and credentials
+    $Global:storageName = Get-AutomationVariable -Name 'AzureStorageName'
+    $Global:credentialName = Get-AutomationVariable -Name 'AutomationCredentialName'
+    $Global:connectionString = Get-AutomationPSCredential -Name 'AzureStorageConnectionString'
+    $Global:SPCredentials = Get-AutomationPSCredential -Name $credentialName
+
+    # Get EUMSites_Helper.ps1 and sharepoint.config from Azure storage
+    $Global:storageContext = New-AzureStorageContext -ConnectionString $connectionString.GetNetworkCredential().Password
+    Get-AzureStorageFileContent -ShareName $storageName -Path "sharepoint.config" -Context $storageContext -Force
+    Get-AzureStorageFileContent -ShareName $storageName -Path "EUMSites_Helper.ps1" -Context $storageContext -Force
 }
-
-[string]$DistributionFolder = $Env:distributionFolder
-
-if (-not $DistributionFolder)
-{
+else {
     $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
     $DistributionFolderArray = $DistributionFolder.Split('\')
     $DistributionFolderArray[$DistributionFolderArray.Count - 1] = ""
@@ -17,8 +31,6 @@ if (-not $DistributionFolder)
 
 . $DistributionFolder\EUMSites_Helper.ps1
 LoadEnvironmentSettings
-
-$siteURL = "https://eitvalo.sharepoint.com/sites/petertest6"
 
 # Get the specific Site Collection List item in master site for the site with the EUM group to be created
 Helper-Connect-PnPOnline -Url $SitesListSiteURL
@@ -29,7 +41,7 @@ $pendingSiteCollections = Get-PnPListItem -List $SiteListName -Query "
         <Where>
             <Eq>
                 <FieldRef Name='EUMSiteURL'/>
-                <Value Type='Integer'>$siteURL</Value>
+                <Value Type='String'>$siteURL</Value>
             </Eq>
         </Where>
     </Query>
@@ -40,6 +52,9 @@ $pendingSiteCollections = Get-PnPListItem -List $SiteListName -Query "
 
 if ($pendingSiteCollections.Count -eq 0)
 {
+    $EUMGroup = "EUM - " + $siteTitle
+    $EUMPermission = "Read"
+
     Add-Type -path "$DistributionFolder\CreateEUMGroups\IdentityModel.dll"
     Add-Type -path "$DistributionFolder\CreateEUMGroups\Newtonsoft.Json.dll"
     Add-Type -path "$DistributionFolder\CreateEUMGroups\System.ValueTuple.dll"
@@ -66,7 +81,7 @@ if ($pendingSiteCollections.Count -eq 0)
         "Domain_FK"= $Domain_FK;
         "RoleStatus_FK"= 1;
         "SystemConfiguration_FK"= $SystemConfiguration_FK;
-        "RoleName"= $siteURL["EUMEUMGroup"];
+        "RoleName"= $EUMGroup;
         "AvailableForRegistration"= $true
     }
 
@@ -88,33 +103,29 @@ if ($pendingSiteCollections.Count -eq 0)
     if ($groupCreated)
     {
         # Set the Group Created value
-        [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $siteURL.Id -Values @{ "EUMEUMGroupCreated" = [System.DateTime]::Now }
-
-        $groupName = $siteURL["EUMEUMGroup"]
+        [Microsoft.SharePoint.Client.ListItem]$spListItem = Add-PnPListItem -List $SiteListName -Values @{ "EUMEUMGroup" = $EUMGroup; "EUMEUMGroupCreated" = [System.DateTime]::Now; "EUMEUMPermission" = "Read"; "EUMSiteURL" = $siteURL; "Title" = $siteTitle }
 
         # Enable external sharing
-        Connect-PnPOnline -url ($siteURL["EUMSiteURL"]).Url -Credentials $credentials
+        Connect-PnPOnline -url $siteURL -Credentials $credentials
         # Possible values Disabled, ExternalUserSharingOnly, ExternalUserAndGuestSharing, ExistingExternalUserSharingOnly
-        Set-PnPTenantSite -Url ($siteURL["EUMSiteURL"]).Url -Sharing ExternalUserAndGuestSharing
+        Set-PnPTenantSite -Url $siteURL -Sharing ExternalUserAndGuestSharing
+
+        Start-Sleep -Seconds 90
+
+        Set-PnPTraceLog -On -Level Debug
+        $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Project-Template-Template.xml"
+        Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate
+
+        # Remove the rights to the Shared Documents library
+        $list = Get-PnPList -Identity "Shared Documents"
+        $list.BreakRoleInheritance($true, $true)
 
         # Add the appropriate permission to the site for the group
-        Set-PnPWebPermission -User $groupName -AddRole $siteURL["EUMEUMPermission"]
-
-        switch ($eumSiteTemplate)
-        {
-            "Modern Client Site"
-                {
-                # Remove the rights to the Private Documents library
-                $list = Get-PnPList -Identity "Private Documents"
-                $list.BreakRoleInheritance($true, $true)
-
-                Set-PnPListPermission -Identity "Private Documents" -User $groupName -RemoveRole $siteURL["EUMEUMPermission"]
-                }
-        }
+        Set-PnPWebPermission -User $EUMGroup -AddRole $EUMPermission
 
         # Update the permissions to the Site Collection List in master site to give the group read access
         Connect-PnPOnline -Url $SitesListSiteURL -Credentials $credentials
 
-        Set-PnPListItemPermission -List $SiteListName -Identity $siteURL["ID"] -User $groupName -AddRole "Read"
+        Set-PnPListItemPermission -List $SiteListName -Identity $spListItem.Id -User $EUMGroup -AddRole "Read"
     }
 }
