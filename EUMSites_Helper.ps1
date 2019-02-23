@@ -69,6 +69,7 @@
 
         # Set variables based on environment selected
         [string]$Global:WebAppURL = $environment.webApp.url
+        [string]$Global:AdminURL = $environment.webApp.url.Replace(".sharepoint.com", "-admin.sharepoint.com")
         [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
         
         $ManagedCredentials = $environment.webApp.managedCredentials
@@ -83,11 +84,21 @@
 
         Write-Output "Environment set to $($environment.name) - $($environment.webApp.URL) `n"
 
-	    #-----------------------------------------------------------------------
-	    # Get credentials from Windows Credential Manager
-	    #-----------------------------------------------------------------------
-	    if (Get-InstalledModule -Name "CredentialManager" -RequiredVersion "2.0") 
-	    {
+        # Check if running in Azure Automation or locally
+        $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -errorAction SilentlyContinue)
+        if ($AzureAutomation) {
+            # Get automation variables
+            $Global:storageName = Get-AutomationVariable -Name 'AzureStorageName'
+            $Global:credentialName = Get-AutomationVariable -Name 'AutomationCredentialName'
+            $Global:connectionString = Get-AutomationPSCredential -Name 'AzureStorageConnectionString'
+
+            $Global:storageContext = New-AzureStorageContext -ConnectionString $connectionString.GetNetworkCredential().Password
+            $Global:SPCredentials = Get-AutomationPSCredential -Name $credentialName
+        }
+        elseif (Get-InstalledModule -Name "CredentialManager" -RequiredVersion "2.0") {
+            #-----------------------------------------------------------------------
+            # Get credentials from Windows Credential Manager
+            #-----------------------------------------------------------------------
 		    $Global:SPCredentials = Get-StoredCredential -Target $managedCredentials 
             switch ($managedCredentialsType) 
             {
@@ -588,3 +599,109 @@ function AddSiteEntry()
 		Write-Output "The site $($siteTitle) exists in $($SiteListName) list. Skipping..."
 	}
 }
+
+function SetSiteLogo {
+    Param
+    (
+        [Parameter(Position = 0, Mandatory = $true)][string] $siteURL,
+        [Parameter(Position = 1, Mandatory = $true)][string] $logoRelativeURL,
+        [Parameter(Position = 2, Mandatory = $false)][switch] $subsitesInherit
+    )
+
+    try {            
+        $web = Get-PnPWeb
+        Set-PnpWeb -Web $web.Id -SiteLogoUrl $logoRelativeURL
+
+
+        if ($subsitesInherit.IsPresent) {
+            Write-Host "Updating subsites logo"
+
+            $subwebs = Get-PnPSubWebs -Recurse
+            Foreach ($web in $subwebs) {
+                Set-PnpWeb -Web $web.Id -SiteLogoUrl $logoRelativeURL
+            }
+        }
+        else {
+            Write-Host "Updating site logo"
+            $web = Get-PnPWeb
+            Set-PnpWeb -Web $web -SiteLogoUrl $logoRelativeURL
+        }
+          
+    }
+    catch {
+        Write-Host "An exception occurred setting site logo in $siteURL"
+        Write-Host "Exception Type: $($_.Exception.GetType().FullName)" -ForegroundColor Red
+        Write-Host "Exception Message: $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+
+function ApplyModernSiteBranding {
+
+    Param
+    (
+        [Parameter(Position = 0, Mandatory = $true)][string] $siteURL,
+        [Parameter(Position = 4, Mandatory = $true)][string] $logoFile,
+        [Parameter(Position = 4, Mandatory = $true)][string] $homePageImage
+    )
+        
+    #$cred = Get-Credential
+    #Connect-PnPOnline $siteURL -Credentials $PScredentials
+    Helper-Connect-PnPOnline -Url $siteURL
+
+    # Apply a custom theme to a Modern Site
+
+    # First, upload the theme assets
+    Write-Host "`nUploading branding files..." -foreground yellow
+
+    Add-PnPFile -Path "$DistributionFolder\Branding\$logoFile" -Folder SiteAssets    
+    Add-PnPFile -Path "$DistributionFolder\Branding\$homePageImage" -Folder SiteAssets      
+
+    Write-Host "`nBranding files deployed`n" -foreground green
+
+    # Second, apply the theme assets to the site
+    $web = Get-PnPWeb
+    $logo = $web.ServerRelativeUrl + "/Style Library/$logoFile"
+
+    Write-Host "Setting site logo..." -foreground yellow
+
+    SetSiteLogo -siteURL $siteURL -logoRelativeURL $logo #-subsitesInherit
+
+    # We use OOTB CSOM operation for this
+    #$web.ApplyTheme($palette, $font, $background, $true)
+    $web.Update()
+    # Set timeout as high as possible and execute
+    $web.Context.RequestTimeout = [System.Threading.Timeout]::Infinite
+    $web.Context.ExecuteQuery()  
+}
+
+
+function DisableDenyAddAndCustomizePages {
+    Param
+    (
+        [Parameter(Position = 0, Mandatory = $true)][string] $siteURL
+    )
+
+    Helper-Connect-PnPOnline -URL $AdminURL
+    
+    $context = Get-PnPContext
+    $site = Get-PnPTenantSite -Detailed -Url $siteURL
+     
+    $site.DenyAddAndCustomizePages = [Microsoft.Online.SharePoint.TenantAdministration.DenyAddAndCustomizePagesStatus]::Disabled
+     
+    $site.Update()
+    $context.ExecuteQuery()
+    $context.Dispose()
+
+    $status = $null
+    do {
+        Write-Host "Waiting...   $status"
+        Start-Sleep -Seconds 5
+        $site = Get-PnPTenantSite -Detailed -Url $siteURL
+        $status = $site.Status
+    
+    } while ($status -ne 'Active')
+
+    Disconnect-PnPOnline
+}
+
+Set-PnPTraceLog -On -Level Debug
