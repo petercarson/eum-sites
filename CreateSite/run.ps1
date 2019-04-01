@@ -1,14 +1,31 @@
-﻿if ($Env:POSTMethod)
-{
-    # POST method: $req
-    $requestBody = Get-Content $req -Raw | ConvertFrom-Json
-    $ID = $requestBody.id
+﻿Param
+(
+    [Parameter (Mandatory = $false)][int]$listItemID
+)
+
+$Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -ErrorAction SilentlyContinue)
+if ($AzureAutomation) { 
+    $DistributionFolder = Get-Location
+
+    # Get automation variables and credentials
+    $Global:storageName = Get-AutomationVariable -Name 'AzureStorageName'
+    $Global:credentialName = Get-AutomationVariable -Name 'AutomationCredentialName'
+    $Global:connectionString = Get-AutomationPSCredential -Name 'AzureStorageConnectionString'
+    $Global:SPCredentials = Get-AutomationPSCredential -Name $credentialName
+
+    # Get EUMSites_Helper.ps1 and sharepoint.config from Azure storage
+    $Global:storageContext = New-AzureStorageContext -ConnectionString $connectionString.GetNetworkCredential().Password
+    Get-AzureStorageFileContent -ShareName $storageName -Path "sharepoint.config" -Context $storageContext -Force
+    Get-AzureStorageFileContent -ShareName $storageName -Path "EUMSites_Helper.ps1" -Context $storageContext -Force
+
+    # Get site templates and branding files from azure storage
+    New-Item -ItemType Directory -Path "$($DistributionFolder)\SiteTemplates"
+    Get-AzureStorageFile -ShareName $storageName -Path "SiteTemplates" -Context $storageContext | Get-AzureStorageFile | ? {$_.GetType().Name -eq "CloudFile"} | Get-AzureStorageFileContent -Force -Destination "$($DistributionFolder)\SiteTemplates"
+
+		New-Item -ItemType Directory -Path "$($DistributionFolder)\SiteTemplates\Pages"
+		Get-AzureStorageFile -ShareName $storageName -Path "SiteTemplates\Pages" -Context $storageContext | Get-AzureStorageFile | ? {$_.GetType().Name -eq "CloudFile"} | Get-AzureStorageFileContent -Force -Destination "$($DistributionFolder)\SiteTemplates\Pages"
 }
-
-[string]$DistributionFolder = $Env:distributionFolder
-
-if (-not $DistributionFolder)
-{
+else {
     $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
     $DistributionFolderArray = $DistributionFolder.Split('\')
     $DistributionFolderArray[$DistributionFolderArray.Count - 1] = ""
@@ -18,10 +35,14 @@ if (-not $DistributionFolder)
 . $DistributionFolder\EUMSites_Helper.ps1
 LoadEnvironmentSettings
 
-. $DistributionFolder\masthead.ps1 -username $SPCredentials.UserName -password $SPCredentials.Password -MastheadInstallerSite "https://envisionit.sharepoint.com/sites/home"
 
-if ($listItemID)
-{
+
+# Get the config file
+[xml]$config = Get-Content -Path "$DistributionFolder/sharepoint.config"
+
+$hubSite = $config.settings.common.associatedHubSite.hubSiteUrl
+
+if ($listItemID -gt 0) {
     # Get the specific Site Collection List item in master site for the site that needs to be created
     Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
@@ -32,7 +53,7 @@ if ($listItemID)
                 <And>
                     <Eq>
                         <FieldRef Name='ID'/>
-                        <Value Type='Integer'>$itemId</Value>
+                        <Value Type='Integer'>$listItemID</Value>
                     </Eq>
                     <IsNull>
                         <FieldRef Name='EUMSiteCreated'/>
@@ -46,8 +67,6 @@ if ($listItemID)
             <FieldRef Name='EUMSiteURL'></FieldRef>
             <FieldRef Name='EUMAlias'></FieldRef>
             <FieldRef Name='EUMPublicGroup'></FieldRef>
-            <FieldRef Name='EUMSetComposedLook'></FieldRef>
-            <FieldRef Name='EUMBrandingDeploymentType'></FieldRef>
             <FieldRef Name='EUMBreadcrumbHTML'></FieldRef>
             <FieldRef Name='EUMParentURL'></FieldRef>
             <FieldRef Name='EUMSiteTemplate'></FieldRef>
@@ -55,8 +74,7 @@ if ($listItemID)
         </ViewFields>
     </View>"
 }
-else
-{
+else {
     # Check the Site Collection List in master site for any sites that need to be created
     Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
@@ -75,8 +93,6 @@ else
             <FieldRef Name='EUMSiteURL'></FieldRef>
             <FieldRef Name='EUMAlias'></FieldRef>
             <FieldRef Name='EUMPublicGroup'></FieldRef>
-            <FieldRef Name='EUMSetComposedLook'></FieldRef>
-            <FieldRef Name='EUMBrandingDeploymentType'></FieldRef>
             <FieldRef Name='EUMBreadcrumbHTML'></FieldRef>
             <FieldRef Name='EUMParentURL'></FieldRef>
             <FieldRef Name='EUMSiteTemplate'></FieldRef>
@@ -85,8 +101,8 @@ else
     </View>"
 }
 
-if ($pendingSiteCollections.Count -gt 0)
-{
+
+if ($pendingSiteCollections.Count -gt 0) {
     # Get the time zone of the master site
     $spWeb = Get-PnPWeb -Includes RegionalSettings.TimeZone
     [int]$timeZoneId = $spWeb.RegionalSettings.TimeZone.Id
@@ -97,12 +113,10 @@ if ($pendingSiteCollections.Count -gt 0)
 
         [string]$siteTitle = $pendingSite["Title"]
         [string]$alias = $pendingSite["EUMAlias"]
-        if ($alias)
-        {
+        if ($alias) {
             $siteURL = "$($WebAppURL)/sites/$alias"
         }
-        else
-        {
+        else {
             [string]$siteURL = ($pendingSite["EUMSiteURL"]).Url
         }
         [string]$publicGroup = $pendingSite["EUMPublicGroup"]
@@ -120,43 +134,39 @@ if ($pendingSiteCollections.Count -gt 0)
         $pnpSiteTemplate = ""
         $siteCreated = $false
 
-        switch ($eumSiteTemplate)
-        {
-            "Classic Team Site"
-                {
-                $baseSiteTemplate = "STS#0"
-                $baseSiteType = ""
-                }
-            "Modern Communication Site"
-                {
+        switch ($eumSiteTemplate) {
+            "Modern Communication Site" {
                 $baseSiteTemplate = ""
                 $baseSiteType = "CommunicationSite"
-                }
-            "Modern Team Site"
-                {
+            }
+            "Modern Team Site" {
                 $baseSiteTemplate = ""
                 $baseSiteType = "TeamSite"
-                }
+            }
             "Modern Client Site"
                 {
                 $baseSiteTemplate = ""
                 $baseSiteType = "TeamSite"
                 $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Client-Template-Template.xml"
-                }
+            }
         }
 
         # Classic style sites
-        if ($baseSiteTemplate)
-        {
+        if ($baseSiteTemplate) {
             # Create the site
-            if ($siteCollection)
-            {
+            if ($siteCollection) {
                 # Create site (if it exists, it will error but not modify the existing site)
                 Write-Output "Creating site collection $($siteURL) with base template $($baseSiteTemplate). Please wait..."
-                New-PnPTenantSite -Title $siteTitle -Url $siteURL -Owner $author -TimeZone $timeZoneId -Template $baseSiteTemplate -RemoveDeletedSite -Wait -Force
+                try {
+                    New-PnPTenantSite -Title $siteTitle -Url $siteURL -Owner $author -TimeZone $timeZoneId -Template $baseSiteTemplate -RemoveDeletedSite -Wait -Force -ErrorAction Stop
+                }
+                catch { 
+                    Write-Error "Failed creating site collection $($siteURL)"
+                    Write-Error $_
+                    exit
+                }
             }
-            else
-            {
+            else {
                 # Connect to parent site
                 Helper-Connect-PnPOnline -Url $parentURL
 
@@ -172,49 +182,65 @@ if ($pendingSiteCollections.Count -gt 0)
 
         }
         # Modern style sites
-        else
-        {
+        else {
             # Create the site
-            Write-Output "Creating site collection $($siteURL) with modern type $($baseSiteType). Please wait..."
-            switch ($baseSiteType)
-            {
-                "CommunicationSite"
-                {
-                    New-PnPSite -Type CommunicationSite -Title $siteTitle -Url $siteURL
-                    $siteCreated = $true
+            switch ($baseSiteType) {
+                "CommunicationSite" {
+                    try {
+                        Write-Output "Creating site collection $($siteURL) with modern type $($baseSiteType). Please wait..."
+                        $siteURL = New-PnPSite -Type CommunicationSite -Title $siteTitle -Url $siteURL -ErrorAction Stop
+                        $siteCreated = $true
+                    }
+                    catch { 
+                        Write-Error "Failed creating site collection $($siteURL)"
+                        Write-Error $_
+                        exit
+                    }
                 }
-                "TeamSite"
-                {
-                    if ($publicGroup)
-                    {
-                        New-PnPSite -Type TeamSite -Title $siteTitle -Alias $alias -IsPublic
+                "TeamSite" {
+                    try {
+                        Write-Output "Creating site collection $($siteURL) with modern type $($baseSiteType). Please wait..."
+                        if ($publicGroup) {
+                            $siteURL = New-PnPSite -Type TeamSite -Title $siteTitle -Alias $alias -IsPublic -ErrorAction Stop
+                        }
+                        else {
+                            $siteURL = New-PnPSite -Type TeamSite -Title $siteTitle -Alias $alias -ErrorAction Stop
+                        }
+                        $siteCreated = $true
                     }
-                    else
-                    {
-                        New-PnPSite -Type TeamSite -Title $siteTitle -Alias $alias
+                    catch { 
+                        Write-Error "Failed creating site collection $($siteURL)"
+                        Write-Error $_
+                        exit
                     }
-                    $siteCreated = $true
                 }
             }
 
+            # Pause the script to allow time for the modern site to finish provisioning
+            Start-Sleep -Seconds 300
         }
 
-        if ($siteCreated)
-        {
+        if ($siteCreated) {
             Helper-Connect-PnPOnline -Url $siteURL
-            
+
             # Set the site collection admins
             Add-PnPSiteCollectionAdmin -Owners "pcarson@envisionit.com"
 
-            Start-Sleep -Seconds 90
+            if ($pnpSiteTemplate) {
+                Write-Output "Applying template $($pnpSiteTemplate) Please wait..."
 
-            if ($pnpSiteTemplate)
-            {
-                Set-PnPTraceLog -On -Level Debug
-                Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate
+                try {
+		                Set-PnPTraceLog -On -Level Debug
+                    Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate -ErrorAction Stop
+                }
+                catch {
+                    Write-Error "Failed applying PnP template."
+                    Write-Error $_
+                    exit
+                }
             }
-
-            IF ($eumSiteTemplate = "Modern Client Site")
+            
+            If ($eumSiteTemplate -eq "Modern Client Site")
             {
                 Add-PnPFolder -Name "Quotes" -Folder "/Shared Documents"
                 Add-PnPFolder -Name "Signed Quotes" -Folder "/Shared Documents/Quotes"
@@ -232,28 +258,22 @@ if ($pendingSiteCollections.Count -gt 0)
                 Remove-PnPGroup -Identity "$siteTitle Visitors" -Force
             }
 
-            Disconnect-PnPOnline
-            
             # Reconnect to the master site and update the site collection list
             Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
-            # Set the breadcrumb HTML
-            [string]$siteRelativeURL = $siteURL.Replace($($WebAppURL), "")
             [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL
 
             # Set the site created date, breadcrumb, and site URL
-            $result = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteRelativeURL }
+            [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteRelativeURL }
 
             # Install Masthead on the site
-            Install-To-Site $siteURL
+            # Install-To-Site $siteURL
         }
 
         # Reconnect to the master site for the next iteration
         Helper-Connect-PnPOnline -Url $SitesListSiteURL
     }
 }
-else
-{
+else {
     Write-Output "No sites pending creation"
 }
-

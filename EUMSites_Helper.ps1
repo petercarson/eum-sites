@@ -1,186 +1,119 @@
-﻿function LoadEnvironmentSettings()
-{
-    [string]$Global:WebAppURL = $Env:webAppURL
+﻿function LoadEnvironmentSettings() {
 
-    Set-PnPTraceLog -On -Level Debug
+    [xml]$config = Get-Content -Path "$DistributionFolder\sharepoint.config"
 
-    if ($WebAppURL -ne "")
-    {
-        [string]$Global:SitesListSiteURL = "$($WebAppURL)$($Env:sitesListSiteCollectionPath)"
-        [string]$Global:SiteListName = $Env:siteListName
+    [System.Array]$Global:managedPaths = $config.settings.common.managedPaths.path
+    [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
 
-        # MSI Variables via Function Application Settings Variables
-        # Endpoint and Password
-        $endpoint = $env:MSI_ENDPOINT
-        $secret = $env:MSI_SECRET
+    $environmentId = $config.settings.common.defaultEnvironment
 
-        # Vault URI to get AuthN Token
-        $vaultTokenURI = 'https://vault.azure.net&api-version=2017-09-01'
-        # Create AuthN Header with our Function App Secret
-        $header = @{'Secret' = $secret}
+    if (-not $environmentId) {
+        #-----------------------------------------------------------------------
+        # Prompt for the environment defined in the config
+        #-----------------------------------------------------------------------
 
-        # Get Key Vault AuthN Token
-        $authenticationResult = Invoke-RestMethod -Method Get -Headers $header -Uri ($endpoint +'?resource=' +$vaultTokenURI)
-        # Use Key Vault AuthN Token to create Request Header
-        $requestHeader = @{ Authorization = "Bearer $($authenticationResult.access_token)" }
-
-        # Our Key Vault Credential that we want to retreive URI
-        # NOTE: API Ver for this is 2015-06-01
-
-        # Call the Vault and Retrieve Creds
-        $vaultSecretURI  = $Env:serviceAccountURI
-        $Secret = Invoke-RestMethod -Method GET -Uri $vaultSecretURI -ContentType 'application/json' -Headers $requestHeader
-        $UserName = $Secret.Value
-
-        $vaultSecretURI = $Env:serviceAccountPasswordURI
-        $Secret = Invoke-RestMethod -Method GET -Uri $vaultSecretURI -ContentType 'application/json' -Headers $requestHeader
-        $Password = ConvertTo-SecureString $Secret.Value -AsPlainText -Force
-
-        $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName, $Password
-    }
-    else
-    {
-	    [xml]$config = Get-Content -Path "$DistributionFolder\sharepoint.config"
-
-        [System.Array]$Global:managedPaths = $config.settings.common.managedPaths.path
-        [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
-
-        $environmentId = $config.settings.common.defaultEnvironment
-
-        if (-not $environmentId) {
-	        #-----------------------------------------------------------------------
-	        # Prompt for the environment defined in the config
-	        #-----------------------------------------------------------------------
-
-            Write-Output "`n***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
-            $config.settings.environments.environment | ForEach {
-                Write-Output "$($_.id)`t $($_.name) - $($_.webApp.URL)"
-            }
-            Write-Output "***** AVAILABLE ENVIRONMENTS *****"
-
-            Do
-            {
-                [int]$environmentId = Read-Host "Enter the ID of the environment from the above list"
-            }
-            Until ($environmentId -gt 0)
+        Write-Output "`n***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
+        $config.settings.environments.environment | ForEach {
+            Write-Output "$($_.id)`t $($_.name) - $($_.webApp.URL)"
         }
+        Write-Output "***** AVAILABLE ENVIRONMENTS *****"
 
-        [System.Xml.XmlLinkedNode]$Global:environment = $config.settings.environments.environment | Where { $_.id -eq $environmentId }
+        Do {
+            [int]$environmentId = Read-Host "Enter the ID of the environment from the above list"
+        }
+        Until ($environmentId -gt 0)
+    }
 
-        # Set variables based on environment selected
-        [string]$Global:WebAppURL = $environment.webApp.url
-        [string]$Global:AdminURL = $environment.webApp.url.Replace(".sharepoint.com", "-admin.sharepoint.com")
-        [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
+    [System.Xml.XmlLinkedNode]$Global:environment = $config.settings.environments.environment | Where { $_.id -eq $environmentId }
+
+    # Set variables based on environment selected
+    [string]$Global:WebAppURL = $environment.webApp.url
+    [string]$Global:AdminURL = $environment.webApp.url.Replace(".sharepoint.com", "-admin.sharepoint.com")
+    [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
         
-        $ManagedCredentials = $environment.webApp.managedCredentials
-        $ManagedCredentialsType = $environment.webApp.managedCredentialsType
-        $TenantId = $environment.webApp.tenantId
-        $VaultName = $environment.webApp.vaultName
+    $ManagedCredentials = $environment.webApp.managedCredentials
+    $ManagedCredentialsType = $environment.webApp.managedCredentialsType
+    $TenantId = $environment.webApp.tenantId
+    $VaultName = $environment.webApp.vaultName
 
-        $ManagedEUMCredentials = $environment.EUM.managedEUMCredentials
-        [string]$Global:Domain_FK = $environment.EUM.domain_FK
-        [string]$Global:SystemConfiguration_FK = $environment.EUM.systemConfiguration_FK
-        [string]$Global:EUMURL = $environment.EUM.EUMURL
+    $ManagedEUMCredentials = $environment.EUM.managedEUMCredentials
+    [string]$Global:Domain_FK = $environment.EUM.domain_FK
+    [string]$Global:SystemConfiguration_FK = $environment.EUM.systemConfiguration_FK
+    [string]$Global:EUMURL = $environment.EUM.EUMURL
 
-        Write-Output "Environment set to $($environment.name) - $($environment.webApp.URL) `n"
+    Write-Output "Environment set to $($environment.name) - $($environment.webApp.URL) `n"
 
-        # Check if running in Azure Automation or locally
-        $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -errorAction SilentlyContinue)
-        if ($AzureAutomation) {
-            # Get automation variables
-            $Global:storageName = Get-AutomationVariable -Name 'AzureStorageName'
-            $Global:credentialName = Get-AutomationVariable -Name 'AutomationCredentialName'
-            $Global:connectionString = Get-AutomationPSCredential -Name 'AzureStorageConnectionString'
+    # Check if running in Azure Automation or locally
+    $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -errorAction SilentlyContinue)
+    if ($AzureAutomation) {
+        # Get automation variables
+        $Global:storageName = Get-AutomationVariable -Name 'AzureStorageName'
+        $Global:credentialName = Get-AutomationVariable -Name 'AutomationCredentialName'
+        $Global:connectionString = Get-AutomationPSCredential -Name 'AzureStorageConnectionString'
 
-            $Global:storageContext = New-AzureStorageContext -ConnectionString $connectionString.GetNetworkCredential().Password
-            $Global:SPCredentials = Get-AutomationPSCredential -Name $credentialName
-        }
-        elseif (Get-InstalledModule -Name "CredentialManager" -RequiredVersion "2.0") {
-            #-----------------------------------------------------------------------
-            # Get credentials from Windows Credential Manager
-            #-----------------------------------------------------------------------
-		    $Global:SPCredentials = Get-StoredCredential -Target $managedCredentials 
-            switch ($managedCredentialsType) 
-            {
-                "UsernamePassword"
-                {
-		            if ($SPCredentials -eq $null) {
-			            $UserName = Read-Host "Enter the username to connect with"
-			            $Password = Read-Host "Enter the password for $UserName" -AsSecureString 
-			            $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
-			            if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
-				            $temp = New-StoredCredential -Target $managedCredentials -UserName $UserName -SecurePassword $Password
-			            }
-			            $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName,$Password
-		            }
-		            else {
-                        Write-Output "Connecting with username" $SPCredentials.UserName
-		            }
-		        }
-
-                "ClientIdSecret"
-                {
-		            if ($SPCredentials -eq $null) {
-                        [string]$Global:O365ClientID = Read-Host "Enter the Client Id to connect with"
-                        [string]$Global:O365ClientSecret = Read-Host "Enter the Secret"
-			            $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
-			            if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
-				            $temp = New-StoredCredential -Target $managedCredentials -UserName $O365ClientID -Password $O365ClientSecret
-			            }
-		            }
-		            else {
-                        [string]$Global:O365ClientID = $SPCredentials.UserName
-                        [string]$Global:O365ClientSecret = $SPCredentials.GetNetworkCredential().password
-                        Write-Output "Connecting with Client Id" $O365ClientID
-		            }
-                }
-
-                "AzureKeyVault"
-                {
-		            if ($SPCredentials -eq $null) {
-			            $UserName = Read-Host "Enter the username to connect to the Azure Key Vault with"
-			            $Password = Read-Host "Enter the password for $UserName" -AsSecureString 
-			            $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
-			            if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
-				            $temp = New-StoredCredential -Target $managedCredentials -UserName $UserName -SecurePassword $Password
-			            }
-			            $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName, $Password
-		            }
-		            else {
-                        Write-Output "Connecting with username" $SPCredentials.UserName
-		            }
-
-		            Login-AzureRmAccount -Credential $SPCredentials -TenantId $TenantId
-                    $UserName = (Get-AzureKeyVaultSecret -VaultName $VaultName -Name 'ServiceAccount').SecretValueText
-                    $Password = ConvertTo-SecureString (Get-AzureKeyVaultSecret -VaultName $VaultName -Name 'ServiceAccountPassword').SecretValueText -AsPlainText -Force
-			        $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName, $Password
-                }
-            }
-            if ($ManagedEUMCredentials -ne $null)
-            {
-    		    $EUMCredentials = Get-StoredCredential -Target $managedEUMCredentials
-		        if ($EUMCredentials -eq $null) {
-			        $Global:EUMClientID = Read-Host "Enter the Client ID to connect to EUM with"
-			        $SecureEUMSecret = Read-Host "Enter the secret for $EUMClientID" -AsSecureString
-			        $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
-			        if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
-				        $temp = New-StoredCredential -Target $ManagedEUMCredentials -UserName $EUMClientID -SecurePassword $SecureEUMSecret
-			        }
-                    $Global:EUMSecret = (New-Object PSCredential "user",$SecureEUMSecret).GetNetworkCredential().Password
-		        }
-		        else {
-			        $Global:EUMClientID = $EUMCredentials.UserName
-			        $Global:EUMSecret = (New-Object PSCredential "user",$EUMCredentials.Password).GetNetworkCredential().Password
-                    Write-Output "Connecting to EUM with Client ID" $EUMClientID
-		        }
-            }
-	    }
-	    else
-	    {
-		    Write-Output "Required Windows Credential Manager 2.0 PowerShell Module not found. Please install the module by entering the following command in PowerShell: ""Install-Module -Name ""CredentialManager"" -RequiredVersion 2.0"""
-		    break
-	    }
+        $Global:storageContext = New-AzureStorageContext -ConnectionString $connectionString.GetNetworkCredential().Password
+        $Global:SPCredentials = Get-AutomationPSCredential -Name $credentialName
     }
+    elseif (Get-InstalledModule -Name "CredentialManager" -RequiredVersion "2.0") {
+        #-----------------------------------------------------------------------
+        # Get credentials from Windows Credential Manager
+        #-----------------------------------------------------------------------
+        $Global:SPCredentials = Get-StoredCredential -Target $managedCredentials 
+        switch ($managedCredentialsType) {
+            "UsernamePassword" {
+                if ($SPCredentials -eq $null) {
+                    $UserName = Read-Host "Enter the username to connect with"
+                    $Password = Read-Host "Enter the password for $UserName" -AsSecureString 
+                    $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
+                    if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
+                        $temp = New-StoredCredential -Target $managedCredentials -UserName $UserName -SecurePassword $Password
+                    }
+                    $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName, $Password
+                }
+                else {
+                    Write-Output "Connecting with username" $SPCredentials.UserName
+                }
+            }
+
+            "ClientIdSecret" {
+                if ($SPCredentials -eq $null) {
+                    [string]$Global:O365ClientID = Read-Host "Enter the Client Id to connect with"
+                    [string]$Global:O365ClientSecret = Read-Host "Enter the Secret"
+                    $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
+                    if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
+                        $temp = New-StoredCredential -Target $managedCredentials -UserName $O365ClientID -Password $O365ClientSecret
+                    }
+                }
+                else {
+                    [string]$Global:O365ClientID = $SPCredentials.UserName
+                    [string]$Global:O365ClientSecret = $SPCredentials.GetNetworkCredential().password
+                    Write-Output "Connecting with Client Id" $O365ClientID
+                }
+            }
+        }
+        if ($ManagedEUMCredentials -ne $null) {
+            $EUMCredentials = Get-StoredCredential -Target $managedEUMCredentials
+            if ($EUMCredentials -eq $null) {
+                $Global:EUMClientID = Read-Host "Enter the Client ID to connect to EUM with"
+                $SecureEUMSecret = Read-Host "Enter the secret for $EUMClientID" -AsSecureString
+                $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
+                if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
+                    $temp = New-StoredCredential -Target $ManagedEUMCredentials -UserName $EUMClientID -SecurePassword $SecureEUMSecret
+                }
+                $Global:EUMSecret = (New-Object PSCredential "user", $SecureEUMSecret).GetNetworkCredential().Password
+            }
+            else {
+                $Global:EUMClientID = $EUMCredentials.UserName
+                $Global:EUMSecret = (New-Object PSCredential "user", $EUMCredentials.Password).GetNetworkCredential().Password
+                Write-Output "Connecting to EUM with Client ID" $EUMClientID
+            }
+        }
+    }
+    else {
+        Write-Output "Required Windows Credential Manager 2.0 PowerShell Module not found. Please install the module by entering the following command in PowerShell: ""Install-Module -Name ""CredentialManager"" -RequiredVersion 2.0"""
+        break
+    }
+    
 }
 
 function Helper-Connect-PnPOnline()

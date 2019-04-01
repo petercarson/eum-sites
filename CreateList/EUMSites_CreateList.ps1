@@ -8,6 +8,9 @@ LoadEnvironmentSettings
 
 Write-Host "Connecting to "$SitesListSiteURL
 Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials
+
 Write-Host "Applying the EUM Sites Template to "$SitesListSiteURL
 Apply-PnPProvisioningTemplate -Path "$DistributionFolder\CreateList\EUMSites.DeployTemplate.xml"
+Remove-PnPContentTypeFromList -List "Sites" -ContentType "Item"
+
 Disconnect-PnPOnline
