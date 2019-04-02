@@ -272,9 +272,7 @@ function GetBreadcrumbHTML()
         $parentListItem = GetSiteEntry -siteRelativeURL $parentURL
         if ($parentListItem)
         {
-            [string]$parentRelativeURL = ($parentListItem["EUMSiteURL"].Url).Replace($WebAppURL, "")
-            [string]$parentTitle = $parentListItem["Title"]
-            [string]$parentBreadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $parentRelativeURL -siteTitle $parentTitle -parentURL $parentListItem["EUMParentURL"].Url
+            [string]$parentBreadcrumbHTML = $parentListItem["EUMBreadcrumbHTML"]
         }
     }
 

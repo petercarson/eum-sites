@@ -70,6 +70,7 @@ if ($listItemID -gt 0) {
             <FieldRef Name='EUMBreadcrumbHTML'></FieldRef>
             <FieldRef Name='EUMParentURL'></FieldRef>
             <FieldRef Name='EUMSiteTemplate'></FieldRef>
+            <FieldRef Name='EUMDivision'></FieldRef>
             <FieldRef Name='Author'></FieldRef>
         </ViewFields>
     </View>"
@@ -96,6 +97,7 @@ else {
             <FieldRef Name='EUMBreadcrumbHTML'></FieldRef>
             <FieldRef Name='EUMParentURL'></FieldRef>
             <FieldRef Name='EUMSiteTemplate'></FieldRef>
+            <FieldRef Name='EUMDivision'></FieldRef>
             <FieldRef Name='Author'></FieldRef>
         </ViewFields>
     </View>"
@@ -122,12 +124,38 @@ if ($pendingSiteCollections.Count -gt 0) {
         [string]$publicGroup = $pendingSite["EUMPublicGroup"]
         [string]$breadcrumbHTML = $pendingSite["EUMBreadcrumbHTML"]
         [string]$parentURL = $pendingSite["EUMParentURL"].Url
+        [string]$Division = $pendingSite["EUMDivision"].LookupValue
 
         [bool]$siteCollection = CheckIfSiteCollection -siteURL $siteURL
 
         [string]$eumSiteTemplate = $pendingSite["EUMSiteTemplate"]
 
         [string]$author = $pendingSite["Author"].Email
+
+		if ($parentURL -eq "")
+		{
+			$divisionSiteURL = Get-PnPListItem -List "Divisions" -Query "
+			<View>
+				<Query>
+					<Where>
+						<Eq>
+							<FieldRef Name='Title'/>
+							<Value Type='Text'>$Division</Value>
+						</Eq>
+					</Where>
+				</Query>
+				<ViewFields>
+					<FieldRef Name='Title'></FieldRef>
+					<FieldRef Name='SiteURL'></FieldRef>
+				</ViewFields>
+			</View>"
+		
+            if ($divisionSiteURL.Count -eq 1)
+            {
+			    $parentURL = $divisionSiteURL["SiteURL"].Url
+                $parentURL = $parentURL.Replace($WebAppURL, "")
+            }
+		}
 
         $baseSiteTemplate = ""
         $baseSiteType = ""
@@ -207,6 +235,9 @@ if ($pendingSiteCollections.Count -gt 0) {
                             $siteURL = New-PnPSite -Type TeamSite -Title $siteTitle -Alias $alias -ErrorAction Stop
                         }
                         $siteCreated = $true
+
+                        # Pause the script to allow time for the modern site to finish provisioning
+                        Start-Sleep -Seconds 300
                     }
                     catch { 
                         Write-Error "Failed creating site collection $($siteURL)"
@@ -215,9 +246,6 @@ if ($pendingSiteCollections.Count -gt 0) {
                     }
                 }
             }
-
-            # Pause the script to allow time for the modern site to finish provisioning
-            Start-Sleep -Seconds 300
         }
 
         if ($siteCreated) {
@@ -261,10 +289,11 @@ if ($pendingSiteCollections.Count -gt 0) {
             # Reconnect to the master site and update the site collection list
             Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
-            [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL
+            # Set the breadcrumb HTML
+            [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $siteURL -siteTitle $siteTitle -parentURL $parentURL
 
             # Set the site created date, breadcrumb, and site URL
-            [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteRelativeURL }
+            [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteURL.Replace($WebAppURL, ""); "EUMParentURL" = $parentURL }
 
             # Install Masthead on the site
             # Install-To-Site $siteURL
