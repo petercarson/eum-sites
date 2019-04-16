@@ -4,8 +4,10 @@
 #    [Parameter (Mandatory = $true)][string]$siteTitle
 #)
 
-$siteURL = "https://eumdemo.sharepoint.com/sites/webinardemo4"
-$siteTitle = "Webinar Demo 4"
+Read-Host "Remeber to update the URL and Title"
+
+$siteURL = "https://eumdemo.sharepoint.com/sites/webinardemo22"
+$siteTitle = "Webinar Demo 2"
 
 $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -ErrorAction SilentlyContinue)
 if ($AzureAutomation) { 

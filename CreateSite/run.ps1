@@ -177,6 +177,12 @@ if ($pendingSiteCollections.Count -gt 0) {
                 $baseSiteType = "TeamSite"
                 $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Client-Template-Template.xml"
             }
+            "Client Communication Site"
+                {
+                $baseSiteTemplate = ""
+                $baseSiteType = "CommunicationSite"
+                $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Client-Template-Template.xml"
+            }
         }
 
         # Classic style sites
@@ -235,9 +241,6 @@ if ($pendingSiteCollections.Count -gt 0) {
                             $siteURL = New-PnPSite -Type TeamSite -Title $siteTitle -Alias $alias -ErrorAction Stop
                         }
                         $siteCreated = $true
-
-                        # Pause the script to allow time for the modern site to finish provisioning
-                        Start-Sleep -Seconds 300
                     }
                     catch { 
                         Write-Error "Failed creating site collection $($siteURL)"
@@ -255,6 +258,10 @@ if ($pendingSiteCollections.Count -gt 0) {
             Add-PnPSiteCollectionAdmin -Owners "pcarson@envisionit.com"
 
             if ($pnpSiteTemplate) {
+                # Pause the script to allow time for the modern site to finish provisioning
+                Write-Output "Pausing for 300 seconds. Please wait..."
+                Start-Sleep -Seconds 300
+
                 Write-Output "Applying template $($pnpSiteTemplate) Please wait..."
 
                 try {
@@ -268,7 +275,7 @@ if ($pendingSiteCollections.Count -gt 0) {
                 }
             }
             
-            If ($eumSiteTemplate -eq "Modern Client Site")
+            If (($eumSiteTemplate -eq "Modern Client Site") -or ($eumSiteTemplate -eq "Client Communication Site"))
             {
                 Add-PnPFolder -Name "Quotes" -Folder "/Shared Documents"
                 Add-PnPFolder -Name "Signed Quotes" -Folder "/Shared Documents/Quotes"
