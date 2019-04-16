@@ -52,6 +52,7 @@ $temporarySiteCollections = Get-PnPListItem -List $SiteListName -Query "
         <FieldRef Name='ID'></FieldRef>
         <FieldRef Name='Title'></FieldRef>
         <FieldRef Name='EUMSiteURL'></FieldRef>
+        <FieldRef Name='EUMAlias'></FieldRef>
     </ViewFields>
 </View>"
 
@@ -61,11 +62,12 @@ if ($temporarySiteCollections.Count -gt 0) {
     $temporarySiteCollections | ForEach {
         $temporarySite = $_
 
-       }
-
-        # Reconnect to the master site for the next iteration
-        Helper-Connect-PnPOnline -Url $SitesListSiteURL
+        if ($temporarySite["EUMAlias"] -ne "")
+        {
+            
+        }
+    }
 }
 else {
-    Write-Output "No sites pending creation"
+    Write-Output "No temporary sites to delete"
 }
