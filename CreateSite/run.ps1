@@ -22,8 +22,8 @@ if ($AzureAutomation) {
     New-Item -ItemType Directory -Path "$($DistributionFolder)\SiteTemplates"
     Get-AzureStorageFile -ShareName $storageName -Path "SiteTemplates" -Context $storageContext | Get-AzureStorageFile | ? {$_.GetType().Name -eq "CloudFile"} | Get-AzureStorageFileContent -Force -Destination "$($DistributionFolder)\SiteTemplates"
 
-		New-Item -ItemType Directory -Path "$($DistributionFolder)\SiteTemplates\Pages"
-		Get-AzureStorageFile -ShareName $storageName -Path "SiteTemplates\Pages" -Context $storageContext | Get-AzureStorageFile | ? {$_.GetType().Name -eq "CloudFile"} | Get-AzureStorageFileContent -Force -Destination "$($DistributionFolder)\SiteTemplates\Pages"
+	New-Item -ItemType Directory -Path "$($DistributionFolder)\SiteTemplates\Pages"
+	Get-AzureStorageFile -ShareName $storageName -Path "SiteTemplates\Pages" -Context $storageContext | Get-AzureStorageFile | ? {$_.GetType().Name -eq "CloudFile"} | Get-AzureStorageFileContent -Force -Destination "$($DistributionFolder)\SiteTemplates\Pages"
 }
 else {
     $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
@@ -34,8 +34,6 @@ else {
 
 . $DistributionFolder\EUMSites_Helper.ps1
 LoadEnvironmentSettings
-
-
 
 # Get the config file
 [xml]$config = Get-Content -Path "$DistributionFolder/sharepoint.config"
@@ -175,13 +173,13 @@ if ($pendingSiteCollections.Count -gt 0) {
                 {
                 $baseSiteTemplate = ""
                 $baseSiteType = "TeamSite"
-                $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Client-Template-Template.xml"
+                $pnpSiteTemplate = "$DistributionFolder\SiteTemplates\Client-Template-Template.xml"
             }
             "Client Communication Site"
                 {
                 $baseSiteTemplate = ""
                 $baseSiteType = "CommunicationSite"
-                $pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Client-Template-Template.xml"
+                $pnpSiteTemplate = "$DistributionFolder\SiteTemplates\Client-Template-Template.xml"
             }
         }
 
@@ -265,7 +263,7 @@ if ($pendingSiteCollections.Count -gt 0) {
                 Write-Output "Applying template $($pnpSiteTemplate) Please wait..."
 
                 try {
-		                Set-PnPTraceLog -On -Level Debug
+		            Set-PnPTraceLog -On -Level Debug
                     Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate -ErrorAction Stop
                 }
                 catch {
