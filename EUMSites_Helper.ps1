@@ -12,11 +12,11 @@
         # Prompt for the environment defined in the config
         #-----------------------------------------------------------------------
 
-        Write-Output "`n***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
+        Write-Host "`n***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
         $config.settings.environments.environment | ForEach {
-            Write-Output "$($_.id)`t $($_.name) - $($_.webApp.URL)"
+            Write-Host "$($_.id)`t $($_.name) - $($_.webApp.URL)"
         }
-        Write-Output "***** AVAILABLE ENVIRONMENTS *****"
+        Write-Host "***** AVAILABLE ENVIRONMENTS *****"
 
         Do {
             [int]$environmentId = Read-Host "Enter the ID of the environment from the above list"
@@ -31,17 +31,7 @@
     [string]$Global:AdminURL = $environment.webApp.url.Replace(".sharepoint.com", "-admin.sharepoint.com")
     [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
         
-    $ManagedCredentials = $environment.webApp.managedCredentials
-    $ManagedCredentialsType = $environment.webApp.managedCredentialsType
-    $TenantId = $environment.webApp.tenantId
-    $VaultName = $environment.webApp.vaultName
-
-    $ManagedEUMCredentials = $environment.EUM.managedEUMCredentials
-    [string]$Global:Domain_FK = $environment.EUM.domain_FK
-    [string]$Global:SystemConfiguration_FK = $environment.EUM.systemConfiguration_FK
-    [string]$Global:EUMURL = $environment.EUM.EUMURL
-
-    Write-Output "Environment set to $($environment.name) - $($environment.webApp.URL) `n"
+    Write-Host "Environment set to $($environment.name) - $($environment.webApp.URL) `n"
 
     # Check if running in Azure Automation or locally
     $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -errorAction SilentlyContinue)
@@ -54,66 +44,76 @@
         $Global:storageContext = New-AzureStorageContext -ConnectionString $connectionString.GetNetworkCredential().Password
         $Global:SPCredentials = Get-AutomationPSCredential -Name $credentialName
     }
-    elseif (Get-InstalledModule -Name "CredentialManager" -RequiredVersion "2.0") {
-        #-----------------------------------------------------------------------
-        # Get credentials from Windows Credential Manager
-        #-----------------------------------------------------------------------
-        $Global:SPCredentials = Get-StoredCredential -Target $managedCredentials 
-        switch ($managedCredentialsType) {
-            "UsernamePassword" {
-                if ($SPCredentials -eq $null) {
-                    $UserName = Read-Host "Enter the username to connect with"
-                    $Password = Read-Host "Enter the password for $UserName" -AsSecureString 
-                    $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
-                    if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
-                        $temp = New-StoredCredential -Target $managedCredentials -UserName $UserName -SecurePassword $Password
-                    }
-                    $Global:SPCredentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName, $Password
-                }
-                else {
-                    Write-Output "Connecting with username" $SPCredentials.UserName
-                }
-            }
+    else {
+        $Global:SPCredentials = GetManagedCredentials -managedCredentials $environment.webApp.managedCredentials -ManagedCredentialsType $environment.webApp.managedCredentialsType
 
-            "ClientIdSecret" {
-                if ($SPCredentials -eq $null) {
-                    [string]$Global:O365ClientID = Read-Host "Enter the Client Id to connect with"
-                    [string]$Global:O365ClientSecret = Read-Host "Enter the Secret"
-                    $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
-                    if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
-                        $temp = New-StoredCredential -Target $managedCredentials -UserName $O365ClientID -Password $O365ClientSecret
-                    }
-                }
-                else {
-                    [string]$Global:O365ClientID = $SPCredentials.UserName
-                    [string]$Global:O365ClientSecret = $SPCredentials.GetNetworkCredential().password
-                    Write-Output "Connecting with Client Id" $O365ClientID
-                }
-            }
+        if ($loadEUMCredentials) {
+            $ManagedEUMCredentials = GetManagedCredentials -managedCredentials $environment.EUM.managedCredentials -ManagedCredentialsType $environment.EUM.managedCredentialsType
+            $Global:EUMClientID = $ManagedEUMCredentials.UserName
+            $Global:EUMSecret = (New-Object PSCredential "user", $ManagedEUMCredentials.Password).GetNetworkCredential().Password
         }
-        if ($ManagedEUMCredentials -ne $null) {
-            $EUMCredentials = Get-StoredCredential -Target $managedEUMCredentials
-            if ($EUMCredentials -eq $null) {
-                $Global:EUMClientID = Read-Host "Enter the Client ID to connect to EUM with"
-                $SecureEUMSecret = Read-Host "Enter the secret for $EUMClientID" -AsSecureString
+
+        if ($loadGraphAPICredentials) {
+            $AADCredentials = GetManagedCredentials -managedCredentials $environment.graphAPI.managedCredentials -ManagedCredentialsType $environment.graphAPI.managedCredentialsType
+            $Global:AADClientID = $AADCredentials.UserName
+            $Global:AADSecret = (New-Object PSCredential "user", $AADCredentials.Password).GetNetworkCredential().Password
+            $Global:AADDomain = $environment.graphAPI.AADDomain
+        }
+
+    }
+}
+
+function GetManagedCredentials()
+{
+    [OutputType([System.Management.Automation.PSCredential])]
+    Param
+    (
+        [Parameter(Mandatory=$true)][string] $managedCredentials,
+        [Parameter(Mandatory=$true)][string] $managedCredentialsType
+    )
+
+    if (-not(Get-InstalledModule -Name "CredentialManager" -RequiredVersion "2.0")) {
+        Write-Host "Required Windows Credential Manager 2.0 PowerShell Module not found. Please install the module by entering the following command in PowerShell: ""Install-Module -Name ""CredentialManager"" -RequiredVersion 2.0"""
+        return $null
+    }
+
+    #-----------------------------------------------------------------------
+    # Get credentials from Windows Credential Manager
+    #-----------------------------------------------------------------------
+    $Credentials = Get-StoredCredential -Target $managedCredentials 
+    switch ($managedCredentialsType) {
+        "UsernamePassword" {
+            if ($Credentials -eq $null) {
+                $UserName = Read-Host "Enter the username to connect with for $managedCredentials"
+                $Password = Read-Host "Enter the password for $UserName" -AsSecureString 
                 $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
                 if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
-                    $temp = New-StoredCredential -Target $ManagedEUMCredentials -UserName $EUMClientID -SecurePassword $SecureEUMSecret
+                    $temp = New-StoredCredential -Target $managedCredentials -UserName $UserName -SecurePassword $Password
                 }
-                $Global:EUMSecret = (New-Object PSCredential "user", $SecureEUMSecret).GetNetworkCredential().Password
+                $Credentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $UserName, $Password
             }
             else {
-                $Global:EUMClientID = $EUMCredentials.UserName
-                $Global:EUMSecret = (New-Object PSCredential "user", $EUMCredentials.Password).GetNetworkCredential().Password
-                Write-Output "Connecting to EUM with Client ID" $EUMClientID
+                Write-Host "Connecting with username" $Credentials.UserName
+            }
+        }
+
+        "ClientIdSecret" {
+            if ($Credentials -eq $null) {
+                $ClientID = Read-Host "Enter the Client Id to connect with for $managedCredentials"
+                $ClientSecret = Read-Host "Enter the Secret" -AsSecureString
+                $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
+                if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
+                    $temp = New-StoredCredential -Target $managedCredentials -UserName $ClientID -SecurePassword $ClientSecret
+                }
+                $Credentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $ClientID, $ClientSecret
+            }
+            else {
+                Write-Host "Connecting with Client Id" $ClientID
             }
         }
     }
-    else {
-        Write-Output "Required Windows Credential Manager 2.0 PowerShell Module not found. Please install the module by entering the following command in PowerShell: ""Install-Module -Name ""CredentialManager"" -RequiredVersion 2.0"""
-        break
-    }
-    
+
+    return ($Credentials)
 }
 
 function Helper-Connect-PnPOnline()
@@ -204,8 +204,8 @@ function CheckIfSiteExists()
     }
     catch
     {
-        Write-Output "Exception Type: $($_.Exception.GetType().FullName)"
-        Write-Output "Exception Message: $($_.Exception.Message)"
+        Write-Host "Exception Type: $($_.Exception.GetType().FullName)"
+        Write-Host "Exception Message: $($_.Exception.Message)"
     }
 }
 
@@ -385,7 +385,7 @@ function AddOrUpdateSiteEntry()
         [parameter(Mandatory=$false)]$spSubWebs
     )
 
-    Write-Output "Adding $($siteTitle) to the $($SiteListName) list. Please wait..."
+    Write-Host "Adding $($siteTitle) to the $($SiteListName) list. Please wait..."
 
     [hashtable]$newListItemValues = PrepareSiteItemValues -siteRelativeURL $siteRelativeURL -siteTitle $siteTitle -parentURL $parentURL `
         -breadcrumbHTML $breadcrumbHTML -brandingDeploymentType $brandingDeploymentType -selectedThemeName $selectedTheme.name `
@@ -397,7 +397,7 @@ function AddOrUpdateSiteEntry()
     Helper-Connect-PnPOnline -Url $SitesListSiteURL
     if ($existingItem)
     {
-        Write-Output "$($siteTitle) exists in $($SiteListName) list. Updating..."
+        Write-Host "$($siteTitle) exists in $($SiteListName) list. Updating..."
         [Microsoft.SharePoint.Client.ListItem]$newListItem = Set-PnPListItem -Identity $existingItem.Id -List $SiteListName -Values $newListItemValues -ContentType "EUM Site Collection List"
     }
     else
@@ -407,7 +407,7 @@ function AddOrUpdateSiteEntry()
 
     if ($newListItem)
     {
-        Write-Output "The site $($siteTitle) was added to the $($SiteListName) list successfully"
+        Write-Host "The site $($siteTitle) was added to the $($SiteListName) list successfully"
     }
 
     # -----------
@@ -415,7 +415,7 @@ function AddOrUpdateSiteEntry()
     # -----------
     if ($spSubWebs)
     {
-        Write-Output "Adding subsites of $($siteTitle) to $($SiteListName). Please wait..."
+        Write-Host "Adding subsites of $($siteTitle) to $($SiteListName). Please wait..."
         foreach ($spSubWeb in $spSubWebs)
         {
             [string]$siteRelativeURL = $spSubWeb.ServerRelativeUrl
@@ -435,7 +435,7 @@ function AddOrUpdateSiteEntry()
             Helper-Connect-PnPOnline -Url $SitesListSiteURL
             if ($existingItem)
             {
-                Write-Output "$($siteTitle) exists in $($SiteListName) list. Updating..."
+                Write-Host "$($siteTitle) exists in $($SiteListName) list. Updating..."
                 [Microsoft.SharePoint.Client.ListItem]$newListItem = Set-PnPListItem -Identity $existingItem.Id -List $SiteListName -Values $newListItemValues -ContentType "EUM Site Collection List"
             }
             else
@@ -445,7 +445,7 @@ function AddOrUpdateSiteEntry()
 
             if ($newListItem)
             {
-                Write-Output "The site $($siteTitle) was added to the $($SiteListName) list successfully"
+                Write-Host "The site $($siteTitle) was added to the $($SiteListName) list successfully"
             }
         }
     }
@@ -472,7 +472,7 @@ function AddSiteEntry()
     {
         Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
-        Write-Output "Adding $($siteTitle) to the $($SiteListName) list. Please wait..."
+        Write-Host "Adding $($siteTitle) to the $($SiteListName) list. Please wait..."
 
         [hashtable]$newListItemValues = PrepareSiteItemValues -siteRelativeURL $siteRelativeURL -siteTitle $siteTitle -parentURL $parentURL `
             -breadcrumbHTML $breadcrumbHTML -brandingDeploymentType $brandingDeploymentType -selectedThemeName $selectedTheme.name `
@@ -482,7 +482,7 @@ function AddSiteEntry()
 
         if ($newListItem)
         {
-            Write-Output "The site $($siteTitle) was added to the $($SiteListName) list successfully"
+            Write-Host "The site $($siteTitle) was added to the $($SiteListName) list successfully"
         }
 
         # -----------
@@ -490,7 +490,7 @@ function AddSiteEntry()
         # -----------
         if ($spSubWebs)
         {
-            Write-Output "Adding subsites of $($siteTitle) to $($SiteListName). Please wait..."
+            Write-Host "Adding subsites of $($siteTitle) to $($SiteListName). Please wait..."
             foreach ($spSubWeb in $spSubWebs)
             {
                 [string]$siteRelativeURL = $spSubWeb.ServerRelativeUrl
@@ -510,7 +510,7 @@ function AddSiteEntry()
                 Helper-Connect-PnPOnline -Url $SitesListSiteURL
                 if ($existingItem)
                 {
-                    Write-Output "$($siteTitle) exists in $($SiteListName) list. Updating..."
+                    Write-Host "$($siteTitle) exists in $($SiteListName) list. Updating..."
                     [Microsoft.SharePoint.Client.ListItem]$newListItem = Set-PnPListItem -Identity $existingItem.Id -List $SiteListName -Values $newListItemValues -ContentType "EUM Site Collection List"
                 }
                 else
@@ -520,14 +520,14 @@ function AddSiteEntry()
 
                 if ($newListItem)
                 {
-                    Write-Output "The site $($siteTitle) was added to the $($SiteListName) list successfully"
+                    Write-Host "The site $($siteTitle) was added to the $($SiteListName) list successfully"
                 }
             }
         }
     }
 	else
 	{
-		Write-Output "The site $($siteTitle) exists in $($SiteListName) list. Skipping..."
+		Write-Host "The site $($siteTitle) exists in $($SiteListName) list. Skipping..."
 	}
 }
 

@@ -17,13 +17,6 @@ if ($AzureAutomation) {
     $Global:storageContext = New-AzureStorageContext -ConnectionString $connectionString.GetNetworkCredential().Password
     Get-AzureStorageFileContent -ShareName $storageName -Path "sharepoint.config" -Context $storageContext -Force
     Get-AzureStorageFileContent -ShareName $storageName -Path "EUMSites_Helper.ps1" -Context $storageContext -Force
-
-    # Get site templates and branding files from azure storage
-    New-Item -ItemType Directory -Path "$($DistributionFolder)\SiteTemplates"
-    Get-AzureStorageFile -ShareName $storageName -Path "SiteTemplates" -Context $storageContext | Get-AzureStorageFile | ? {$_.GetType().Name -eq "CloudFile"} | Get-AzureStorageFileContent -Force -Destination "$($DistributionFolder)\SiteTemplates"
-
-		New-Item -ItemType Directory -Path "$($DistributionFolder)\SiteTemplates\Pages"
-		Get-AzureStorageFile -ShareName $storageName -Path "SiteTemplates\Pages" -Context $storageContext | Get-AzureStorageFile | ? {$_.GetType().Name -eq "CloudFile"} | Get-AzureStorageFileContent -Force -Destination "$($DistributionFolder)\SiteTemplates\Pages"
 }
 else {
     $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
@@ -33,6 +26,7 @@ else {
 }
 
 . $DistributionFolder\EUMSites_Helper.ps1
+$loadGraphAPICredentials = $true
 LoadEnvironmentSettings
 
 # Check the Site Collection List in master site for any sites that need to be created
@@ -62,9 +56,17 @@ if ($temporarySiteCollections.Count -gt 0) {
     $temporarySiteCollections | ForEach {
         $temporarySite = $_
 
-        if ($temporarySite["EUMAlias"] -ne "")
-        {
-            
+        if ($temporarySite["EUMAlias"] -eq $null) {
+            Write-Output "Deleting non-group site $($_["Title"]), URL:$($_["EUMSiteURL"].Url)"
+            Remove-PnPTenantSite -Url $_["EUMSiteURL"].Url -Force
+            Remove-PnPListItem -List $SiteListName -Identity $_.Id -Force
+        }
+        else {
+            Write-Output "Deleting group site $($_["Title"]), URL:$($_["EUMSiteURL"].Url)"
+            Connect-PnPOnline -AppId $AADClientID -AppSecret $AADSecret -AADDomain $AADDomain
+            Remove-PnPUnifiedGroup -Identity URL:$($_["EUMSiteURL"].Url)
+            Helper-Connect-PnPOnline -Url $SitesListSiteURL
+            Remove-PnPListItem -List $SiteListName -Identity $_.Id -Force
         }
     }
 }
