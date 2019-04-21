@@ -1,31 +1,12 @@
-﻿Param
-(
-    [Parameter (Mandatory = $false)][int]$listItemID
-)
-
-$Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -ErrorAction SilentlyContinue)
+﻿$Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -ErrorAction SilentlyContinue)
 if ($AzureAutomation) { 
-    $DistributionFolder = Get-Location
-
-    # Get automation variables and credentials
-    $Global:storageName = Get-AutomationVariable -Name 'AzureStorageName'
-    $Global:credentialName = Get-AutomationVariable -Name 'AutomationCredentialName'
-    $Global:connectionString = Get-AutomationPSCredential -Name 'AzureStorageConnectionString'
-    $Global:SPCredentials = Get-AutomationPSCredential -Name $credentialName
-
-    # Get EUMSites_Helper.ps1 and sharepoint.config from Azure storage
-    $Global:storageContext = New-AzureStorageContext -ConnectionString $connectionString.GetNetworkCredential().Password
-    Get-AzureStorageFileContent -ShareName $storageName -Path "sharepoint.config" -Context $storageContext -Force
-    Get-AzureStorageFileContent -ShareName $storageName -Path "EUMSites_Helper.ps1" -Context $storageContext -Force
+    . .\EUMSites_Helper.ps1
 }
 else {
     $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
-    $DistributionFolderArray = $DistributionFolder.Split('\')
-    $DistributionFolderArray[$DistributionFolderArray.Count - 1] = ""
-    $DistributionFolder = $DistributionFolderArray -join "\"
+    . $DistributionFolder\EUMSites_Helper.ps1
 }
 
-. $DistributionFolder\EUMSites_Helper.ps1
 $loadGraphAPICredentials = $true
 LoadEnvironmentSettings
 
@@ -62,9 +43,9 @@ if ($temporarySiteCollections.Count -gt 0) {
             Remove-PnPListItem -List $SiteListName -Identity $_.Id -Force
         }
         else {
-            Write-Output "Deleting group site $($_["Title"]), URL:$($_["EUMSiteURL"].Url)"
+            Write-Output "Deleting group site $($_["Title"]), $($_["EUMSiteURL"].Url)"
             Connect-PnPOnline -AppId $AADClientID -AppSecret $AADSecret -AADDomain $AADDomain
-            Remove-PnPUnifiedGroup -Identity URL:$($_["EUMSiteURL"].Url)
+            Remove-PnPUnifiedGroup -Identity $($_["EUMSiteURL"].Url)
             Helper-Connect-PnPOnline -Url $SitesListSiteURL
             Remove-PnPListItem -List $SiteListName -Identity $_.Id -Force
         }

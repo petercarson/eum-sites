@@ -1,50 +1,61 @@
 ﻿function LoadEnvironmentSettings() {
 
-    [xml]$config = Get-Content -Path "$DistributionFolder\sharepoint.config"
-
-    [System.Array]$Global:managedPaths = $config.settings.common.managedPaths.path
-    [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
-
-    $environmentId = $config.settings.common.defaultEnvironment
-
-    if (-not $environmentId) {
-        #-----------------------------------------------------------------------
-        # Prompt for the environment defined in the config
-        #-----------------------------------------------------------------------
-
-        Write-Host "`n***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
-        $config.settings.environments.environment | ForEach {
-            Write-Host "$($_.id)`t $($_.name) - $($_.webApp.URL)"
-        }
-        Write-Host "***** AVAILABLE ENVIRONMENTS *****"
-
-        Do {
-            [int]$environmentId = Read-Host "Enter the ID of the environment from the above list"
-        }
-        Until ($environmentId -gt 0)
-    }
-
-    [System.Xml.XmlLinkedNode]$Global:environment = $config.settings.environments.environment | Where { $_.id -eq $environmentId }
-
-    # Set variables based on environment selected
-    [string]$Global:WebAppURL = $environment.webApp.url
-    [string]$Global:AdminURL = $environment.webApp.url.Replace(".sharepoint.com", "-admin.sharepoint.com")
-    [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
-        
-    Write-Host "Environment set to $($environment.name) - $($environment.webApp.URL) `n"
-
     # Check if running in Azure Automation or locally
     $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -errorAction SilentlyContinue)
     if ($AzureAutomation) {
         # Get automation variables
-        $Global:storageName = Get-AutomationVariable -Name 'AzureStorageName'
-        $Global:credentialName = Get-AutomationVariable -Name 'AutomationCredentialName'
-        $Global:connectionString = Get-AutomationPSCredential -Name 'AzureStorageConnectionString'
+        $Global:SPCredentials = Get-AutomationPSCredential -Name 'SPOnlineCredentials'
 
-        $Global:storageContext = New-AzureStorageContext -ConnectionString $connectionString.GetNetworkCredential().Password
-        $Global:SPCredentials = Get-AutomationPSCredential -Name $credentialName
+        [string]$Global:SiteListName = Get-AutomationVariable -Name 'SiteListName'
+        [string]$Global:WebAppURL = Get-AutomationVariable -Name 'WebAppURL'
+        [string]$Global:AdminURL = $WebAppURL.Replace(".sharepoint.com", "-admin.sharepoint.com")
+        [string]$Global:SitesListSiteURL = "$($WebAppURL)$(Get-AutomationVariable -Name 'SitesListSiteURL')"
+
+        if ($loadEUMCredentials) {
+            # $Global:EUMClientID = $ManagedEUMCredentials.UserName
+            # $Global:EUMSecret = (New-Object PSCredential "user", $ManagedEUMCredentials.Password).GetNetworkCredential().Password
+        }
+
+        if ($loadGraphAPICredentials) {
+            # $Global:AADClientID = $AADCredentials.UserName
+            # $Global:AADSecret = (New-Object PSCredential "user", $AADCredentials.Password).GetNetworkCredential().Password
+            # $Global:AADDomain = $environment.graphAPI.AADDomain
+        }
     }
     else {
+        [xml]$config = Get-Content -Path "$DistributionFolder\sharepoint.config"
+
+        [System.Array]$Global:managedPaths = $config.settings.common.managedPaths.path
+        [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
+
+        $environmentId = $config.settings.common.defaultEnvironment
+
+        if (-not $environmentId) {
+            #-----------------------------------------------------------------------
+            # Prompt for the environment defined in the config
+            #-----------------------------------------------------------------------
+
+            Write-Host "`n***** AVAILABLE ENVIRONMENTS *****" -ForegroundColor DarkGray
+            $config.settings.environments.environment | ForEach {
+                Write-Host "$($_.id)`t $($_.name) - $($_.webApp.URL)"
+            }
+            Write-Host "***** AVAILABLE ENVIRONMENTS *****"
+
+            Do {
+                [int]$environmentId = Read-Host "Enter the ID of the environment from the above list"
+            }
+            Until ($environmentId -gt 0)
+        }
+
+        [System.Xml.XmlLinkedNode]$Global:environment = $config.settings.environments.environment | Where { $_.id -eq $environmentId }
+
+        # Set variables based on environment selected
+        [string]$Global:WebAppURL = $environment.webApp.url
+        [string]$Global:AdminURL = $environment.webApp.url.Replace(".sharepoint.com", "-admin.sharepoint.com")
+        [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
+        
+        Write-Host "Environment set to $($environment.name) - $($environment.webApp.URL) `n"
+
         $Global:SPCredentials = GetManagedCredentials -managedCredentials $environment.webApp.managedCredentials -ManagedCredentialsType $environment.webApp.managedCredentialsType
 
         if ($loadEUMCredentials) {
@@ -59,7 +70,6 @@
             $Global:AADSecret = (New-Object PSCredential "user", $AADCredentials.Password).GetNetworkCredential().Password
             $Global:AADDomain = $environment.graphAPI.AADDomain
         }
-
     }
 }
 
@@ -108,7 +118,7 @@ function GetManagedCredentials()
                 $Credentials = New-Object -typename System.Management.Automation.PSCredential -argumentlist $ClientID, $ClientSecret
             }
             else {
-                Write-Host "Connecting with Client Id" $ClientID
+                Write-Host "Connecting with Client Id" $Credentials.UserName
             }
         }
     }

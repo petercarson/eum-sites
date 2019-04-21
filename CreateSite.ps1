@@ -5,44 +5,24 @@
 
 $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -ErrorAction SilentlyContinue)
 if ($AzureAutomation) { 
-    $DistributionFolder = Get-Location
-
-    # Get automation variables and credentials
-    $Global:storageName = Get-AutomationVariable -Name 'AzureStorageName'
-    $Global:credentialName = Get-AutomationVariable -Name 'AutomationCredentialName'
-    $Global:connectionString = Get-AutomationPSCredential -Name 'AzureStorageConnectionString'
-    $Global:SPCredentials = Get-AutomationPSCredential -Name $credentialName
-
-    # Get EUMSites_Helper.ps1 and sharepoint.config from Azure storage
-    $Global:storageContext = New-AzureStorageContext -ConnectionString $connectionString.GetNetworkCredential().Password
-    Get-AzureStorageFileContent -ShareName $storageName -Path "sharepoint.config" -Context $storageContext -Force
-    Get-AzureStorageFileContent -ShareName $storageName -Path "EUMSites_Helper.ps1" -Context $storageContext -Force
-
-    # Get site templates and branding files from azure storage
-    New-Item -ItemType Directory -Path "$($DistributionFolder)\SiteTemplates"
-    Get-AzureStorageFile -ShareName $storageName -Path "SiteTemplates" -Context $storageContext | Get-AzureStorageFile | ? {$_.GetType().Name -eq "CloudFile"} | Get-AzureStorageFileContent -Force -Destination "$($DistributionFolder)\SiteTemplates"
-
-	New-Item -ItemType Directory -Path "$($DistributionFolder)\SiteTemplates\Pages"
-	Get-AzureStorageFile -ShareName $storageName -Path "SiteTemplates\Pages" -Context $storageContext | Get-AzureStorageFile | ? {$_.GetType().Name -eq "CloudFile"} | Get-AzureStorageFileContent -Force -Destination "$($DistributionFolder)\SiteTemplates\Pages"
+    . .\EUMSites_Helper.ps1
 }
 else {
     $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
-    $DistributionFolderArray = $DistributionFolder.Split('\')
-    $DistributionFolderArray[$DistributionFolderArray.Count - 1] = ""
-    $DistributionFolder = $DistributionFolderArray -join "\"
+    . $DistributionFolder\EUMSites_Helper.ps1
 }
 
-. $DistributionFolder\EUMSites_Helper.ps1
 LoadEnvironmentSettings
 
-# Get the config file
-[xml]$config = Get-Content -Path "$DistributionFolder/sharepoint.config"
+Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials -CreateDrive
+$pnpTemplatePath = "c:\pnptemplates"
+New-Item -Path $pnpTemplatePath -ItemType "directory" -Force
+Copy-Item -Path "spo:.\pnptemplates\*" -Destination $pnpTemplatePath -Force
 
-$hubSite = $config.settings.common.associatedHubSite.hubSiteUrl
+Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
 if ($listItemID -gt 0) {
     # Get the specific Site Collection List item in master site for the site that needs to be created
-    Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
     $pendingSiteCollections = Get-PnPListItem -List $SiteListName -Query "
     <View>
@@ -75,7 +55,6 @@ if ($listItemID -gt 0) {
 }
 else {
     # Check the Site Collection List in master site for any sites that need to be created
-    Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
     $pendingSiteCollections = Get-PnPListItem -List $SiteListName -Query "
     <View>
@@ -173,13 +152,13 @@ if ($pendingSiteCollections.Count -gt 0) {
                 {
                 $baseSiteTemplate = ""
                 $baseSiteType = "TeamSite"
-                $pnpSiteTemplate = "$DistributionFolder\SiteTemplates\Client-Template-Template.xml"
+                $pnpSiteTemplate = "$pnpTemplatePath\Client-Template-Template.xml"
             }
             "Client Communication Site"
                 {
                 $baseSiteTemplate = ""
                 $baseSiteType = "CommunicationSite"
-                $pnpSiteTemplate = "$DistributionFolder\SiteTemplates\Client-Template-Template.xml"
+                $pnpSiteTemplate = "$pnpTemplatePath\Client-Template-Template.xml"
             }
         }
 
