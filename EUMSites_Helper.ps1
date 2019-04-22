@@ -1,5 +1,7 @@
 ﻿function LoadEnvironmentSettings() {
 
+    [string]$Global:pnpTemplatePath = "c:\pnptemplates"
+
     # Check if running in Azure Automation or locally
     $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -errorAction SilentlyContinue)
     if ($AzureAutomation) {

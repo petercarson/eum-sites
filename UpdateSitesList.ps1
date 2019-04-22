@@ -1,14 +1,12 @@
-﻿[string]$DistributionFolder = $Env:distributionFolder
-
-if ($DistributionFolder -eq "")
-{
+﻿$Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -ErrorAction SilentlyContinue)
+if ($AzureAutomation) { 
+    . .\EUMSites_Helper.ps1
+}
+else {
     $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
-    $DistributionFolderArray = $DistributionFolder.Split('\')
-    $DistributionFolderArray[$DistributionFolderArray.Count - 1] = ""
-    $DistributionFolder = $DistributionFolderArray -join "\"
+    . $DistributionFolder\EUMSites_Helper.ps1
 }
 
-. $DistributionFolder\EUMSites_Helper.ps1
 LoadEnvironmentSettings
 
 Helper-Connect-PnPOnline -Url $SitesListSiteURL
