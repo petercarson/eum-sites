@@ -17,9 +17,10 @@
         }
 
         if ($loadGraphAPICredentials) {
-            # $Global:AADClientID = $AADCredentials.UserName
-            # $Global:AADSecret = (New-Object PSCredential "user", $AADCredentials.Password).GetNetworkCredential().Password
-            # $Global:AADDomain = $environment.graphAPI.AADDomain
+            $Global:AADCredentials = Get-AutomationPSCredential -Name 'AADCredentials'
+            $Global:AADClientID = $AADCredentials.UserName
+            $Global:AADSecret = (New-Object PSCredential "user", $AADCredentials.Password).GetNetworkCredential().Password
+            $Global:AADDomain = Get-AutomationVariable -Name 'AADDomain'
         }
     }
     else {

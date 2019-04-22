@@ -16,7 +16,7 @@ LoadEnvironmentSettings
 
 Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials -CreateDrive
 $pnpTemplatePath = "c:\pnptemplates"
-New-Item -Path $pnpTemplatePath -ItemType "directory" -Force
+New-Item -Path $pnpTemplatePath -ItemType "directory" -Force | out-null
 Copy-Item -Path "spo:.\pnptemplates\*" -Destination $pnpTemplatePath -Force
 
 Helper-Connect-PnPOnline -Url $SitesListSiteURL
