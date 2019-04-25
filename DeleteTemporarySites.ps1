@@ -19,7 +19,7 @@ $temporarySiteCollections = Get-PnPListItem -List $SiteListName -Query "
         <Where>
             <BeginsWith>
 				<FieldRef Name='EUMParentURL'/>
-				<Value Type='Url'>/sites/tempdemos</Value>
+				<Value Type='Text'>https://envisionit.sharepoint.com/sites/tempdemos</Value>
             </BeginsWith>
         </Where>
     </Query>
@@ -38,14 +38,14 @@ if ($temporarySiteCollections.Count -gt 0) {
         $temporarySite = $_
 
         if ($temporarySite["EUMAlias"] -eq $null) {
-            Write-Output "Deleting non-group site $($_["Title"]), URL:$($_["EUMSiteURL"].Url)"
-            Remove-PnPTenantSite -Url $_["EUMSiteURL"].Url -Force
+            Write-Output "Deleting non-group site $($_["Title"]), URL:$($_["EUMSiteURL"])"
+            Remove-PnPTenantSite -Url $_["EUMSiteURL"] -Force
             Remove-PnPListItem -List $SiteListName -Identity $_.Id -Force
         }
         else {
-            Write-Output "Deleting group site $($_["Title"]), $($_["EUMSiteURL"].Url)"
+            Write-Output "Deleting group site $($_["Title"]), $($_["EUMSiteURL"])"
             Connect-PnPOnline -AppId $AADClientID -AppSecret $AADSecret -AADDomain $AADDomain
-            Remove-PnPUnifiedGroup -Identity $($_["EUMSiteURL"].Url)
+            Remove-PnPUnifiedGroup -Identity $($_["EUMSiteURL"])
             Helper-Connect-PnPOnline -Url $SitesListSiteURL
             Remove-PnPListItem -List $SiteListName -Identity $_.Id -Force
         }
