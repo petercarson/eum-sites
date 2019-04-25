@@ -1,5 +1,7 @@
 ﻿function LoadEnvironmentSettings() {
 
+    [string]$Global:pnpTemplatePath = "c:\pnptemplates"
+
     # Check if running in Azure Automation or locally
     $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -errorAction SilentlyContinue)
     if ($AzureAutomation) {
@@ -299,54 +301,23 @@ function PrepareSiteItemValues()
 {
     Param
     (
-        [parameter(Mandatory=$true)][string]$siteRelativeURL,
         [parameter(Mandatory=$true)][string]$siteTitle,
-        [parameter(Mandatory=$false)]$parentURL,
         [parameter(Mandatory=$false)][string]$breadcrumbHTML,
-        [parameter(Mandatory=$false)]$brandingDeploymentType,
-        [parameter(Mandatory=$false)]$selectedThemeName,
-        [parameter(Mandatory=$false)]$masterPageName,
-        [parameter(Mandatory=$false)]$siteTemplateName,
-        [parameter(Mandatory=$false)]$siteCreatedDate,
-        [parameter(Mandatory=$false)]$subSite
+        [parameter(Mandatory=$false)]$siteCreatedDate
     )
 
     [hashtable]$newListItemValues = @{}
     $newListItemValues.Add("Title", $siteTitle)
-    $newListItemValues.Add("EUMSiteURL", $siteRelativeURL)
-    
-    if ($parentURL)
-    {
-        $newListItemValues.Add("EUMParentURL", $parentURL)
-    }
 
     if ($breadcrumbHTML)
     {
         $newListItemValues.Add("EUMBreadcrumbHTML", $breadcrumbHTML)
     }
 
-    if ($brandingDeploymentType)
-    {
-        $newListItemValues.Add("EUMBrandingDeploymentType", $brandingDeploymentType)
-    }
-    if ($selectedThemeName) 
-    {
-        $newListItemValues.Add("EUMSetComposedLook", $selectedThemeName)
-    }
-    if ($masterPageName)
-    {
-        $newListItemValues.Add("EUMSetMasterPage", $masterPageName)
-    }
-    if ($siteTemplateName)
-    { 
-        $newListItemValues.Add("EUMSiteTemplate", $siteTemplateName)
-    }
     if ($siteCreatedDate)
     {
         $newListItemValues.Add("EUMSiteCreated", $siteCreatedDate)
     }
-
-    $newListItemValues.Add("EUMIsSubsite", $subSite)
 
     return $newListItemValues
 }
@@ -387,37 +358,59 @@ function AddOrUpdateSiteEntry()
     (
         [parameter(Mandatory=$true)][string]$siteRelativeURL,
         [parameter(Mandatory=$true)][string]$siteTitle,
-        [parameter(Mandatory=$false)]$parentURL,
-        [parameter(Mandatory=$false)][string]$breadcrumbHTML,
-        [parameter(Mandatory=$false)][string]$brandingDeploymentType,
-        [parameter(Mandatory=$false)]$selectedTheme,
-        [parameter(Mandatory=$false)]$siteTemplateName,
         [parameter(Mandatory=$false)]$siteCreatedDate,
         [parameter(Mandatory=$false)]$spSubWebs
     )
 
-    Write-Host "Adding $($siteTitle) to the $($SiteListName) list. Please wait..."
-
-    [hashtable]$newListItemValues = PrepareSiteItemValues -siteRelativeURL $siteRelativeURL -siteTitle $siteTitle -parentURL $parentURL `
-        -breadcrumbHTML $breadcrumbHTML -brandingDeploymentType $brandingDeploymentType -selectedThemeName $selectedTheme.name `
-        -masterPageName $selectedTheme.masterPage -siteTemplateName $siteTemplateName -siteCreatedDate $siteCreatedDate
-
-
     $existingItem = GetSiteEntry -siteRelativeURL $siteRelativeURL -disconnect
+    if ($existingItem.Count -gt 1)
+    {
+        Write-Host "Error: Multiple existing list entries found for the same URL"
+        Write-Host $existingItem
+        return
+    }
 
     Helper-Connect-PnPOnline -Url $SitesListSiteURL
     if ($existingItem)
     {
-        Write-Host "$($siteTitle) exists in $($SiteListName) list. Updating..."
-        [Microsoft.SharePoint.Client.ListItem]$newListItem = Set-PnPListItem -Identity $existingItem.Id -List $SiteListName -Values $newListItemValues -ContentType "EUM Site Collection List"
+        [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $existingItem["EUMParentURL"].Url
+        [hashtable]$newListItemValues = PrepareSiteItemValues -siteTitle $siteTitle -breadcrumbHTML $breadcrumbHTML -siteCreatedDate $siteCreatedDate
+
+        $updateRequired = $false
+
+        foreach ($newListItemKey in $newListItemValues.Keys)
+        {
+            if ($newListItemKey -eq "EUMBreadcrumbHTML")
+            {
+                if ($existingItem[$newListItemKey] -notlike "*$($newListItemValues[$newListItemKey])*")
+                {
+                    $updateRequired = $true
+                }
+            }
+            elseif ($newListItemKey -ne "EUMSiteCreated")
+            {
+                if ($existingItem[$newListItemKey] -ne $newListItemValues[$newListItemKey])
+                {
+                    $updateRequired = $true
+                }
+            }
+        }
+
+        if ($updateRequired)
+        {
+            Write-Host "$($siteTitle) exists in $($SiteListName) list. Updating..."
+            [Microsoft.SharePoint.Client.ListItem]$newListItem = Set-PnPListItem -Identity $existingItem.Id -List $SiteListName -Values $newListItemValues
+        }
+        else
+        {
+            Write-Host "$($siteTitle) exists in $($SiteListName) list. No updates required."
+        }
     }
     else
     {
-        [Microsoft.SharePoint.Client.ListItem]$newListItem = Add-PnPListItem -List $SiteListName -Values $newListItemValues -ContentType "EUM Site Collection List"
-    }
-
-    if ($newListItem)
-    {
+        [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL ""
+        [hashtable]$newListItemValues = PrepareSiteItemValues -siteTitle $siteTitle -breadcrumbHTML $breadcrumbHTML -siteCreatedDate $siteCreatedDate
+        [Microsoft.SharePoint.Client.ListItem]$newListItem = Add-PnPListItem -List $SiteListName -Values $newListItemValues -ContentType "Base Site Request"
         Write-Host "The site $($siteTitle) was added to the $($SiteListName) list successfully"
     }
 
@@ -426,120 +419,58 @@ function AddOrUpdateSiteEntry()
     # -----------
     if ($spSubWebs)
     {
-        Write-Host "Adding subsites of $($siteTitle) to $($SiteListName). Please wait..."
+        Write-Host "Checking subsites of $($siteTitle) to $($SiteListName). Please wait..."
         foreach ($spSubWeb in $spSubWebs)
         {
             [string]$siteRelativeURL = $spSubWeb.ServerRelativeUrl
             [string]$siteTitle = $spSubWeb.Title
             $siteCreatedDate = $spSubWeb.Created.Date
-
-            [string]$parentURL = GetParentWebURL -siteURL "$($WebAppURL)$($siteRelativeURL)" -disconnect
-
             [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL
 
-            [hashtable]$newListItemValues = PrepareSiteItemValues -siteRelativeURL $siteRelativeURL -siteTitle $siteTitle -parentURL $parentURL `
-                -breadcrumbHTML $breadcrumbHTML -brandingDeploymentType $brandingDeploymentType -selectedThemeName $selectedTheme.name `
-                -masterPageName (Split-Path $spSubWeb.CustomMasterUrl -Leaf) -siteTemplateName $siteTemplateName -siteCreatedDate $siteCreatedDate
+            [hashtable]$newListItemValues = PrepareSiteItemValues -siteTitle $siteTitle -breadcrumbHTML $breadcrumbHTML -siteCreatedDate $siteCreatedDate
 
             $existingItem = GetSiteEntry -siteRelativeURL $siteRelativeURL -disconnect
 
             Helper-Connect-PnPOnline -Url $SitesListSiteURL
             if ($existingItem)
             {
-                Write-Host "$($siteTitle) exists in $($SiteListName) list. Updating..."
-                [Microsoft.SharePoint.Client.ListItem]$newListItem = Set-PnPListItem -Identity $existingItem.Id -List $SiteListName -Values $newListItemValues -ContentType "EUM Site Collection List"
+                $updateRequired = $false
+
+                foreach ($newListItemKey in $newListItemValues.Keys)
+                {
+                    if ($newListItemKey -eq "EUMBreadcrumbHTML")
+                    {
+                        if ($existingItem[$newListItemKey] -notlike "*$($newListItemValues[$newListItemKey])*")
+                        {
+                            $updateRequired = $true
+                        }
+                    }
+                    elseif ($newListItemKey -ne "EUMSiteCreated")
+                    {
+                        if ($existingItem[$newListItemKey] -ne $newListItemValues[$newListItemKey])
+                        {
+                            $updateRequired = $true
+                        }
+                    }
+                }
+
+                if ($updateRequired)
+                {
+                    Write-Host "$($siteTitle) exists in $($SiteListName) list. Updating..."
+                    [Microsoft.SharePoint.Client.ListItem]$newListItem = Set-PnPListItem -Identity $existingItem.Id -List $SiteListName -Values $newListItemValues
+                }
+                else
+                {
+                    Write-Host "$($siteTitle) exists in $($SiteListName) list. No updates required."
+                }
             }
             else
             {
-                [Microsoft.SharePoint.Client.ListItem]$newListItem = Add-PnPListItem -List $SiteListName -Values $newListItemValues -ContentType "EUM Site Collection List"
-            }
-
-            if ($newListItem)
-            {
+                [Microsoft.SharePoint.Client.ListItem]$newListItem = Add-PnPListItem -List $SiteListName -Values $newListItemValues -ContentType "Base Site Request"
                 Write-Host "The site $($siteTitle) was added to the $($SiteListName) list successfully"
             }
         }
     }
-}
-
-function AddSiteEntry()
-{
-    Param
-    (
-        [parameter(Mandatory=$true)][string]$siteRelativeURL,
-        [parameter(Mandatory=$true)][string]$siteTitle,
-        [parameter(Mandatory=$false)]$parentURL,
-        [parameter(Mandatory=$false)][string]$breadcrumbHTML,
-        [parameter(Mandatory=$false)][string]$brandingDeploymentType,
-        [parameter(Mandatory=$false)]$selectedTheme,
-        [parameter(Mandatory=$false)]$siteTemplateName,
-        [parameter(Mandatory=$false)]$siteCreatedDate,
-        [parameter(Mandatory=$false)]$spSubWebs
-    )
-
-    $existingItem = GetSiteEntry -siteRelativeURL $siteRelativeURL -disconnect
-
-    if (!$existingItem)
-    {
-        Helper-Connect-PnPOnline -Url $SitesListSiteURL
-
-        Write-Host "Adding $($siteTitle) to the $($SiteListName) list. Please wait..."
-
-        [hashtable]$newListItemValues = PrepareSiteItemValues -siteRelativeURL $siteRelativeURL -siteTitle $siteTitle -parentURL $parentURL `
-            -breadcrumbHTML $breadcrumbHTML -brandingDeploymentType $brandingDeploymentType -selectedThemeName $selectedTheme.name `
-            -masterPageName $selectedTheme.masterPage -siteTemplateName $siteTemplateName -siteCreatedDate $siteCreatedDate -subSite $false
-        [Microsoft.SharePoint.Client.ListItem]$newListItem = Add-PnPListItem -List $SiteListName -Values $newListItemValues -ContentType "EUM Site Collection List"
-    
-
-        if ($newListItem)
-        {
-            Write-Host "The site $($siteTitle) was added to the $($SiteListName) list successfully"
-        }
-
-        # -----------
-        # Subsites
-        # -----------
-        if ($spSubWebs)
-        {
-            Write-Host "Adding subsites of $($siteTitle) to $($SiteListName). Please wait..."
-            foreach ($spSubWeb in $spSubWebs)
-            {
-                [string]$siteRelativeURL = $spSubWeb.ServerRelativeUrl
-                [string]$siteTitle = $spSubWeb.Title
-                $siteCreatedDate = $spSubWeb.Created.Date
-
-                [string]$parentURL = GetParentWebURL -siteURL "$($WebAppURL)$($siteRelativeURL)" -disconnect
-
-                [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $SiteRelativeURL -siteTitle $siteTitle -parentURL $parentURL
-
-                [hashtable]$newListItemValues = PrepareSiteItemValues -siteRelativeURL $siteRelativeURL -siteTitle $siteTitle -parentURL $parentURL `
-                    -breadcrumbHTML $breadcrumbHTML -brandingDeploymentType $brandingDeploymentType -selectedThemeName $selectedTheme.name `
-                    -masterPageName (Split-Path $spSubWeb.CustomMasterUrl -Leaf) -siteTemplateName $siteTemplateName -siteCreatedDate $siteCreatedDate -subSite $true
-
-                $existingItem = GetSiteEntry -siteRelativeURL $siteRelativeURL -disconnect
-
-                Helper-Connect-PnPOnline -Url $SitesListSiteURL
-                if ($existingItem)
-                {
-                    Write-Host "$($siteTitle) exists in $($SiteListName) list. Updating..."
-                    [Microsoft.SharePoint.Client.ListItem]$newListItem = Set-PnPListItem -Identity $existingItem.Id -List $SiteListName -Values $newListItemValues -ContentType "EUM Site Collection List"
-                }
-                else
-                {
-                    [Microsoft.SharePoint.Client.ListItem]$newListItem = Add-PnPListItem -List $SiteListName -Values $newListItemValues -ContentType "EUM Site Collection List"
-                }
-
-                if ($newListItem)
-                {
-                    Write-Host "The site $($siteTitle) was added to the $($SiteListName) list successfully"
-                }
-            }
-        }
-    }
-	else
-	{
-		Write-Host "The site $($siteTitle) exists in $($SiteListName) list. Skipping..."
-	}
 }
 
 function SetSiteLogo {

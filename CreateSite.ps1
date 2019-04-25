@@ -15,7 +15,6 @@ else {
 LoadEnvironmentSettings
 
 Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials -CreateDrive
-$pnpTemplatePath = "c:\pnptemplates"
 New-Item -Path $pnpTemplatePath -ItemType "directory" -Force | out-null
 Copy-Item -Path "spo:.\pnptemplates\*" -Destination $pnpTemplatePath -Force
 
@@ -152,13 +151,13 @@ if ($pendingSiteCollections.Count -gt 0) {
                 {
                 $baseSiteTemplate = ""
                 $baseSiteType = "TeamSite"
-                $pnpSiteTemplate = "$pnpTemplatePath\Client-Template-Template.xml"
+                $pnpSiteTemplate = "$pnpTemplatePath\Client-Template.xml"
             }
             "Client Communication Site"
                 {
                 $baseSiteTemplate = ""
                 $baseSiteType = "CommunicationSite"
-                $pnpSiteTemplate = "$pnpTemplatePath\Client-Template-Template.xml"
+                $pnpSiteTemplate = "$pnpTemplatePath\Client-Template.xml"
             }
         }
 
