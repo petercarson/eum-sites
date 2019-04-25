@@ -273,7 +273,7 @@ function GetBreadcrumbHTML()
 {
     Param
     (
-        [Parameter(Mandatory=$true)][string] $siteRelativeURL,
+        [Parameter(Mandatory=$true)][string] $siteURL,
         [Parameter(Mandatory=$true)][string] $siteTitle,
         [Parameter(Mandatory=$false)][string] $parentURL
     )
@@ -281,15 +281,14 @@ function GetBreadcrumbHTML()
 
     if ($parentURL)
     {
-        $parentURL = $parentURL.Replace($WebAppURL, "")
-        $parentListItem = GetSiteEntry -siteRelativeURL $parentURL
+        $parentListItem = GetSiteEntry -siteURL $parentURL
         if ($parentListItem)
         {
             [string]$parentBreadcrumbHTML = $parentListItem["EUMBreadcrumbHTML"]
         }
     }
 
-    [string]$breadcrumbHTML = "<a href=`"$($siteRelativeURL)`">$($siteTitle)</a>"
+    [string]$breadcrumbHTML = "<a href=`"$($siteURL)`">$($siteTitle)</a>"
 	if ($parentBreadcrumbHTML)
 	{
 		$breadcrumbHTML = $parentBreadcrumbHTML + ' &gt; ' + $breadcrumbHTML
@@ -326,7 +325,7 @@ function GetSiteEntry()
 {
     Param
     (
-        [parameter(Mandatory=$true)][string]$siteRelativeURL,
+        [parameter(Mandatory=$true)][string]$siteURL,
         [Parameter(Mandatory=$false)][switch] $disconnect
     )
     
@@ -338,7 +337,7 @@ function GetSiteEntry()
             <Where>
                 <Eq>
                     <FieldRef Name='EUMSiteURL'/>
-                    <Value Type='URL'>$($siteRelativeURL)</Value>
+                    <Value Type='Text'>$($siteURL)</Value>
                 </Eq>
             </Where>
         </Query>

@@ -95,11 +95,11 @@ if ($pendingSiteCollections.Count -gt 0) {
             $siteURL = "$($WebAppURL)/sites/$alias"
         }
         else {
-            [string]$siteURL = ($pendingSite["EUMSiteURL"]).Url
+            [string]$siteURL = "$WebAppURL$($pendingSite['EUMSiteURL'])"
         }
         [string]$publicGroup = $pendingSite["EUMPublicGroup"]
         [string]$breadcrumbHTML = $pendingSite["EUMBreadcrumbHTML"]
-        [string]$parentURL = $pendingSite["EUMParentURL"].Url
+        [string]$parentURL = $pendingSite["EUMParentURL"]
         [string]$Division = $pendingSite["EUMDivision"].LookupValue
 
         [bool]$siteCollection = CheckIfSiteCollection -siteURL $siteURL
@@ -129,7 +129,6 @@ if ($pendingSiteCollections.Count -gt 0) {
             if ($divisionSiteURL.Count -eq 1)
             {
 			    $parentURL = $divisionSiteURL["SiteURL"].Url
-                $parentURL = $parentURL.Replace($WebAppURL, "")
             }
 		}
 
@@ -273,10 +272,10 @@ if ($pendingSiteCollections.Count -gt 0) {
             Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
             # Set the breadcrumb HTML
-            [string]$breadcrumbHTML = GetBreadcrumbHTML -siteRelativeURL $siteURL -siteTitle $siteTitle -parentURL $parentURL
+            [string]$breadcrumbHTML = GetBreadcrumbHTML -siteURL $siteURL -siteTitle $siteTitle -parentURL $parentURL
 
             # Set the site created date, breadcrumb, and site URL
-            [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteURL.Replace($WebAppURL, ""); "EUMParentURL" = $parentURL }
+            [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteURL; "EUMParentURL" = $parentURL }
 
             # Install Masthead on the site
             # Install-To-Site $siteURL
