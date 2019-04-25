@@ -1,13 +1,4 @@
-﻿[string]$DistributionFolder = $Env:distributionFolder
-
-if (-not $DistributionFolder)
-{
-    $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
-    $DistributionFolderArray = $DistributionFolder.Split('\')
-    $DistributionFolderArray[$DistributionFolderArray.Count - 1] = ""
-    $DistributionFolder = $DistributionFolderArray -join "\"
-}
-
+﻿$DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
 . $DistributionFolder\EUMSites_Helper.ps1
 LoadEnvironmentSettings
 
