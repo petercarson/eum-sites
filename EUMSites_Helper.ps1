@@ -286,6 +286,10 @@ function GetBreadcrumbHTML()
         {
             [string]$parentBreadcrumbHTML = $parentListItem["EUMBreadcrumbHTML"]
         }
+        else
+        {
+        Write-Host "No entry found for $parentURL"
+        }
     }
 
     $siteURL = $siteURL.Replace($webAppURL, "")
@@ -301,13 +305,30 @@ function PrepareSiteItemValues()
 {
     Param
     (
-        [parameter(Mandatory=$true)][string]$siteTitle,
+        [parameter(Mandatory=$false)][string]$siteURL,
+        [parameter(Mandatory=$false)][string]$siteTitle,
+        [parameter(Mandatory=$false)]$parentURL,
         [parameter(Mandatory=$false)][string]$breadcrumbHTML,
-        [parameter(Mandatory=$false)]$siteCreatedDate
+        [parameter(Mandatory=$false)]$siteCreatedDate,
+        [parameter(Mandatory=$false)]$subSite
     )
 
     [hashtable]$newListItemValues = @{}
-    $newListItemValues.Add("Title", $siteTitle)
+
+    if ($siteURL)
+    {
+        $newListItemValues.Add("EUMSiteURL", $siteURL)
+    }
+
+    if ($siteTitle)
+    {
+        $newListItemValues.Add("Title", $siteTitle)
+    }
+
+    if ($parentURL)
+    {
+        $newListItemValues.Add("EUMParentURL", $parentURL)
+    }
 
     if ($breadcrumbHTML)
     {
@@ -317,6 +338,11 @@ function PrepareSiteItemValues()
     if ($siteCreatedDate)
     {
         $newListItemValues.Add("EUMSiteCreated", $siteCreatedDate)
+    }
+
+    if ($subSite)
+    {
+        $newListItemValues.Add("EUMSubSite", $subSite)
     }
 
     return $newListItemValues
