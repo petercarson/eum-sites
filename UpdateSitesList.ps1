@@ -64,31 +64,6 @@ else {
 
 LoadEnvironmentSettings
 
-# ---------------------------------------------------------
-# 2. Iterate through all site collections and add new ones
-# ---------------------------------------------------------
-Write-Output "Adding tenant site collections to ($SiteListName). Please wait..."
-Helper-Connect-PnPOnline -Url $SitesListSiteURL
-$siteCollections = Get-PnPTenantSite -IncludeOneDriveSites
-
-$siteCollections | ForEach {
-    [string]$SiteURL = $_.Url
-
-    # Exclude the default site collections
-    if (($SiteURL.ToLower() -notlike "*/portals/community") -and 
-        ($SiteURL.ToLower() -notlike "*/portals/hub") -and 
-        ($SiteURL.ToLower() -notlike "*/sites/contenttypehub") -and 
-        ($SiteURL.ToLower() -notlike "*/search") -and 
-        ($SiteURL.ToLower() -notlike "*/sites/appcatalog") -and 
-        ($SiteURL.ToLower() -notlike "*/sites/compliancepolicycenter") -and 
-        ($SiteURL.ToLower() -notlike "*-my.sharepoint.com*") -and 
-        ($SiteURL.ToLower() -notlike "http://bot*") -and 
-        ($SiteURL.ToLower() -ne "/")) 
-        {
-            CheckSite -siteURL $SiteURL
-        }
-}
-
 # -----------------------------------------
 # 1. Update any existing sites and delete all sites that no longer exist
 # -----------------------------------------
@@ -179,6 +154,31 @@ $siteCollectionListItems | ForEach {
         Helper-Connect-PnPOnline -Url $SitesListSiteURL
         Remove-PnPListItem -List $SiteListName -Identity $listItemID -Force
     }
+
+		# ---------------------------------------------------------
+		# 2. Iterate through all site collections and add new ones
+		# ---------------------------------------------------------
+		Write-Output "Adding tenant site collections to ($SiteListName). Please wait..."
+		Helper-Connect-PnPOnline -Url $SitesListSiteURL
+		$siteCollections = Get-PnPTenantSite -IncludeOneDriveSites
+
+		$siteCollections | ForEach {
+				[string]$SiteURL = $_.Url
+
+				# Exclude the default site collections
+				if (($SiteURL.ToLower() -notlike "*/portals/community") -and 
+						($SiteURL.ToLower() -notlike "*/portals/hub") -and 
+						($SiteURL.ToLower() -notlike "*/sites/contenttypehub") -and 
+						($SiteURL.ToLower() -notlike "*/search") -and 
+						($SiteURL.ToLower() -notlike "*/sites/appcatalog") -and 
+						($SiteURL.ToLower() -notlike "*/sites/compliancepolicycenter") -and 
+						($SiteURL.ToLower() -notlike "*-my.sharepoint.com*") -and 
+						($SiteURL.ToLower() -notlike "http://bot*") -and 
+						($SiteURL.ToLower() -ne "/")) 
+						{
+								CheckSite -siteURL $SiteURL
+						}
+		}
 }
 
 #        <Where>
