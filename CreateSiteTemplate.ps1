@@ -26,3 +26,12 @@ $TemplateFilename = "$pnpTemplatePath\$siteTemplateTitle"
 # Create the site template
 # -------------------------
 Get-PnPProvisioningTemplate -out $TemplateFilename -Handlers Fields, Lists, SiteSecurity, ContentTypes, PageContents
+
+# -------------------------
+# Upload the template back to SharePoint
+# -------------------------
+$UploadTemplate = Read-Host "Upload the template back to SharePoint (Y/N)?"
+if (($UploadTemplate -eq "y") -or ($UploadTemplate -eq "Y")) {
+		Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials -CreateDrive
+		Copy-Item -Path $TemplateFilename -Destination "spo:.\pnptemplates\" -Force
+}

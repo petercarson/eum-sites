@@ -102,8 +102,6 @@ if ($pendingSiteCollections.Count -gt 0) {
         [string]$parentURL = $pendingSite["EUMParentURL"]
         [string]$Division = $pendingSite["EUMDivision"].LookupValue
 
-        [bool]$siteCollection = CheckIfSiteCollection -siteURL $siteURL
-
         [string]$eumSiteTemplate = $pendingSite["EUMSiteTemplate"]
 
         [string]$author = $pendingSite["Author"].Email

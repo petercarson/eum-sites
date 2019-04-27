@@ -144,131 +144,6 @@ function Helper-Connect-PnPOnline()
         }
 }
 
-function CheckIfSiteCollection()
-{
-    Param
-    (
-        [Parameter(Mandatory=$true)][string] $siteURL
-    )
-    [bool] $isSiteCollection = $false
-    foreach($managedPath in $managedPaths)
-    {
-        
-        [string]$relativeURL = $siteURL.Replace($WebAppURL, "").ToLower().Trim()
-
-        if ($relativeURL -eq '/')
-        {
-            $isSiteCollection = $true
-        }
-        elseif ($relativeURL.StartsWith(($managedPath.ToLower())))
-        {
-            [string]$relativeURLUpdated = $relativeURL.Replace($managedPath.ToLower(), "").Trim('/')
-            [int]$charCount = ($relativeURLUpdated.ToCharArray() | Where-Object {$_ -eq '/'} | Measure-Object).Count
-            
-            $isSiteCollection = $charCount -eq 0
-        }
-    }
-
-    return $isSiteCollection
-}
-
-function CheckIfSiteExists()
-{
-    Param
-    (
-        [Parameter(Mandatory=$true)][string] $siteURL,
-        [Parameter(Mandatory=$false)][switch] $disconnect
-    )
-
-    try
-    {
-        Helper-Connect-PnPOnline -Url $siteURL
-
-        if ($disconnect.IsPresent)
-        {
-            Disconnect-PnPOnline
-        }
-
-        return $true
-    }
-    catch [System.Net.WebException]
-    {
-        if ([int]$_.Exception.Response.StatusCode -eq 404)
-        {
-            return $false
-        }
-        else
-        {
-            try {
-                $spContext = New-Object Microsoft.SharePoint.Client.ClientContext($siteURL)
-                $spContext.Credentials = New-Object Microsoft.SharePoint.Client.SharePointOnlineCredentials($SPCredentials.UserName, $SPCredentials.Password)
-                $web = $spContext.Web
-                $spContext.Load($web)
-                $spContext.ExecuteQuery()
-            }
-            catch
-            {      
-                if (($_.Exception.Message -like "*Cannot contact site at the specified URL*") -and ($_.Exception.Message -like "*There is no Web named*"))
-                {
-                    return $false
-                }
-            }
-        }
-    }
-    catch
-    {
-        Write-Host "Exception Type: $($_.Exception.GetType().FullName)"
-        Write-Host "Exception Message: $($_.Exception.Message)"
-    }
-}
-
-function GetParentWebURL()
-{
-    Param
-    (
-        [Parameter(Mandatory=$true)][string] $siteURL,
-        [Parameter(Mandatory=$false)][switch] $disconnect
-    )
-
-    Helper-Connect-PnPOnline -Url $siteURL
-    [Microsoft.SharePoint.Client.Web]$spWeb = Get-PnPWeb -Includes ParentWeb.ServerRelativeUrl
-
-    if ($disconnect.IsPresent)
-    {
-        Disconnect-PnPOnline
-    }
-
-    return $spWeb.ParentWeb.ServerRelativeUrl
-}
-
-function GetSubWebs()
-{
-    Param
-    (
-        [Parameter(Mandatory=$true)][string] $siteURL,
-        [Parameter(Mandatory=$false)][switch] $disconnect
-    )
-    
-    Helper-Connect-PnPOnline -Url $siteURL
-    [Microsoft.SharePoint.Client.Web]$spWeb = Get-PnPWeb -Includes Webs
-
-    if ($spWeb.Webs.Count -gt 0)
-    {
-        $spSubWebs = Get-PnPSubWebs -Web $spWeb -Recurse
-    }
-    else
-    {
-        $spSubWebs = $null
-    }
-
-    if ($disconnect.IsPresent)
-    {
-        Disconnect-PnPOnline
-    }
-
-    return $spSubWebs
-}
-
 function GetBreadcrumbHTML()
 {
     Param
@@ -281,14 +156,27 @@ function GetBreadcrumbHTML()
 
     if ($parentURL)
     {
-        $parentListItem = GetSiteEntry -siteURL $parentURL
+				Helper-Connect-PnPOnline -Url $SitesListSiteURL
+
+				$parentListItem = Get-PnPListItem -List $SiteListName -Query "
+				<View>
+						<Query>
+								<Where>
+										<Eq>
+												<FieldRef Name='EUMSiteURL'/>
+												<Value Type='Text'>$($siteURL)</Value>
+										</Eq>
+								</Where>
+						</Query>
+				</View>"
+
         if ($parentListItem)
         {
             [string]$parentBreadcrumbHTML = $parentListItem["EUMBreadcrumbHTML"]
         }
         else
         {
-        Write-Host "No entry found for $parentURL"
+						Write-Host "No entry found for $parentURL"
         }
     }
 
@@ -346,140 +234,6 @@ function PrepareSiteItemValues()
     }
 
     return $newListItemValues
-}
-
-function GetSiteEntry()
-{
-    Param
-    (
-        [parameter(Mandatory=$true)][string]$siteURL,
-        [Parameter(Mandatory=$false)][switch] $disconnect
-    )
-    
-    Helper-Connect-PnPOnline -Url $SitesListSiteURL
-
-    $siteListItem = Get-PnPListItem -List $SiteListName -Query "
-    <View>
-        <Query>
-            <Where>
-                <Eq>
-                    <FieldRef Name='EUMSiteURL'/>
-                    <Value Type='Text'>$($siteURL)</Value>
-                </Eq>
-            </Where>
-        </Query>
-    </View>"
-    
-    if ($disconnect.IsPresent)
-    {
-        Disconnect-PnPOnline
-    }
-
-    return $siteListItem
-}
-
-function SetSiteLogo {
-    Param
-    (
-        [Parameter(Position = 0, Mandatory = $true)][string] $siteURL,
-        [Parameter(Position = 1, Mandatory = $true)][string] $logoRelativeURL,
-        [Parameter(Position = 2, Mandatory = $false)][switch] $subsitesInherit
-    )
-
-    try {            
-        $web = Get-PnPWeb
-        Set-PnpWeb -Web $web.Id -SiteLogoUrl $logoRelativeURL
-
-
-        if ($subsitesInherit.IsPresent) {
-            Write-Host "Updating subsites logo"
-
-            $subwebs = Get-PnPSubWebs -Recurse
-            Foreach ($web in $subwebs) {
-                Set-PnpWeb -Web $web.Id -SiteLogoUrl $logoRelativeURL
-            }
-        }
-        else {
-            Write-Host "Updating site logo"
-            $web = Get-PnPWeb
-            Set-PnpWeb -Web $web -SiteLogoUrl $logoRelativeURL
-        }
-          
-    }
-    catch {
-        Write-Host "An exception occurred setting site logo in $siteURL"
-        Write-Host "Exception Type: $($_.Exception.GetType().FullName)" -ForegroundColor Red
-        Write-Host "Exception Message: $($_.Exception.Message)" -ForegroundColor Red
-    }
-}
-
-function ApplyModernSiteBranding {
-
-    Param
-    (
-        [Parameter(Position = 0, Mandatory = $true)][string] $siteURL,
-        [Parameter(Position = 4, Mandatory = $true)][string] $logoFile,
-        [Parameter(Position = 4, Mandatory = $true)][string] $homePageImage
-    )
-        
-    #$cred = Get-Credential
-    #Connect-PnPOnline $siteURL -Credentials $PScredentials
-    Helper-Connect-PnPOnline -Url $siteURL
-
-    # Apply a custom theme to a Modern Site
-
-    # First, upload the theme assets
-    Write-Host "`nUploading branding files..." -foreground yellow
-
-    Add-PnPFile -Path "$DistributionFolder\Branding\$logoFile" -Folder SiteAssets    
-    Add-PnPFile -Path "$DistributionFolder\Branding\$homePageImage" -Folder SiteAssets      
-
-    Write-Host "`nBranding files deployed`n" -foreground green
-
-    # Second, apply the theme assets to the site
-    $web = Get-PnPWeb
-    $logo = $web.ServerRelativeUrl + "/Style Library/$logoFile"
-
-    Write-Host "Setting site logo..." -foreground yellow
-
-    SetSiteLogo -siteURL $siteURL -logoRelativeURL $logo #-subsitesInherit
-
-    # We use OOTB CSOM operation for this
-    #$web.ApplyTheme($palette, $font, $background, $true)
-    $web.Update()
-    # Set timeout as high as possible and execute
-    $web.Context.RequestTimeout = [System.Threading.Timeout]::Infinite
-    $web.Context.ExecuteQuery()  
-}
-
-
-function DisableDenyAddAndCustomizePages {
-    Param
-    (
-        [Parameter(Position = 0, Mandatory = $true)][string] $siteURL
-    )
-
-    Helper-Connect-PnPOnline -URL $AdminURL
-    
-    $context = Get-PnPContext
-    $site = Get-PnPTenantSite -Detailed -Url $siteURL
-     
-    $site.DenyAddAndCustomizePages = [Microsoft.Online.SharePoint.TenantAdministration.DenyAddAndCustomizePagesStatus]::Disabled
-     
-    $site.Update()
-    $context.ExecuteQuery()
-    $context.Dispose()
-
-    $status = $null
-    do {
-        Write-Host "Waiting...   $status"
-        Start-Sleep -Seconds 5
-        $site = Get-PnPTenantSite -Detailed -Url $siteURL
-        $status = $site.Status
-    
-    } while ($status -ne 'Active')
-
-    Disconnect-PnPOnline
 }
 
 Set-PnPTraceLog -On -Level Debug
