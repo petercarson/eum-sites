@@ -25,7 +25,7 @@ $TemplateFilename = "$pnpTemplatePath\$siteTemplateTitle"
 # -------------------------
 # Create the site template
 # -------------------------
-Get-PnPProvisioningTemplate -out $TemplateFilename -Handlers Fields, Lists, SiteSecurity, ContentTypes, PageContents
+Get-PnPProvisioningTemplate -out $TemplateFilename -Handlers Fields, Lists, ContentTypes, PageContents
 
 # -------------------------
 # Upload the template back to SharePoint

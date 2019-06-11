@@ -2,12 +2,16 @@
 . $DistributionFolder\EUMSites_Helper.ps1
 LoadEnvironmentSettings
 
+Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials -CreateDrive
+New-Item -Path $pnpTemplatePath -ItemType "directory" -Force | out-null
+Copy-Item -Path "spo:.\pnptemplates\*" -Destination $pnpTemplatePath -Force
+
 [string]$SiteURL = Read-Host "Enter the URL of the site to apply the template to"
 
 Helper-Connect-PnPOnline -Url $siteURL
 
 Set-PnPTraceLog -On -Level Debug
-$pnpSiteTemplate = $DistributionFolder + "\SiteTemplates\Client-Template-Template.xml"
+$pnpSiteTemplate = "$pnpTemplatePath\Client-Template.xml"
 Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate
 
 Add-PnPFolder -Name "Quotes" -Folder "/Shared Documents"

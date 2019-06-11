@@ -48,6 +48,7 @@ if ($listItemID -gt 0) {
             <FieldRef Name='EUMParentURL'></FieldRef>
             <FieldRef Name='EUMSiteTemplate'></FieldRef>
             <FieldRef Name='EUMDivision'></FieldRef>
+            <FieldRef Name='EUMCreateTeam'></FieldRef>
             <FieldRef Name='Author'></FieldRef>
         </ViewFields>
     </View>"
@@ -74,6 +75,7 @@ else {
             <FieldRef Name='EUMParentURL'></FieldRef>
             <FieldRef Name='EUMSiteTemplate'></FieldRef>
             <FieldRef Name='EUMDivision'></FieldRef>
+            <FieldRef Name='EUMCreateTeam'></FieldRef>
             <FieldRef Name='Author'></FieldRef>
         </ViewFields>
     </View>"
@@ -101,9 +103,8 @@ if ($pendingSiteCollections.Count -gt 0) {
         [string]$breadcrumbHTML = $pendingSite["EUMBreadcrumbHTML"]
         [string]$parentURL = $pendingSite["EUMParentURL"]
         [string]$Division = $pendingSite["EUMDivision"].LookupValue
-
         [string]$eumSiteTemplate = $pendingSite["EUMSiteTemplate"]
-
+        [string]$eumCreateTeam = $pendingSite["EUMCreateTeam"]
         [string]$author = $pendingSite["Author"].Email
 
 		if ($parentURL -eq "")
@@ -228,12 +229,19 @@ if ($pendingSiteCollections.Count -gt 0) {
             Helper-Connect-PnPOnline -Url $siteURL
 
             # Set the site collection admins
-            Add-PnPSiteCollectionAdmin -Owners "pcarson@envisionit.com"
+            Add-PnPSiteCollectionAdmin -Owners "pcarson@eumdemo.onmicrosoft.com"
+
+            # Pause the script to allow time for the modern site to finish provisioning
+            Write-Output "Pausing for 120 seconds. Please wait..."
+            Start-Sleep -Seconds 120
+
+            # Remove the SharePoint groups
+            Get-PnPGroup | Remove-PnPGroup -Force
 
             if ($pnpSiteTemplate) {
                 # Pause the script to allow time for the modern site to finish provisioning
-                Write-Output "Pausing for 300 seconds. Please wait..."
-                Start-Sleep -Seconds 300
+                Write-Output "Pausing for 180 seconds. Please wait..."
+                Start-Sleep -Seconds 180
 
                 Write-Output "Applying template $($pnpSiteTemplate) Please wait..."
 
@@ -260,10 +268,20 @@ if ($pendingSiteCollections.Count -gt 0) {
 
                 Remove-PnPContentTypeFromList -List "Shared Documents" -ContentType "Document"
                 Remove-PnPContentTypeFromList -List "Private Documents" -ContentType "Document"
+            }
 
-                Remove-PnPGroup -Identity "$siteTitle Members" -Force
-                Remove-PnPGroup -Identity "$siteTitle Owners" -Force
-                Remove-PnPGroup -Identity "$siteTitle Visitors" -Force
+            # Create the team if needed
+            if ($eumCreateTeam -eq $true)
+            {
+                Write-Output "Creating Microsoft Team"
+                Helper-Connect-PnPOnline -Url $AdminURL
+                $spSite = Get-PnPTenantSite -Url $siteURL
+                $groupId = $spSite.GroupId
+
+                Connect-MicrosoftTeams -Credential $SPCredentials
+                $team = New-Team -GroupId $groupId
+                Disconnect-MicrosoftTeams
+                Disconnect-PnPOnline
             }
 
             # Reconnect to the master site and update the site collection list
