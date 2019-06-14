@@ -12,6 +12,7 @@
         [string]$Global:WebAppURL = Get-AutomationVariable -Name 'WebAppURL'
         [string]$Global:AdminURL = $WebAppURL.Replace(".sharepoint.com", "-admin.sharepoint.com")
         [string]$Global:SitesListSiteURL = "$($WebAppURL)$(Get-AutomationVariable -Name 'SitesListSiteURL')"
+        [string]$Global:SiteCollectionAdministrator = Get-AutomationVariable -Name 'siteCollectionAdministrator'
 
         if ($loadEUMCredentials) {
             # $Global:EUMClientID = $ManagedEUMCredentials.UserName
@@ -56,6 +57,7 @@
         [string]$Global:WebAppURL = $environment.webApp.url
         [string]$Global:AdminURL = $environment.webApp.url.Replace(".sharepoint.com", "-admin.sharepoint.com")
         [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
+        [string]$Global:SiteCollectionAdministrator = $environment.webApp.siteCollectionAdministrator
         
         Write-Host "Environment set to $($environment.name) - $($environment.webApp.URL) `n"
 

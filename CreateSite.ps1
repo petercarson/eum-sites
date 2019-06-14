@@ -228,8 +228,11 @@ if ($pendingSiteCollections.Count -gt 0) {
         if ($siteCreated) {
             Helper-Connect-PnPOnline -Url $siteURL
 
-            # Set the site collection admins
-            Add-PnPSiteCollectionAdmin -Owners "pcarson@eumdemo.onmicrosoft.com"
+            # Set the site collection admin
+            if ($SiteCollectionAdministrator -ne "")
+            {
+                Add-PnPSiteCollectionAdmin -Owners $SiteCollectionAdministrator
+            }
 
             # Pause the script to allow time for the modern site to finish provisioning
             Write-Output "Pausing for 120 seconds. Please wait..."

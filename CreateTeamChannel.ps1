@@ -17,19 +17,17 @@ else {
 LoadEnvironmentSettings
 
 Helper-Connect-PnPOnline -Url $SitesListSiteURL
-$queryURL = $siteURL.Replace($WebAppURL, "")
 $siteDetails = Get-PnPListItem -List $SiteListName -Query "
 <View>
     <Query>
         <Where>
-            <Contains>
+            <Eq>
                 <FieldRef Name='EUMSiteURL'/>
-                <Value Type='URL'>$queryURL</Value>
-            </Contains>
+                <Value Type='Text'>$siteURL</Value>
+            </Eq>
         </Where>
     </Query>
     <ViewFields>
-        <FieldRef Name='ID'></FieldRef>
         <FieldRef Name='ID'></FieldRef>
         <FieldRef Name='EUMSiteURL'></FieldRef>
         <FieldRef Name='EUMSiteTemplate'></FieldRef>

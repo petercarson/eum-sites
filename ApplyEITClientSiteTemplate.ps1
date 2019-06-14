@@ -6,30 +6,41 @@ Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials -CreateDriv
 New-Item -Path $pnpTemplatePath -ItemType "directory" -Force | out-null
 Copy-Item -Path "spo:.\pnptemplates\*" -Destination $pnpTemplatePath -Force
 
-[string]$SiteURL = Read-Host "Enter the URL of the site to apply the template to"
+function ApplyTemplate()
+{
+    Param
+    (
+        [Parameter(Mandatory=$true)][string] $siteURL
+    )
 
-Helper-Connect-PnPOnline -Url $siteURL
+    Helper-Connect-PnPOnline -Url $siteURL
 
-Set-PnPTraceLog -On -Level Debug
-$pnpSiteTemplate = "$pnpTemplatePath\Client-Template.xml"
-Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate
+    # Set the site collection admin
+    if ($SiteCollectionAdministrator -ne "")
+    {
+        Add-PnPSiteCollectionAdmin -Owners $SiteCollectionAdministrator
+    }
 
-Add-PnPFolder -Name "Quotes" -Folder "/Shared Documents"
-Add-PnPFolder -Name "Signed Quotes" -Folder "/Shared Documents/Quotes"
-Add-PnPFolder -Name "Invoices" -Folder "/Shared Documents"
+    # Remove the SharePoint groups
+    Get-PnPGroup | Remove-PnPGroup -Force
 
-Add-PnPFolder -Name "Business Development" -Folder "/Private Documents"
-Add-PnPFolder -Name "Confidential" -Folder "/Private Documents"
-Add-PnPFolder -Name "Quotes" -Folder "/Private Documents"
+    Set-PnPTraceLog -On -Level Debug
+    $pnpSiteTemplate = "$pnpTemplatePath\Client-Template.xml"
+    Apply-PnPProvisioningTemplate -Path $pnpSiteTemplate
 
-Remove-PnPContentTypeFromList -List "Shared Documents" -ContentType "Document"
-Remove-PnPContentTypeFromList -List "Private Documents" -ContentType "Document"
+    Add-PnPFolder -Name "Quotes" -Folder "/Shared Documents"
+    Add-PnPFolder -Name "Signed Quotes" -Folder "/Shared Documents/Quotes"
+    Add-PnPFolder -Name "Invoices" -Folder "/Shared Documents"
 
-$spWeb = Get-PnPWeb
-$Title = $spWeb.Title
-Remove-PnPGroup -Identity "$Title Members" -Force
-Remove-PnPGroup -Identity "$Title Owners" -Force
-Remove-PnPGroup -Identity "$Title Visitors" -Force
+    Add-PnPFolder -Name "Business Development" -Folder "/Private Documents"
+    Add-PnPFolder -Name "Confidential" -Folder "/Private Documents"
+    Add-PnPFolder -Name "Quotes" -Folder "/Private Documents"
 
-Disconnect-PnPOnline
-            
+    Remove-PnPContentTypeFromList -List "Shared Documents" -ContentType "Document"
+    Remove-PnPContentTypeFromList -List "Private Documents" -ContentType "Document"
+
+    Disconnect-PnPOnline
+}
+
+$siteURL = Read-Host "Enter the URL of the site to apply the template to"
+ApplyTemplate -siteURL $siteURL
