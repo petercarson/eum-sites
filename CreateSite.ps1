@@ -97,7 +97,7 @@ if ($pendingSiteCollections.Count -gt 0) {
             $siteURL = "$($WebAppURL)/sites/$alias"
         }
         else {
-            [string]$siteURL = "$WebAppURL$($pendingSite['EUMSiteURL'])"
+            [string]$siteURL = "$WebAppURL/sites/$($pendingSite['EUMSiteURL'])"
         }
         [string]$publicGroup = $pendingSite["EUMPublicGroup"]
         [string]$breadcrumbHTML = $pendingSite["EUMBreadcrumbHTML"]
@@ -131,31 +131,36 @@ if ($pendingSiteCollections.Count -gt 0) {
             }
 		}
 
+		$siteTemplate = Get-PnPListItem -List "SiteTemplates" -Query "
+		<View>
+			<Query>
+				<Where>
+					<Eq>
+						<FieldRef Name='Title'/>
+						<Value Type='Text'>$eumSiteTemplate</Value>
+					</Eq>
+				</Where>
+			</Query>
+			<ViewFields>
+				<FieldRef Name='Title'></FieldRef>
+				<FieldRef Name='BaseClassicSiteTemplate'></FieldRef>
+				<FieldRef Name='BaseModernSiteType'></FieldRef>
+				<FieldRef Name='PnPSiteTemplate'></FieldRef>
+			</ViewFields>
+		</View>"
+		
         $baseSiteTemplate = ""
         $baseSiteType = ""
         $pnpSiteTemplate = ""
         $siteCreated = $false
 
-        switch ($eumSiteTemplate) {
-            "Modern Communication Site" {
-                $baseSiteTemplate = ""
-                $baseSiteType = "CommunicationSite"
-            }
-            "Modern Team Site" {
-                $baseSiteTemplate = ""
-                $baseSiteType = "TeamSite"
-            }
-            "Modern Client Site"
-                {
-                $baseSiteTemplate = ""
-                $baseSiteType = "TeamSite"
-                $pnpSiteTemplate = "$pnpTemplatePath\Client-Template.xml"
-            }
-            "Client Communication Site"
-                {
-                $baseSiteTemplate = ""
-                $baseSiteType = "CommunicationSite"
-                $pnpSiteTemplate = "$pnpTemplatePath\Client-Template.xml"
+        if ($siteTemplate.Count -eq 1)
+        {
+			$baseSiteTemplate = $siteTemplate["BaseClassicSiteTemplate"]
+			$baseSiteType = $siteTemplate["BaseModernSiteType"]
+            if ($siteTemplate["PnPSiteTemplate"] -ne $null)
+            {
+    			$pnpSiteTemplate = "$pnpTemplatePath\$($siteTemplate["PnPSiteTemplate"])"
             }
         }
 
@@ -234,17 +239,10 @@ if ($pendingSiteCollections.Count -gt 0) {
                 Add-PnPSiteCollectionAdmin -Owners $SiteCollectionAdministrator
             }
 
-            # Pause the script to allow time for the modern site to finish provisioning
-            Write-Output "Pausing for 120 seconds. Please wait..."
-            Start-Sleep -Seconds 120
-
-            # Remove the SharePoint groups
-            Get-PnPGroup | Remove-PnPGroup -Force
-
             if ($pnpSiteTemplate) {
                 # Pause the script to allow time for the modern site to finish provisioning
-                Write-Output "Pausing for 180 seconds. Please wait..."
-                Start-Sleep -Seconds 180
+                Write-Output "Pausing for 300 seconds. Please wait..."
+                Start-Sleep -Seconds 300
 
                 Write-Output "Applying template $($pnpSiteTemplate) Please wait..."
 
@@ -259,7 +257,7 @@ if ($pendingSiteCollections.Count -gt 0) {
                 }
             }
             
-            If (($eumSiteTemplate -eq "Modern Client Site") -or ($eumSiteTemplate -eq "Client Communication Site"))
+            If (($pnpSiteTemplate -like "*Client-Template.xml"))
             {
                 Add-PnPFolder -Name "Quotes" -Folder "/Shared Documents"
                 Add-PnPFolder -Name "Signed Quotes" -Folder "/Shared Documents/Quotes"

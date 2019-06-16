@@ -32,7 +32,7 @@
         [System.Array]$Global:managedPaths = $config.settings.common.managedPaths.path
         [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
 
-        $environmentId = $config.settings.common.defaultEnvironment
+        $Global:environmentId = $config.settings.common.defaultEnvironment
 
         if (-not $environmentId) {
             #-----------------------------------------------------------------------
@@ -166,7 +166,7 @@ function GetBreadcrumbHTML()
 								<Where>
 										<Eq>
 												<FieldRef Name='EUMSiteURL'/>
-												<Value Type='Text'>$($siteURL)</Value>
+												<Value Type='Text'>$($parentURL)</Value>
 										</Eq>
 								</Where>
 						</Query>
