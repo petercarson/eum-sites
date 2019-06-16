@@ -1,13 +1,12 @@
 <?xml version="1.0"?>
 <pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2019/03/ProvisioningSchema">
   <pnp:Preferences Generator="OfficeDevPnP.Core, Version=3.10.1906.0, Culture=neutral, PublicKeyToken=5e633289e95c321a" />
-  <pnp:Templates ID="CONTAINER-TEMPLATE-E026BE6B922043618A50FECAB606513D">
-    <pnp:ProvisioningTemplate ID="TEMPLATE-E026BE6B922043618A50FECAB606513D" Version="1" BaseSiteTemplate="SITEPAGEPUBLISHING#0" Scope="RootSite">
+  <pnp:Templates ID="CONTAINER-TEMPLATE-812D4007ACBC4EC1995D94452BBED996">
+    <pnp:ProvisioningTemplate ID="TEMPLATE-812D4007ACBC4EC1995D94452BBED996" Version="1" BaseSiteTemplate="SITEPAGEPUBLISHING#0" Scope="RootSite">
       <pnp:WebSettings NoCrawl="false" WelcomePage="SitePages/Home.aspx" CommentsOnSitePagesDisabled="false" QuickLaunchEnabled="false" />
       <pnp:SiteFields>
+        <Field Type="Lookup" DisplayName="Site Template" Required="FALSE" EnforceUniqueValues="FALSE" List="{{listid:SiteTemplates}}" WebId="{siteid}" ShowField="Title" UnlimitedLengthInDocumentLibrary="FALSE" Group="EUM Columns" ID="{32f69d01-8530-4d60-a2b7-37f272da070a}" SourceID="{{siteid}}" StaticName="EUMSiteTemplate" Name="EUMSiteTemplate" />
         <Field Type="DateTime" Name="EUMSiteCreated" ID="{60a0ae07-2d35-452d-966f-e461f205972a}" Description="" DisplayName="Site Created" StaticName="EUMSiteCreated" Group="EUM Columns" Hidden="" Required="FALSE" Sealed="" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="DateTime" SourceID="{8b0d841b-a2ff-47b8-9ab2-fb8b66a1e6b8}" AllowDeletion="TRUE" CustomFormatter="" CalType="0" FriendlyDisplayFormat="Disabled">
-        </Field>
-        <Field Name="EUMSiteTemplate" FromBaseType="FALSE" Type="Text" DisplayName="Site Template" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{c446120a-717c-4880-8f60-acc554a45238}" StaticName="EUMSiteTemplate" SourceID="{8b0d841b-a2ff-47b8-9ab2-fb8b66a1e6b8}" AllowDeletion="TRUE">
         </Field>
         <Field Type="Note" DisplayName="Purpose" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" Group="EUM Columns" ID="{66ccfe1b-0776-4870-bead-616da317abdb}" SourceID="{2e6acc72-9f0a-43c3-923d-fd4a0eb3feb3}" StaticName="SitePurpose" Name="SitePurpose" CustomFormatter="" RestrictedMode="TRUE" RichTextMode="Compatible" IsolateStyles="FALSE" AppendOnly="FALSE" UnlimitedLengthInDocumentLibrary="FALSE" AllowDeletion="TRUE">
         </Field>
@@ -44,7 +43,6 @@
             <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" UpdateChildren="false" />
             <pnp:FieldRef ID="025178bb-56c0-4c03-a1ba-95252a59ec4a" Name="EUMPublicGroup" UpdateChildren="false" />
             <pnp:FieldRef ID="72d4b036-d969-4258-b2cb-9000eb8a31a9" Name="EUMBreadcrumbHTML" UpdateChildren="false" />
-            <pnp:FieldRef ID="c446120a-717c-4880-8f60-acc554a45238" Name="EUMSiteTemplate" UpdateChildren="false" />
             <pnp:FieldRef ID="60a0ae07-2d35-452d-966f-e461f205972a" Name="EUMSiteCreated" UpdateChildren="false" />
             <pnp:FieldRef ID="9a42c2b3-25c2-46b2-9d11-5f9760981467" Name="EUMIsSubsite" UpdateChildren="false" />
             <pnp:FieldRef ID="ba0008f5-2d95-4e44-8758-44fc8b544e6f" Name="EUMSiteURL" UpdateChildren="false" />
@@ -52,6 +50,7 @@
             <pnp:FieldRef ID="aadce642-b3f7-4672-8c84-97dbc9c63de6" Name="EUMCreateTeam" UpdateChildren="false" />
             <pnp:FieldRef ID="1df140fa-e355-4e62-8bb5-614eff7f84a4" Name="EUMDivision" UpdateChildren="false" />
             <pnp:FieldRef ID="be3fb456-0b9d-4a1c-9bd6-17bed6774eef" Name="EUMParentURL" UpdateChildren="false" />
+            <pnp:FieldRef ID="32f69d01-8530-4d60-a2b7-37f272da070a" Name="EUMSiteTemplate" UpdateChildren="false" />
           </pnp:FieldRefs>
         </pnp:ContentType>
         <pnp:ContentType ID="0x0100782F293576407D449F1EE4AB1DD1F7CC" Name="Base Site Request" Description="" Group="EUM Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
@@ -351,7 +350,6 @@
             <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" DisplayName="Alias" />
             <pnp:FieldRef ID="025178bb-56c0-4c03-a1ba-95252a59ec4a" Name="EUMPublicGroup" DisplayName="Public Group" />
             <pnp:FieldRef ID="72d4b036-d969-4258-b2cb-9000eb8a31a9" Name="EUMBreadcrumbHTML" DisplayName="Breadcrumb HTML" />
-            <pnp:FieldRef ID="c446120a-717c-4880-8f60-acc554a45238" Name="EUMSiteTemplate" DisplayName="Site Template" />
             <pnp:FieldRef ID="60a0ae07-2d35-452d-966f-e461f205972a" Name="EUMSiteCreated" DisplayName="Site Created" />
             <pnp:FieldRef ID="9a42c2b3-25c2-46b2-9d11-5f9760981467" Name="EUMIsSubsite" DisplayName="Subsite?" />
             <pnp:FieldRef ID="ba0008f5-2d95-4e44-8758-44fc8b544e6f" Name="EUMSiteURL" DisplayName="Site URL" />
@@ -359,10 +357,13 @@
             <pnp:FieldRef ID="aadce642-b3f7-4672-8c84-97dbc9c63de6" Name="EUMCreateTeam" DisplayName="Create Team" />
             <pnp:FieldRef ID="1df140fa-e355-4e62-8bb5-614eff7f84a4" Name="EUMDivision" DisplayName="Division" />
             <pnp:FieldRef ID="be3fb456-0b9d-4a1c-9bd6-17bed6774eef" Name="EUMParentURL" DisplayName="Parent URL" />
+            <pnp:FieldRef ID="32f69d01-8530-4d60-a2b7-37f272da070a" Name="EUMSiteTemplate" DisplayName="Site Template" />
           </pnp:FieldRefs>
           <pnp:Webhooks>
             <pnp:Webhook ServerNotificationUrl="https://canada-001.azure-apim.net/apim/sharepointonline/ontableupdatedhook?r=https%253a%252f%252fprod-06.canadacentral.logic.azure.com%252fworkflows%252f1f04cf91a1944d5ba5490f3c867ae757%252ftriggers%252fWhen_an_item_is_created%252fpaths%252finvoke%253fapi-version%253d2016-06-01%2526sp%253d%25252Ftriggers%25252FWhen_an_item_is_created%25252Frun%25252C%25252Ftriggers%25252FWhen_an_item_is_created%25252Fread%2526sv%253d1.0%2526sig%253dO8Auqp4oY81PFfOGD1Mi2_pjNO0w2LC9aF3KnYcxQ_k" ExpiresInDays="3" />
-            <pnp:Webhook ServerNotificationUrl="https://1-centralus1.pushp.svc.ms/notifications?token=w0-824cde33-0585-430c-a674-0347837c1139" ExpiresInDays="1" />
+            <pnp:Webhook ServerNotificationUrl="https://3-centralus1.pushp.svc.ms/notifications?token=w3-59578dd1-f695-44c5-850f-c26db5cd7cbf" ExpiresInDays="1" />
+            <pnp:Webhook ServerNotificationUrl="https://3-centralus1.pushp.svc.ms/notifications?token=w2-5cb398eb-499a-4941-92b0-89bb14a3e8fa" ExpiresInDays="1" />
+            <pnp:Webhook ServerNotificationUrl="https://3-centralus1.pushp.svc.ms/notifications?token=w2-3b37463b-0eb0-4ee1-ae0a-3ff00af15ea3" ExpiresInDays="1" />
           </pnp:Webhooks>
         </pnp:ListInstance>
         <pnp:ListInstance Title="SiteTemplates" Description="" DocumentTemplate="" OnQuickLaunch="true" TemplateType="100" Url="Lists/SiteTemplates" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" EnableAttachments="false" EnableFolderCreation="false" DefaultDisplayFormUrl="{site}/Lists/SiteTemplates/DispForm.aspx" DefaultEditFormUrl="{site}/Lists/SiteTemplates/EditForm.aspx" DefaultNewFormUrl="{site}/Lists/SiteTemplates/NewForm.aspx" ImageUrl="/_layouts/15/images/itgen.png?rev=45" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
