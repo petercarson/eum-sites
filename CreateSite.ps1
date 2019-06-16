@@ -103,7 +103,7 @@ if ($pendingSiteCollections.Count -gt 0) {
         [string]$breadcrumbHTML = $pendingSite["EUMBreadcrumbHTML"]
         [string]$parentURL = $pendingSite["EUMParentURL"]
         [string]$Division = $pendingSite["EUMDivision"].LookupValue
-        [string]$eumSiteTemplate = $pendingSite["EUMSiteTemplate"]
+        [string]$eumSiteTemplate = $pendingSite["EUMSiteTemplate"].LookupValue
         [string]$eumCreateTeam = $pendingSite["EUMCreateTeam"]
         [string]$author = $pendingSite["Author"].Email
 

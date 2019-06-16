@@ -32,9 +32,16 @@
         [System.Array]$Global:managedPaths = $config.settings.common.managedPaths.path
         [string]$Global:SiteListName = $config.settings.common.siteLists.siteListName
 
-        $Global:environmentId = $config.settings.common.defaultEnvironment
+        $environmentId = $config.settings.common.defaultEnvironment
 
-        if (-not $environmentId) {
+        if (-not $environmentId) 
+        {
+            # Get the value from the last run as a default
+            if ($environment.id)
+            {
+                $defaultText = "(Default - $($environment.id))"
+            }
+
             #-----------------------------------------------------------------------
             # Prompt for the environment defined in the config
             #-----------------------------------------------------------------------
@@ -46,9 +53,14 @@
             Write-Host "***** AVAILABLE ENVIRONMENTS *****"
 
             Do {
-                [int]$environmentId = Read-Host "Enter the ID of the environment from the above list"
+                [int]$environmentId = Read-Host "Enter the ID of the environment from the above list $defaultText"
             }
-            Until ($environmentId -gt 0)
+            Until (($environmentId -gt 0) -or ($environment.id -gt 0))
+        }
+
+        if ($environmentId -eq 0)
+        {
+            $environmentId = $environment.id
         }
 
         [System.Xml.XmlLinkedNode]$Global:environment = $config.settings.environments.environment | Where { $_.id -eq $environmentId }
