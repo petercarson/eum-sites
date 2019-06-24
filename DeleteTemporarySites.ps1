@@ -7,7 +7,6 @@ else {
     . $DistributionFolder\EUMSites_Helper.ps1
 }
 
-$loadGraphAPICredentials = $true
 LoadEnvironmentSettings
 
 # Check the Site Collection List in master site for any sites that need to be created
@@ -17,10 +16,10 @@ $temporarySiteCollections = Get-PnPListItem -List $SiteListName -Query "
 <View>
     <Query>
         <Where>
-            <BeginsWith>
+            <Contains>
 				<FieldRef Name='EUMParentURL'/>
-				<Value Type='Text'>https://envisionit.sharepoint.com/sites/tempdemos</Value>
-            </BeginsWith>
+				<Value Type='Text'>/sites/tempdemos</Value>
+            </Contains>
         </Where>
     </Query>
     <ViewFields>

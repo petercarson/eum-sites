@@ -14,11 +14,10 @@ else {
 
 LoadEnvironmentSettings
 
-Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials -CreateDrive
+Helper-Connect-PnPOnline -Url $SitesListSiteURL
+
 New-Item -Path $pnpTemplatePath -ItemType "directory" -Force | out-null
 Copy-Item -Path "spo:.\pnptemplates\*" -Destination $pnpTemplatePath -Force
-
-Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
 if ($listItemID -gt 0) {
     # Get the specific Site Collection List item in master site for the site that needs to be created
@@ -176,7 +175,6 @@ if ($pendingSiteCollections.Count -gt 0) {
                 catch { 
                     Write-Error "Failed creating site collection $($siteURL)"
                     Write-Error $_
-                    exit
                 }
             }
             else {
@@ -207,7 +205,6 @@ if ($pendingSiteCollections.Count -gt 0) {
                     catch { 
                         Write-Error "Failed creating site collection $($siteURL)"
                         Write-Error $_
-                        exit
                     }
                 }
                 "TeamSite" {
@@ -224,9 +221,30 @@ if ($pendingSiteCollections.Count -gt 0) {
                     catch { 
                         Write-Error "Failed creating site collection $($siteURL)"
                         Write-Error $_
-                        exit
                     }
                 }
+            }
+        }
+
+        $retries = 0
+        while (($retries -lt 5) -and ($siteCreated -eq $false)) {
+            Start-Sleep -Seconds 30
+
+            try {
+                $retries += 1
+
+                $spContext = New-Object Microsoft.SharePoint.Client.ClientContext($siteURL)
+                $spContext.Credentials = New-Object Microsoft.SharePoint.Client.SharePointOnlineCredentials($SPCredentials.UserName, $SPCredentials.Password)
+                $web = $spContext.Web
+                $spContext.Load($web)
+                $spContext.ExecuteQuery()
+                    
+                $siteCreated = $true
+            }
+            catch
+            {      
+                Write-Output "Exception Type: $($_.Exception.GetType().FullName)"
+                Write-Output "Exception Message: $($_.Exception.Message)"
             }
         }
 
@@ -277,10 +295,16 @@ if ($pendingSiteCollections.Count -gt 0) {
                 Write-Output "Creating Microsoft Team"
                 Helper-Connect-PnPOnline -Url $AdminURL
                 $spSite = Get-PnPTenantSite -Url $siteURL
-                $groupId = $spSite.GroupId
+                $retries = 0
+
+                while (($spSite.Status -ne "Active") -and ($retries -lt 120)) {
+                    Start-Sleep -Seconds 60
+                    $retries += 1
+                    $spSite = Get-PnPTenantSite -Url $siteURL
+                }
 
                 Connect-MicrosoftTeams -Credential $SPCredentials
-                $team = New-Team -GroupId $groupId
+                $team = New-Team -GroupId $spSite.GroupId
                 Disconnect-MicrosoftTeams
                 Disconnect-PnPOnline
             }
