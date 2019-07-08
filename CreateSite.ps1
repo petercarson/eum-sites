@@ -14,7 +14,7 @@ else {
 
 LoadEnvironmentSettings
 
-Helper-Connect-PnPOnline -Url $SitesListSiteURL
+Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials -CreateDrive
 
 New-Item -Path $pnpTemplatePath -ItemType "directory" -Force | out-null
 Copy-Item -Path "spo:.\pnptemplates\*" -Destination $pnpTemplatePath -Force
