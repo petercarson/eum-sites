@@ -227,7 +227,7 @@ if ($pendingSiteCollections.Count -gt 0) {
         }
 
         $retries = 0
-        while (($retries -lt 5) -and ($siteCreated -eq $false)) {
+        while (($retries -lt 20) -and ($siteCreated -eq $false)) {
             Start-Sleep -Seconds 30
 
             try {
