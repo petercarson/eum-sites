@@ -18,6 +18,8 @@ Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials -CreateDriv
 
 New-Item -Path $pnpTemplatePath -ItemType "directory" -Force | out-null
 Copy-Item -Path "spo:.\pnptemplates\*" -Destination $pnpTemplatePath -Force
+Write-Output "Templates:"
+Get-ChildItem $pnpTemplatePath | ForEach-Object { Write-Output $_.Name }
 
 if ($listItemID -gt 0) {
     # Get the specific Site Collection List item in master site for the site that needs to be created
