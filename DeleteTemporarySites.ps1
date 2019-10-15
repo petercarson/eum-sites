@@ -9,17 +9,27 @@ else {
 
 LoadEnvironmentSettings
 
-# Check the Site Collection List in master site for any sites that need to be created
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ `
+           -Credential $Global:SPCredentials -Authentication Basic -AllowRedirection
+  
+#Import the session
+Import-PSSession $Session -DisableNameChecking -AllowClobber
+
+# -----------------------------------------
+# 1. Look for any temp demo sites and delete them
+# -----------------------------------------
+# get all sites in the list that their Parent URL set to /sites/tempdemos
+
 Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
-$temporarySiteCollections = Get-PnPListItem -List $SiteListName -Query "
+$sitesListItems = Get-PnPListItem -List $SiteListName -Query "
 <View>
     <Query>
         <Where>
-            <Contains>
-				<FieldRef Name='EUMParentURL'/>
-				<Value Type='Text'>/sites/tempdemos</Value>
-            </Contains>
+            <Eq>
+                <FieldRef Name='EUMParentURL' />
+                    <Value Type='Text'>$Global:WebAppURL/sites/tempdemos</Value>
+            </Eq>
         </Where>
     </Query>
     <ViewFields>
@@ -27,29 +37,31 @@ $temporarySiteCollections = Get-PnPListItem -List $SiteListName -Query "
         <FieldRef Name='Title'></FieldRef>
         <FieldRef Name='EUMSiteURL'></FieldRef>
         <FieldRef Name='EUMAlias'></FieldRef>
+        <FieldRef Name='EUMSiteCreated'></FieldRef>
     </ViewFields>
 </View>"
 
+$sitesListItems | ForEach {
+    $listItemID = $_["ID"]
+    $listItemTitle = $_["Title"]
+    $siteURL = $_["EUMSiteURL"]
+    $alias = $_["EUMAlias"]
+    $siteCreated = $_["EUMSiteCreated"]
 
-if ($temporarySiteCollections.Count -gt 0) {
-    # Iterate through the pending sites. Create them if needed, and apply template
-    $temporarySiteCollections | ForEach {
-        $temporarySite = $_
-
-        if ($temporarySite["EUMAlias"] -eq $null) {
-            Write-Output "Deleting non-group site $($_["Title"]), URL:$($_["EUMSiteURL"])"
-            Remove-PnPTenantSite -Url $_["EUMSiteURL"] -Force
-            Remove-PnPListItem -List $SiteListName -Identity $_.Id -Force
+    Write-Output "Remove site: $listItemTitle"
+    
+    if ($siteCreated -ne $null) {
+        if ($alias -ne $null) {
+            #Delete the Office 365 Group
+            Remove-UnifiedGroup -Identity $alias -confirm:$False
         }
         else {
-            Write-Output "Deleting group site $($_["Title"]), $($_["EUMSiteURL"])"
-            Connect-PnPOnline -AppId $AADClientID -AppSecret $AADSecret -AADDomain $AADDomain
-            Remove-PnPUnifiedGroup -Identity $($_["EUMSiteURL"])
-            Helper-Connect-PnPOnline -Url $SitesListSiteURL
-            Remove-PnPListItem -List $SiteListName -Identity $_.Id -Force
+            Remove-PnPTenantSite -Url $siteURL -Force
         }
     }
+
+    Remove-PnPListItem -List $SiteListName -Identity $listItemID -Force
 }
-else {
-    Write-Output "No temporary sites to delete"
-}
+
+#Remove the session
+Remove-PSSession $Session
