@@ -10,6 +10,6 @@ Write-Host "Connecting to "$SitesListSiteURL
 Connect-PnPOnline -Url $SitesListSiteURL -Credentials $SPCredentials
 
 Write-Host "Creating the EUM Sites Template from "$SitesListSiteURL
-Get-PnPProvisioningTemplate -out "$DistributionFolder\CreateList\EUMSites.DeployTemplate.xml" -Handlers Fields, Lists, ContentTypes, PageContents
+Get-PnPProvisioningTemplate -out "$DistributionFolder\CreateList\EUMSites.DeployTemplate.xml" -Handlers Fields, Lists, ContentTypes
 
 Disconnect-PnPOnline
