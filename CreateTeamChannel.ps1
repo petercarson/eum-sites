@@ -1,8 +1,6 @@
 ﻿Param
 (
-    [Parameter (Mandatory = $true)][string]$RoleName,
-    [Parameter (Mandatory = $true)][string]$RegistrationDisplayName,
-    [Parameter (Mandatory = $true)][string]$siteURL
+    [Parameter (Mandatory = $true)][int]$listItemID
 )
 
 $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -ErrorAction SilentlyContinue)
@@ -16,48 +14,51 @@ else {
 
 LoadEnvironmentSettings
 
-Helper-Connect-PnPOnline -Url $SitesListSiteURL
-$siteDetails = Get-PnPListItem -List $SiteListName -Query "
-<View>
-    <Query>
-        <Where>
-            <Eq>
-                <FieldRef Name='EUMSiteURL'/>
-                <Value Type='Text'>$siteURL</Value>
-            </Eq>
-        </Where>
-    </Query>
-    <ViewFields>
-        <FieldRef Name='ID'></FieldRef>
-        <FieldRef Name='EUMSiteURL'></FieldRef>
-        <FieldRef Name='EUMSiteTemplate'></FieldRef>
-    </ViewFields>
-</View>"
+try {
+    Write-Verbose -Verbose -Message "Retrieving teams channel request details for listItemID $($listItemID)..."
+    Helper-Connect-PnPOnline -Url $SitesListSiteURL
+    $channelDetails = Get-PnPListItem -List $TeamsChannelsListName -Id $listItemID -Fields "ID", "Title", "IsPrivate", "Description", "TeamSiteURL"
 
-if ($siteDetails["EUMSiteTemplate"] -eq "Modern Team Site")
-{
-    Write-Output "Creating Microsoft Teams Channel"
+    [string]$channelName = $channelDetails["Title"]
+    [boolean]$isPrivate = $channelDetails["IsPrivate"]
+    [string]$siteURL = $channelDetails["TeamSiteURL"]
+    [string]$channelDescription = $channelDetails["Description"]
 
-    # Pause the script to allow time for the modern site to finish provisioning
-    Write-Output "Pausing for 120 seconds. Please wait..."
-    Start-Sleep -Seconds 120
-    Write-Output "Continuing..."
+    Disconnect-PnPOnline
 
     # Get the Office 365 Group ID
+    Write-Verbose -Verbose -Message "Retrieving group ID for site $($siteURL)..."
     Helper-Connect-PnPOnline -Url $AdminURL
     $spSite = Get-PnPTenantSite -Url $siteURL
     $groupId = $spSite.GroupId
     Disconnect-PnPOnline
+}
+catch {
+    Write-Error "Failed retrieving information for listItemID $($listItemID)"
+    Write-Error $_
+    exit    
+}
 
+
+try {
     # Create the new channel in Teams
+    Write-Verbose -Verbose -Message "Creating channel $($channelName)..."
     Connect-MicrosoftTeams -Credential $SPCredentials
-    $channel = New-TeamChannel -GroupId $groupId -DisplayName $RegistrationDisplayName
+    $teamsChannel = New-TeamChannel -GroupId $groupId -DisplayName $channelName -Description $channelDescription
+    $teamsChannelId = $teamsChannel.Id
     Disconnect-MicrosoftTeams
 
-    # Create the corresponding folder in SharePoint and assign the appropriate rights
-    Helper-Connect-PnPOnline -Url $siteURL
-    Add-PnPFolder -Name $RegistrationDisplayName -Folder "Shared Documents"
-    $folder = Get-PnPFolder -Url "Shared Documents/$RegistrationDisplayName" -Includes ListItemAllFields
-    Set-PnPListItemPermission -List "Shared Documents" -Identity $folder.ListItemAllFields.Id -User $RoleName -AddRole "Read"
+    Write-Verbose -Verbose -Message "Configuring OneNote for $($channelName)..."
+    AddOneNoteTeamsChannelTab -groupId $groupId -channelName $channelName -teamsChannelId $teamsChannelId -siteURL $siteURL
+
+    # update the SP list with the ChannelCreationDate
+    Write-Verbose -Verbose -Message "Updating ChannelCreationDate..."
+    Helper-Connect-PnPOnline -Url $SitesListSiteURL
+    $spListItem = Set-PnPListItem -List $TeamsChannelsListName -Identity $listItemID -Values @{"ChannelCreationDate" = (Get-Date) }
     Disconnect-PnPOnline
+}
+catch {
+    Write-Error "Failed creating teams channel $($channelName)"
+    Write-Error $_
+    exit   
 }
