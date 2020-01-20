@@ -236,8 +236,35 @@ function GetGraphAPIBearerToken() {
     $requestBody = @{
         client_id     = $AADClientID
         client_secret = $AADSecret
-        scope         = $Scope
+        scope         = $scope
         grant_type    = 'client_credentials'
+    }
+
+    $request = @{
+        ContentType = 'application/x-www-form-urlencoded'
+        Method      = 'POST'
+        Body        = $requestBody
+        Uri         = $authorizationUrl
+    }
+
+    $response = Invoke-RestMethod @request
+
+    return $response.access_token
+}
+
+function GetGraphAPIServiceAccountBearerToken() {
+    $scope = "https://graph.microsoft.com/.default"
+    $authorizationUrl = "https://login.microsoftonline.com/$($AADDomain)/oauth2/v2.0/token"
+
+    Add-Type -AssemblyName System.Web
+
+    $requestBody = @{
+        client_id     = $AADClientID
+        client_secret = $AADSecret
+        scope         = $scope
+        grant_type    = 'password'
+        username      = "$($SPCredentials.UserName)"
+        password      = "$($SPCredentials.GetNetworkCredential().Password)"
     }
 
     $request = @{
@@ -367,12 +394,85 @@ function AddGroupOwner() {
     # Retrieve access token for graph API
     $accessToken = GetGraphAPIBearerToken
 
-    # First add the app to the team
-    Write-Verbose -Verbose -Message "Adding $($email) as owner to groupId $($groupId)..."
+    Write-Verbose -Verbose -Message "Adding $($email) as owner to groupId $($groupId)..."    
     $graphPOSTEndpoint = "$($graphApiBaseUrl)/groups/$($groupId)/owners/`$ref"
     $graphPOSTBody = @{
         "@odata.id" = "$($graphApiBaseUrl)/users/$($email)"
     }
+
+
+    $retries = 0
+    $groupOwnerAdded = $false
+    while (($retries -lt 20) -and (-not $groupOwnerAdded)) {
+        Start-Sleep -Seconds 30
+        try {
+            $retries += 1
+                        
+            $postResponse = Invoke-RestMethod -Headers @{Authorization = "Bearer $accessToken" } -Uri $graphPOSTEndpoint -Body $($graphPOSTBody | ConvertTo-Json) -Method Post -ContentType 'application/json'
+            $groupOwnerAdded = $true
+        }
+        catch {      
+            Write-Verbose -Verbose -Message "Failed adding $($email) as owner to groupId $($groupId)..."    
+            Write-Verbose -Verbose -Message $_
+        }
+    }
+}
+
+function AddTeamPlanner() {
+    Param
+    (
+        [parameter(Mandatory = $true)]$groupId,
+        [parameter(Mandatory = $true)]$planTitle
+    )
+    
+    $graphApiBaseUrl = "https://graph.microsoft.com/v1.0"
+
+    # Retrieve access token for graph API
+    $accessToken = GetGraphAPIServiceAccountBearerToken
+    Write-Verbose -Verbose -Message $accessToken
+
+    Write-Verbose -Verbose -Message "Creating plan $($planTitle) for groupId $($groupId)..."
+    $graphPOSTEndpoint = "$($graphApiBaseUrl)/planner/plans"
+    $graphPOSTBody = @{
+        "owner" = $($groupId)
+        "title" = $($planTitle)
+    }
+    $postResponse = Invoke-RestMethod -Headers @{Authorization = "Bearer $accessToken" } -Uri $graphPOSTEndpoint -Body $($graphPOSTBody | ConvertTo-Json) -Method Post -ContentType 'application/json'
+
+    return $postResponse.id
+}
+
+function AddPlannerTeamsChannelTab() {
+    Param
+    (
+        [parameter(Mandatory = $true)]$groupId,
+        [parameter(Mandatory = $true)]$planTitle,
+        [parameter(Mandatory = $true)]$planId,
+        [parameter(Mandatory = $true)]$channelName,
+        [parameter(Mandatory = $true)]$teamsChannelId
+    )
+
+    $graphApiBaseUrl = "https://graph.microsoft.com/v1.0"
+
+    # Retrieve access token for graph API
+    $accessToken = GetGraphAPIBearerToken
+    Write-Verbose -Verbose -Message $accessToken
+
+    Write-Verbose -Verbose -Message "Adding Planner tab for plan $($planTitle) to channel $($channelName)..."
+    $configurationProperties = @{
+        "entityId"   = $planId
+        "contentUrl" = "https://tasks.office.com/$($AADDomain)/Home/PlannerFrame?page=7&planId=$($planId)"
+        "removeUrl"  = "https://tasks.office.com/$($AADDomain)/Home/PlannerFrame?page=7&planId=$($planId)"
+        "websiteUrl" = "https://tasks.office.com/$($AADDomain)/Home/PlannerFrame?page=7&planId=$($planId)"
+    }
+
+    $graphPOSTBody = @{
+        "teamsApp@odata.bind" = "https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.microsoft.teamspace.tab.planner"
+        "displayName"         = "$($planTitle) Planner"
+        "configuration"       = $configurationProperties
+    }
+
+    $graphPOSTEndpoint = "$($graphApiBaseUrl)/teams/$($groupId)/channels/$($teamsChannelId)/tabs"
     $postResponse = Invoke-RestMethod -Headers @{Authorization = "Bearer $accessToken" } -Uri $graphPOSTEndpoint -Body $($graphPOSTBody | ConvertTo-Json) -Method Post -ContentType 'application/json'
 }
 

@@ -100,8 +100,9 @@ if ($pendingSiteCollections.Count -gt 0) {
             $siteURL = "$($WebAppURL)/sites/$alias"
         }
         else {
-            [string]$siteURL = "$WebAppURL/sites/$($pendingSite['EUMSiteURL'])"
+            [string]$siteURL = "$($WebAppURL)$($pendingSite['EUMSiteURL'])"
         }
+
         [boolean]$publicGroup = $pendingSite["EUMPublicGroup"]
         [string]$breadcrumbHTML = $pendingSite["EUMBreadcrumbHTML"]
         [string]$parentURL = $pendingSite["EUMParentURL"]
@@ -242,12 +243,7 @@ if ($pendingSiteCollections.Count -gt 0) {
             }
             Disconnect-PnPOnline
 
-            $groupId = $spSite.GroupId
-
-            # add the requester to the Owners group
-            if ($groupId) {
-                AddGroupOwner -groupID $groupId -email $author
-            }            
+            $groupId = $spSite.GroupId               
 
             Helper-Connect-PnPOnline -Url $siteURL
             # Set the site collection admin
@@ -255,6 +251,11 @@ if ($pendingSiteCollections.Count -gt 0) {
                 Add-PnPSiteCollectionAdmin -Owners $SiteCollectionAdministrator
             }
             Add-PnPSiteCollectionAdmin -Owners $author
+
+            # add the requester as an owner of the site's group
+            if ($groupId -and ($author -ne $SPCredentials.UserName)) {
+                AddGroupOwner -groupID $groupId -email $author
+            }         
 
             if ($pnpSiteTemplate) {
                 $retries = 0
@@ -277,20 +278,36 @@ if ($pendingSiteCollections.Count -gt 0) {
             
             # Create the team if needed
             if ($eumCreateTeam) {
-                Write-Verbose -Verbose -Message "Creating Microsoft Team"
+                $team = $null
+                $retries = 0
 
                 Connect-MicrosoftTeams -Credential $SPCredentials
-                $team = New-Team -GroupId $groupId
-                $teamsChannels = Get-TeamChannel -GroupId $groupId
-                $generalChannel = $teamsChannels | Where-Object { $_.DisplayName -eq 'General' }
-                $generalChannelId = $generalChannel.Id
+                while (($retries -lt 20) -and ($team -eq $null)) {
+                    Start-Sleep -Seconds 30
+                    try {
+                        $retries += 1
+                        
+                        Write-Verbose -Verbose -Message "Creating Microsoft Team"
+                        $team = New-Team -GroupId $groupId
+                        $teamsChannels = Get-TeamChannel -GroupId $groupId
+                        $generalChannel = $teamsChannels | Where-Object { $_.DisplayName -eq 'General' }
+                        $generalChannelId = $generalChannel.Id
+                    }
+                    catch {      
+                        Write-Verbose -Verbose -Message "Failed creating Microsoft Team."
+                        Write-Verbose -Verbose -Message $_
+                    }
+                }
                 Disconnect-MicrosoftTeams
 
                 Write-Verbose -Verbose -Message "groupId = $($groupId), generalChannelId = $($generalChannelId)"
                 AddOneNoteTeamsChannelTab -groupId $groupId -channelName 'General' -teamsChannelId $generalChannelId -siteURL $siteURL
                 AddTeamsChannelRequestFormToChannel -groupId $groupId -teamsChannelId $generalChannelId
-            }
 
+                $planId = AddTeamPlanner -groupId $groupId -planTitle "$($siteTitle) Planner"
+                AddPlannerTeamsChannelTab -groupId $groupId -planTitle "$($siteTitle) Planner" -planId $planId -channelName 'General' -teamsChannelId $generalChannelId  
+            }
+            
             # Reconnect to the master site and update the site collection list
             Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
