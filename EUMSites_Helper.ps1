@@ -394,12 +394,28 @@ function AddGroupOwner() {
     # Retrieve access token for graph API
     $accessToken = GetGraphAPIBearerToken
 
-    Write-Verbose -Verbose -Message "Adding $($email) as owner to groupId $($groupId)..."
+    Write-Verbose -Verbose -Message "Adding $($email) as owner to groupId $($groupId)..."    
     $graphPOSTEndpoint = "$($graphApiBaseUrl)/groups/$($groupId)/owners/`$ref"
     $graphPOSTBody = @{
         "@odata.id" = "$($graphApiBaseUrl)/users/$($email)"
     }
-    $postResponse = Invoke-RestMethod -Headers @{Authorization = "Bearer $accessToken" } -Uri $graphPOSTEndpoint -Body $($graphPOSTBody | ConvertTo-Json) -Method Post -ContentType 'application/json'
+
+
+    $retries = 0
+    $groupOwnerAdded = $false
+    while (($retries -lt 20) -and (-not $groupOwnerAdded)) {
+        Start-Sleep -Seconds 30
+        try {
+            $retries += 1
+                        
+            $postResponse = Invoke-RestMethod -Headers @{Authorization = "Bearer $accessToken" } -Uri $graphPOSTEndpoint -Body $($graphPOSTBody | ConvertTo-Json) -Method Post -ContentType 'application/json'
+            $groupOwnerAdded = $true
+        }
+        catch {      
+            Write-Verbose -Verbose -Message "Failed adding $($email) as owner to groupId $($groupId)..."    
+            Write-Verbose -Verbose -Message $_
+        }
+    }
 }
 
 function AddTeamPlanner() {

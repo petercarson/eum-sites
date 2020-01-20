@@ -252,8 +252,8 @@ if ($pendingSiteCollections.Count -gt 0) {
             }
             Add-PnPSiteCollectionAdmin -Owners $author
 
-            # add the requester to the Owners group
-            if ($groupId) {
+            # add the requester as an owner of the site's group
+            if ($groupId -and ($author -ne $SPCredentials.UserName)) {
                 AddGroupOwner -groupID $groupId -email $author
             }         
 
