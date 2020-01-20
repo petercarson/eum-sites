@@ -396,7 +396,7 @@
             <Field Type="HTML" DisplayName="Summary" RichText="TRUE" RichTextMode="ThemeHtml" Required="FALSE" Group="EUM Columns" ID="{c2bf9341-8485-4816-84af-0615ae3a0efa}" SourceID="{{siteid}}" StaticName="Summary" Name="Summary" Version="1" ColName="ntext4" RowOrdinal="0" />
           </pnp:Fields>
           <pnp:FieldRefs>
-            <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" Required="true" DisplayName="Alias" />
+            <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" DisplayName="Alias" />
             <pnp:FieldRef ID="025178bb-56c0-4c03-a1ba-95252a59ec4a" Name="EUMPublicGroup" DisplayName="Public Group" />
             <pnp:FieldRef ID="72d4b036-d969-4258-b2cb-9000eb8a31a9" Name="EUMBreadcrumbHTML" DisplayName="Breadcrumb HTML" />
             <pnp:FieldRef ID="60a0ae07-2d35-452d-966f-e461f205972a" Name="EUMSiteCreated" DisplayName="Site Created" />
