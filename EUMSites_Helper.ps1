@@ -67,16 +67,25 @@
         [string]$Global:SitesListSiteURL = "$($WebAppURL)$($environment.webApp.sitesListSiteCollectionPath)"
         [string]$Global:SiteCollectionAdministrator = $environment.webApp.siteCollectionAdministrator
         [string]$Global:TeamsSPFxAppId = $environment.webApp.teamsSPFxAppId
+        $Global:Domain_FK = $environment.eumAPI.domainFK
+        $Global:SystemConfiguration_FK = $environment.eumAPI.systemConfigurationFK
         
         Write-Verbose -Verbose -Message "Environment set to $($environment.name) - $($environment.webApp.URL) `n"
 
         $Global:SPCredentials = GetManagedCredentials -managedCredentials $environment.webApp.managedCredentials -ManagedCredentialsType $environment.webApp.managedCredentialsType
 
-        $AADCredentials = GetManagedCredentials -managedCredentials $environment.graphAPI.managedCredentials -ManagedCredentialsType $environment.graphAPI.managedCredentialsType
-        if ($AADCredentials -ne $null) {
-            $Global:AADClientID = $AADCredentials.UserName
-            $Global:AADSecret = (New-Object PSCredential "user", $AADCredentials.Password).GetNetworkCredential().Password
-            $Global:AADDomain = $environment.graphAPI.AADDomain
+        if ($environment.graphAPI.managedCredentials -ne $null) {
+            $AADCredentials = GetManagedCredentials -managedCredentials $environment.graphAPI.managedCredentials -ManagedCredentialsType $environment.graphAPI.managedCredentialsType
+            if ($AADCredentials -ne $null) {
+                $Global:AADClientID = $AADCredentials.UserName
+                $Global:AADSecret = (New-Object PSCredential "user", $AADCredentials.Password).GetNetworkCredential().Password
+                $Global:AADDomain = $environment.graphAPI.AADDomain
+            }
+        }
+
+        if ($environment.eumAPI.managedCredentials -ne $null) {
+            GetManagedCredentials -managedCredentials $environment.eumAPI.managedCredentials -ManagedCredentialsType $environment.eumAPI.managedCredentialsType
+            [string]$Global:EUMURL = $environment.eumAPI.url
         }
     }
 }
@@ -126,6 +135,23 @@ function GetManagedCredentials() {
             }
             else {
                 Write-Verbose -Verbose -Message "Connecting with Client Id $($Credentials.UserName)" 
+            }
+        }
+
+        "EUMClientIdSecret" {
+            if ($Credentials -eq $null) {
+                [string]$Global:EUMClientID = Read-Host "Enter the Client Id to connect with for $managedCredentials"
+                [string]$Global:EUMSecret = Read-Host "Enter the Secret" -AsSecureString
+                $SaveCredentials = Read-Host "Save the credentials in Windows Credential Manager (Y/N)?"
+                if (($SaveCredentials -eq "y") -or ($SaveCredentials -eq "Y")) {
+                    $temp = New-StoredCredential -Target $managedCredentials -UserName $EUMClientID -SecurePassword $EUMSecret
+                }
+            }
+            else {
+                [string]$Global:EUMClientID = $Credentials.UserName
+                $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Credentials.Password)
+                [string]$Global:EUMSecret = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+                Write-Verbose -Verbose -Message "Connecting with Client Id $($EUMClientID)" 
             }
         }
     }

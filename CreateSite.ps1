@@ -6,10 +6,12 @@
 $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -ErrorAction SilentlyContinue)
 if ($AzureAutomation) { 
     . .\EUMSites_Helper.ps1
+    . .\Customizations.ps1
 }
 else {
     $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
     . $DistributionFolder\EUMSites_Helper.ps1
+    . $DistributionFolder\Customizations.ps1
 }
 
 LoadEnvironmentSettings
@@ -314,8 +316,14 @@ if ($pendingSiteCollections.Count -gt 0) {
             # Set the breadcrumb HTML
             [string]$breadcrumbHTML = GetBreadcrumbHTML -siteURL $siteURL -siteTitle $siteTitle -parentURL $parentURL
 
-            # Set the site created date, breadcrumb, and site URL
-            [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now; "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteURL; "EUMParentURL" = $parentURL }
+            # Set the breadcrumb and site URL
+            [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteURL; "EUMParentURL" = $parentURL }
+
+            # Apply and implementation specific customizations
+            ApplySiteCustomizations -listItemID $spListItem
+
+            # Set the site created date
+            [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now }
         }
 
         # Reconnect to the master site for the next iteration
