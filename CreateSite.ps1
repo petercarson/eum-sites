@@ -52,6 +52,8 @@ if ($listItemID -gt 0) {
             <FieldRef Name='EUMSiteTemplate'></FieldRef>
             <FieldRef Name='EUMDivision'></FieldRef>
             <FieldRef Name='EUMCreateTeam'></FieldRef>
+            <FieldRef Name='EUMCreateOneNote'></FieldRef>
+            <FieldRef Name='EUMCreatePlanner'></FieldRef>
             <FieldRef Name='Author'></FieldRef>
         </ViewFields>
     </View>"
@@ -79,6 +81,8 @@ else {
             <FieldRef Name='EUMSiteTemplate'></FieldRef>
             <FieldRef Name='EUMDivision'></FieldRef>
             <FieldRef Name='EUMCreateTeam'></FieldRef>
+            <FieldRef Name='EUMCreateOneNote'></FieldRef>
+            <FieldRef Name='EUMCreatePlanner'></FieldRef>            
             <FieldRef Name='Author'></FieldRef>
         </ViewFields>
     </View>"
@@ -91,7 +95,7 @@ if ($pendingSiteCollections.Count -gt 0) {
     [int]$timeZoneId = $spWeb.RegionalSettings.TimeZone.Id
 
     # Iterate through the pending sites. Create them if needed, and apply template
-    $pendingSiteCollections | ForEach {
+    $pendingSiteCollections | ForEach-Object {
         $pendingSite = $_
 
         [string]$siteTitle = $pendingSite["Title"]
@@ -108,9 +112,11 @@ if ($pendingSiteCollections.Count -gt 0) {
         [boolean]$publicGroup = $pendingSite["EUMPublicGroup"]
         [string]$breadcrumbHTML = $pendingSite["EUMBreadcrumbHTML"]
         [string]$parentURL = $pendingSite["EUMParentURL"]
-        [string]$Division = $pendingSite["EUMDivision"].LookupValue
-        [string]$eumSiteTemplate = $pendingSite["EUMSiteTemplate"].LookupValue
+        [string]$Division = $pendingSite["EUMDivision"].LookupId
+        [string]$eumSiteTemplate = $pendingSite["EUMSiteTemplate"].LookupId
         [boolean]$eumCreateTeam = $pendingSite["EUMCreateTeam"]
+        [boolean]$eumCreateOneNote = $pendingSite["EUMCreateOneNote"]
+        [boolean]$eumCreatePlanner = $pendingSite["EUMCreatePlanner"]
         [string]$author = $pendingSite["Author"].Email
 
         if ($parentURL -eq "") {
@@ -119,8 +125,8 @@ if ($pendingSiteCollections.Count -gt 0) {
 																	<Query>
 																		<Where>
 																			<Eq>
-																				<FieldRef Name='Title'/>
-																				<Value Type='Text'>$Division</Value>
+																				<FieldRef Name='ID'/>
+																				<Value Type='Number'>$Division</Value>
 																			</Eq>
 																		</Where>
 																	</Query>
@@ -135,13 +141,13 @@ if ($pendingSiteCollections.Count -gt 0) {
             }
         }
 
-        $siteTemplate = Get-PnPListItem -List "SiteTemplates" -Query "
+        $siteTemplate = Get-PnPListItem -List "Site Templates" -Query "
 													<View>
 														<Query>
 															<Where>
 																<Eq>
-																	<FieldRef Name='Title'/>
-																	<Value Type='Text'>$eumSiteTemplate</Value>
+																	<FieldRef Name='ID'/>
+																	<Value Type='Number'>$eumSiteTemplate</Value>
 																</Eq>
 															</Where>
 														</Query>
@@ -149,7 +155,8 @@ if ($pendingSiteCollections.Count -gt 0) {
 															<FieldRef Name='Title'></FieldRef>
 															<FieldRef Name='BaseClassicSiteTemplate'></FieldRef>
 															<FieldRef Name='BaseModernSiteType'></FieldRef>
-															<FieldRef Name='PnPSiteTemplate'></FieldRef>
+                                                            <FieldRef Name='PnPSiteTemplate'></FieldRef>
+                                                            <FieldRef Name='PlannerTemplate'></FieldRef>
 														</ViewFields>
 													</View>"
 		
@@ -162,7 +169,7 @@ if ($pendingSiteCollections.Count -gt 0) {
             $baseSiteTemplate = $siteTemplate["BaseClassicSiteTemplate"]
             $baseSiteType = $siteTemplate["BaseModernSiteType"]
             if ($siteTemplate["PnPSiteTemplate"] -ne $null) {
-                $pnpSiteTemplate = "$pnpTemplatePath\$($siteTemplate["PnPSiteTemplate"])"
+                $pnpSiteTemplate = "$pnpTemplatePath\$($siteTemplate["PnPSiteTemplate"].LookupValue)"
             }
         }
 
@@ -303,11 +310,15 @@ if ($pendingSiteCollections.Count -gt 0) {
                 Disconnect-MicrosoftTeams
 
                 Write-Verbose -Verbose -Message "groupId = $($groupId), generalChannelId = $($generalChannelId)"
-                AddOneNoteTeamsChannelTab -groupId $groupId -channelName 'General' -teamsChannelId $generalChannelId -siteURL $siteURL
-                AddTeamsChannelRequestFormToChannel -groupId $groupId -teamsChannelId $generalChannelId
+                if ($eumCreateOneNote) {
+                    AddOneNoteTeamsChannelTab -groupId $groupId -channelName 'General' -teamsChannelId $generalChannelId -siteURL $siteURL
+                    AddTeamsChannelRequestFormToChannel -groupId $groupId -teamsChannelId $generalChannelId
+                }
 
-                $planId = AddTeamPlanner -groupId $groupId -planTitle "$($siteTitle) Planner"
-                AddPlannerTeamsChannelTab -groupId $groupId -planTitle "$($siteTitle) Planner" -planId $planId -channelName 'General' -teamsChannelId $generalChannelId  
+                if ($eumCreatePlanner) {
+                    $planId = AddTeamPlanner -groupId $groupId -planTitle "$($siteTitle) Planner"
+                    AddPlannerTeamsChannelTab -groupId $groupId -planTitle "$($siteTitle) Planner" -planId $planId -channelName 'General' -teamsChannelId $generalChannelId  
+                }
             }
             
             # Reconnect to the master site and update the site collection list
@@ -319,8 +330,8 @@ if ($pendingSiteCollections.Count -gt 0) {
             # Set the breadcrumb and site URL
             [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteURL; "EUMParentURL" = $parentURL }
 
-            # Apply and implementation specific customizations
-            ApplySiteCustomizations -listItemID $spListItem
+            # Apply implementation specific customizations
+            ApplySiteCustomizations -listItemID $pendingSite.Id
 
             # Set the site created date
             [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now }
