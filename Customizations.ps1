@@ -4,6 +4,8 @@ function ApplySiteCustomizations () {
 		[Parameter (Mandatory = $true)][int]$listItemID
 	)
 
+	Write-Verbose -Verbose -Message "ApplySiteCustomizations for listItemID $($listItemID)..."
+
 	$pendingSiteCollection = Get-PnPListItem -List $SiteListName -Query "
 	<View>
 		<Query>
@@ -61,7 +63,7 @@ function ApplySiteCustomizations () {
 			$baseSiteTemplate = $siteTemplate["BaseClassicSiteTemplate"]
 			$baseSiteType = $siteTemplate["BaseModernSiteType"]
 			if ($siteTemplate["PnPSiteTemplate"] -ne $null) {
-                $pnpSiteTemplate = "$pnpTemplatePath\$($siteTemplate["PnPSiteTemplate"].LookupValue)"
+				$pnpSiteTemplate = "$pnpTemplatePath\$($siteTemplate["PnPSiteTemplate"].LookupValue)"
 			}
 		}
 		
@@ -87,4 +89,17 @@ function ApplyChannelCustomizations () {
 	(
 		[Parameter (Mandatory = $true)][int]$listItemID
 	)
+
+	Write-Verbose -Verbose -Message "ApplyChannelCustomizations for listItemID $($listItemID)..."
+
+	$channelDetails = Get-PnPListItem -List $TeamsChannelsListName -Id $listItemID -Fields "ID", "Title", "IsPrivate", "Description", "TeamSiteURL", "Description", "CreateOneNoteSection", "CreateChannelPlanner", "ChannelTemplate"
+
+	[string]$channelName = $channelDetails["Title"]
+	[boolean]$isPrivate = $channelDetails["IsPrivate"]
+	[string]$siteURL = $channelDetails["TeamSiteURL"]
+	[string]$channelDescription = $channelDetails["Description"]
+	[boolean]$createOneNote = $channelDetails["CreateOneNoteSection"]
+	[boolean]$createPlanner = $channelDetails["CreateChannelPlanner"]
+	[string]$channelTemplateId = $channelDetails["ChannelTemplate"].LookupId
+
 }
