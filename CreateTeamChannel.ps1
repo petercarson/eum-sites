@@ -48,7 +48,7 @@ catch {
 try {
     # Create the new channel in Teams
     Write-Verbose -Verbose -Message "Creating channel $($channelName)..."
-    Connect-MicrosoftTeams -Credential $SPCredentials
+    $teamsConnection = Connect-MicrosoftTeams -Credential $SPCredentials
     $teamsChannel = New-TeamChannel -GroupId $groupId -DisplayName $channelName -Description $channelDescription
     $teamsChannelId = $teamsChannel.Id
     Disconnect-MicrosoftTeams

@@ -252,7 +252,6 @@ function PrepareSiteItemValues() {
 
     return $newListItemValues
 }
-
 function GetGraphAPIBearerToken() {
     $scope = "https://graph.microsoft.com/.default"
     $authorizationUrl = "https://login.microsoftonline.com/$($AADDomain)/oauth2/v2.0/token"
@@ -455,7 +454,6 @@ function AddTeamPlanner() {
 
     # Retrieve access token for graph API
     $accessToken = GetGraphAPIServiceAccountBearerToken
-    Write-Verbose -Verbose -Message $accessToken
 
     Write-Verbose -Verbose -Message "Creating plan $($planTitle) for groupId $($groupId)..."
     $graphPOSTEndpoint = "$($graphApiBaseUrl)/planner/plans"
@@ -482,7 +480,6 @@ function AddPlannerTeamsChannelTab() {
 
     # Retrieve access token for graph API
     $accessToken = GetGraphAPIBearerToken
-    Write-Verbose -Verbose -Message $accessToken
 
     Write-Verbose -Verbose -Message "Adding Planner tab for plan $($planTitle) to channel $($channelName)..."
     $configurationProperties = @{
@@ -500,6 +497,72 @@ function AddPlannerTeamsChannelTab() {
 
     $graphPOSTEndpoint = "$($graphApiBaseUrl)/teams/$($groupId)/channels/$($teamsChannelId)/tabs"
     $postResponse = Invoke-RestMethod -Headers @{Authorization = "Bearer $accessToken" } -Uri $graphPOSTEndpoint -Body $($graphPOSTBody | ConvertTo-Json) -Method Post -ContentType 'application/json'
+}
+
+function GetGroupIdByName() {
+    Param
+    (
+        [parameter(Mandatory = $true)]$groupName
+    )
+
+    $graphApiBaseUrl = "https://graph.microsoft.com/v1.0"
+
+    # Retrieve access token for graph API
+    $accessToken = GetGraphAPIBearerToken
+
+    Write-Verbose -Verbose -Message "Retrieving group ID for group $($groupName)..."
+    $graphGETEndpoint = "$($graphApiBaseUrl)/groups?`$filter=displayName eq '$($groupName)'"
+
+    try {
+        $getResponse = Invoke-RestMethod -Headers @{Authorization = "Bearer $accessToken" } -Uri $graphGETEndpoint -Method Get -ContentType 'application/json'
+        return $getResponse.value.id
+    }
+    catch [System.Net.WebException] {
+        if ([int]$_.Exception.Response.StatusCode -eq 404) {
+            return $null
+        }
+        else {
+            Write-Error "Exception Type: $($_.Exception.GetType().FullName)"
+            Write-Error "Exception Message: $($_.Exception.Message)"
+        }
+    }
+    catch {
+        Write-Error "Exception Type: $($_.Exception.GetType().FullName)"
+        Write-Error "Exception Message: $($_.Exception.Message)"
+    }
+}
+
+function GetGroupSiteUrl() {
+    Param
+    (
+        [parameter(Mandatory = $true)]$groupId
+    )
+
+    $graphApiBaseUrl = "https://graph.microsoft.com/v1.0"
+
+    # Retrieve access token for graph API
+    $accessToken = GetGraphAPIBearerToken
+
+    Write-Verbose -Verbose -Message "Retrieving site URL for group $($groupId)..."
+    $graphGETEndpoint = "$($graphApiBaseUrl)/groups/$($groupId)/sites/root/webUrl"
+
+    try {
+        $getResponse = Invoke-RestMethod -Headers @{Authorization = "Bearer $accessToken" } -Uri $graphGETEndpoint -Method Get -ContentType 'application/json'
+        return $getResponse.value
+    }
+    catch [System.Net.WebException] {
+        if ([int]$_.Exception.Response.StatusCode -eq 404) {
+            return $null
+        }
+        else {
+            Write-Error "Exception Type: $($_.Exception.GetType().FullName)"
+            Write-Error "Exception Message: $($_.Exception.Message)"
+        }
+    }
+    catch {
+        Write-Error "Exception Type: $($_.Exception.GetType().FullName)"
+        Write-Error "Exception Message: $($_.Exception.Message)"
+    }
 }
 
 Set-PnPTraceLog -On -Level Debug

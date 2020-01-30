@@ -290,7 +290,7 @@ if ($pendingSiteCollections.Count -gt 0) {
                 $team = $null
                 $retries = 0
 
-                Connect-MicrosoftTeams -Credential $SPCredentials
+                $teamsConnection = Connect-MicrosoftTeams -Credential $SPCredentials
                 while (($retries -lt 20) -and ($team -eq $null)) {
                     Start-Sleep -Seconds 30
                     try {
