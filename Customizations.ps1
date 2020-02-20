@@ -4,6 +4,8 @@ function ApplySiteCustomizations () {
 		[Parameter (Mandatory = $true)][int]$listItemID
 	)
 
+    Helper-Connect-PnPOnline -Url $SitesListSiteURL
+
 	$pendingSiteCollection = Get-PnPListItem -List $SiteListName -Query "
 	<View>
 		<Query>
@@ -67,13 +69,13 @@ function ApplySiteCustomizations () {
 		{
             Helper-Connect-PnPOnline -Url $siteURL
 
-			Add-PnPFolder -Name "Quotes" -Folder "/Shared Documents"
-			Add-PnPFolder -Name "Signed Quotes" -Folder "/Shared Documents/Quotes"
-			Add-PnPFolder -Name "Invoices" -Folder "/Shared Documents"
+			$spFolder = Add-PnPFolder -Name "Quotes" -Folder "/Shared Documents"
+			$spFolder = Add-PnPFolder -Name "Signed Quotes" -Folder "/Shared Documents/Quotes"
+			$spFolder = Add-PnPFolder -Name "Invoices" -Folder "/Shared Documents"
 
-			Add-PnPFolder -Name "Business Development" -Folder "/Private Documents"
-			Add-PnPFolder -Name "Confidential" -Folder "/Private Documents"
-			Add-PnPFolder -Name "Quotes" -Folder "/Private Documents"
+			$spFolder = Add-PnPFolder -Name "Business Development" -Folder "/Private Documents"
+			$spFolder = Add-PnPFolder -Name "Confidential" -Folder "/Private Documents"
+			$spFolder = Add-PnPFolder -Name "Quotes" -Folder "/Private Documents"
 
 			Remove-PnPContentTypeFromList -List "Shared Documents" -ContentType "Document"
 			Remove-PnPContentTypeFromList -List "Private Documents" -ContentType "Document"

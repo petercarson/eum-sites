@@ -111,7 +111,7 @@ if ($pendingSiteCollections.Count -gt 0) {
         [string]$Division = $pendingSite["EUMDivision"].LookupValue
         [string]$eumSiteTemplate = $pendingSite["EUMSiteTemplate"].LookupValue
         [boolean]$eumCreateTeam = $pendingSite["EUMCreateTeam"]
-        [string]$author = $pendingSite["Author"].Email
+        [string]$author = GetUsernameFromEmail -email $pendingSite["Author"].Email
 
         if ($parentURL -eq "") {
             $divisionSiteURL = Get-PnPListItem -List "Divisions" -Query "
@@ -320,7 +320,7 @@ if ($pendingSiteCollections.Count -gt 0) {
             [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMBreadcrumbHTML" = $breadcrumbHTML; "EUMSiteURL" = $siteURL; "EUMParentURL" = $parentURL }
 
             # Apply and implementation specific customizations
-            ApplySiteCustomizations -listItemID $spListItem
+            ApplySiteCustomizations -listItemID $spListItem.Id
 
             # Set the site created date
             [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $pendingSite.Id -Values @{ "EUMSiteCreated" = [System.DateTime]::Now }

@@ -503,3 +503,21 @@ function AddPlannerTeamsChannelTab() {
 }
 
 Set-PnPTraceLog -On -Level Debug
+
+function GetUsernameFromEmail() {
+    [OutputType([string])]
+    Param
+    (
+        [parameter(Mandatory = $true)]$email
+    )
+    $graphApiBaseUrl = "https://graph.microsoft.com/v1.0"
+    # Retrieve access token for graph API
+    $accessToken = GetGraphAPIBearerToken
+
+    Write-Verbose -Verbose -Message "Getting username for $email ..."    
+    $graphGETEndpoint = "$($graphApiBaseUrl)/users?`$filter=mail eq '$email'&`$select=userPrincipalName"
+
+    $getResponse = Invoke-RestMethod -Headers @{Authorization = "Bearer $accessToken" } -Uri $graphGETEndpoint -Method Get -ContentType 'application/json'
+    
+    return $getResponse.value[0].userPrincipalName
+}
