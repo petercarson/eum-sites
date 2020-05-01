@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2020/02/ProvisioningSchema">
+  <pnp:Preferences Generator="OfficeDevPnP.Core, Version=3.18.2002.0, Culture=neutral, PublicKeyToken=5e633289e95c321a" />
+  <pnp:Templates ID="CONTAINER-TEMPLATE-41B1470DE3EA46518BE56FE664CA9269">
+    <pnp:ProvisioningTemplate ID="TEMPLATE-41B1470DE3EA46518BE56FE664CA9269" Version="1" BaseSiteTemplate="SITEPAGEPUBLISHING#0" Scope="RootSite">
+      <pnp:SiteFields>
+        <Field Type="Text" DisplayName="Parent URL" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{13942e0b-b747-41c5-a9f0-aade28718abc}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMParentURL" Name="EUMParentURL" CustomFormatter="">
+        </Field>
+        <Field Type="Note" DisplayName="Purpose" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" Group="EUM Columns" ID="{66ccfe1b-0776-4870-bead-616da317abdb}" SourceID="{2e6acc72-9f0a-43c3-923d-fd4a0eb3feb3}" StaticName="SitePurpose" Name="SitePurpose" CustomFormatter="" RestrictedMode="TRUE" RichTextMode="Compatible" IsolateStyles="FALSE" AppendOnly="FALSE" UnlimitedLengthInDocumentLibrary="FALSE" AllowDeletion="TRUE">
+        </Field>
+        <Field Type="Text" DisplayName="Site Template" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{7a01a24f-a7b3-4d9c-bd48-60d7895290f7}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMSiteTemplate" Name="EUMSiteTemplate" CustomFormatter="">
+        </Field>
+        <Field Type="HTML" DisplayName="Group Summary" RichText="TRUE" RichTextMode="ThemeHtml" Required="FALSE" Group="EUM Columns" ID="{97622179-c8e0-4c63-bb07-edda4350013a}" SourceID="{b722af88-a83d-4dcc-9a6d-8d476f034ea2}" StaticName="EUMGroupSummary" Name="EUMGroupSummary" AllowDeletion="TRUE" />
+        <Field Type="Text" Name="EUMAlias" ID="{30c15ea5-28b2-415f-abe1-5887cca7fcca}" Description="" DisplayName="Alias" StaticName="EUMAlias" Group="EUM Columns" Hidden="" Required="FALSE" Sealed="" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" SourceID="{8b0d841b-a2ff-47b8-9ab2-fb8b66a1e6b8}" AllowDeletion="TRUE">
+        </Field>
+        <Field Type="Boolean" Name="EUMPublicGroup" ID="{025178bb-56c0-4c03-a1ba-95252a59ec4a}" Description="" DisplayName="Public Group" StaticName="EUMPublicGroup" Group="EUM Columns" Hidden="" Required="FALSE" Sealed="" EnforceUniqueValues="FALSE" Indexed="FALSE" SourceID="{8b0d841b-a2ff-47b8-9ab2-fb8b66a1e6b8}" AllowDeletion="TRUE">
+          <Default>1</Default>
+        </Field>
+        <Field Type="Text" DisplayName="Division" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{e93efad7-759d-4e45-81f5-5add566efe28}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMDivision" Name="EUMDivision" CustomFormatter="">
+        </Field>
+        <Field Type="Text" DisplayName="Site URL" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{ba0008f5-2d95-4e44-8758-44fc8b544e6f}" SourceID="{09862c64-9219-4963-ae0e-d3361604f74d}" StaticName="EUMSiteURL" Name="EUMSiteURL" CustomFormatter="" AllowDeletion="TRUE">
+        </Field>
+        <Field Type="DateTime" DisplayName="Site Created" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="DateTime" Group="EUM Columns" FriendlyDisplayFormat="Disabled" ID="{84b67cff-f12f-4587-9544-151557fe84d3}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMSiteCreated" Name="EUMSiteCreated" CustomFormatter="" CalType="0">
+        </Field>
+        <Field Type="Boolean" DisplayName="Create Team" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{aadce642-b3f7-4672-8c84-97dbc9c63de6}" SourceID="{09862c64-9219-4963-ae0e-d3361604f74d}" StaticName="EUMCreateTeam" Name="EUMCreateTeam" CustomFormatter="" Required="FALSE" AllowDeletion="TRUE">
+          <Default>1</Default>
+        </Field>        
+        <Field Type="Boolean" DisplayName="Create OneNote" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{6b813e3b-fde5-4042-8601-b34228a1d826}" SourceID="{fa8b3fca-3827-44e3-9806-4ded1a958f8c}" StaticName="EUMCreateOneNote" Name="EUMCreateOneNote" CustomFormatter="" Required="FALSE" AllowDeletion="TRUE">
+          <Default>1</Default>
+        </Field>
+        <Field Type="Boolean" DisplayName="Create Planner" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{775dcb0e-68e4-4504-9db6-5b0e4bbf5924}" SourceID="{fa8b3fca-3827-44e3-9806-4ded1a958f8c}" StaticName="EUMCreatePlanner" Name="EUMCreatePlanner" CustomFormatter="" Required="FALSE" AllowDeletion="TRUE">
+          <Default>1</Default>
+        </Field>                
+      </pnp:SiteFields>
+      <pnp:ContentTypes>
+        <pnp:ContentType ID="0x0100782F293576407D449F1EE4AB1DD1F7CC" Name="Base Site Request" Description="" Group="EUM Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="fa564e0f-0c70-4ab9-b863-0177e6ddd247" Name="Title" Required="true" UpdateChildren="true" />
+            <pnp:FieldRef ID="66ccfe1b-0776-4870-bead-616da317abdb" Name="SitePurpose" UpdateChildren="true" />
+            <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" UpdateChildren="true" />
+            <pnp:FieldRef ID="ba0008f5-2d95-4e44-8758-44fc8b544e6f" Name="EUMSiteURL" UpdateChildren="true" />
+            <pnp:FieldRef ID="025178bb-56c0-4c03-a1ba-95252a59ec4a" Name="EUMPublicGroup" UpdateChildren="true" />
+            <pnp:FieldRef ID="aadce642-b3f7-4672-8c84-97dbc9c63de6" Name="EUMCreateTeam" UpdateChildren="true" />
+            <pnp:FieldRef ID="c042a256-787d-4a6f-8a8a-cf6ab767f12d" Name="ContentType" UpdateChildren="true" />
+            <pnp:FieldRef ID="6b813e3b-fde5-4042-8601-b34228a1d826" Name="EUMCreateOneNote" UpdateChildren="true" />
+            <pnp:FieldRef ID="775dcb0e-68e4-4504-9db6-5b0e4bbf5924" Name="EUMCreatePlanner" UpdateChildren="true" />
+          </pnp:FieldRefs>
+        </pnp:ContentType>
+        <pnp:ContentType ID="0x0100782F293576407D449F1EE4AB1DD1F7CC04" Name="Site Metadata" Description="" Group="EUM Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="fa564e0f-0c70-4ab9-b863-0177e6ddd247" Name="Title" Required="true" UpdateChildren="true" />
+            <pnp:FieldRef ID="66ccfe1b-0776-4870-bead-616da317abdb" Name="SitePurpose" UpdateChildren="true" />
+            <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" UpdateChildren="true" />
+            <pnp:FieldRef ID="ba0008f5-2d95-4e44-8758-44fc8b544e6f" Name="EUMSiteURL" UpdateChildren="true" />
+            <pnp:FieldRef ID="025178bb-56c0-4c03-a1ba-95252a59ec4a" Name="EUMPublicGroup" UpdateChildren="true" />
+            <pnp:FieldRef ID="c042a256-787d-4a6f-8a8a-cf6ab767f12d" Name="ContentType" UpdateChildren="true" />
+            <pnp:FieldRef ID="97622179-c8e0-4c63-bb07-edda4350013a" Name="EUMGroupSummary" UpdateChildren="true" />
+            <pnp:FieldRef ID="13942e0b-b747-41c5-a9f0-aade28718abc" Name="EUMParentURL" UpdateChildren="true" />
+            <pnp:FieldRef ID="84b67cff-f12f-4587-9544-151557fe84d3" Name="EUMSiteCreated" UpdateChildren="true" />
+            <pnp:FieldRef ID="e93efad7-759d-4e45-81f5-5add566efe28" Name="EUMDivision" UpdateChildren="true" />
+            <pnp:FieldRef ID="7a01a24f-a7b3-4d9c-bd48-60d7895290f7" Name="EUMSiteTemplate" UpdateChildren="true" />
+          </pnp:FieldRefs>
+        </pnp:ContentType>
+      </pnp:ContentTypes>
+      <pnp:Lists>
+        <pnp:ListInstance Title="Site Metadata" Description="" DocumentTemplate="" TemplateType="100" Url="Lists/SiteMetadata" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" ContentTypesEnabled="true" EnableFolderCreation="false" DefaultDisplayFormUrl="{site}/Lists/SiteMetadata/DispForm.aspx" DefaultEditFormUrl="{site}/Lists/SiteMetadata/EditForm.aspx" DefaultNewFormUrl="{site}/Lists/SiteMetadata/NewForm.aspx" ImageUrl="/_layouts/15/images/itgen.png?rev=47" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x0100782F293576407D449F1EE4AB1DD1F7CC04" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{994F3311-8ABF-47E5-AE00-C7A544EB2904}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/SiteMetadata/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="ID" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="LinkTitle" />
+                <FieldRef Name="EUMAlias" />
+                <FieldRef Name="EUMDivision" />
+                <FieldRef Name="EUMGroupSummary" />
+                <FieldRef Name="EUMParentURL" />
+                <FieldRef Name="EUMPublicGroup" />
+                <FieldRef Name="SitePurpose" />
+                <FieldRef Name="EUMSiteCreated" />
+                <FieldRef Name="EUMSiteTemplate" />
+                <FieldRef Name="EUMSiteURL" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <Aggregations Value="Off" />
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="66ccfe1b-0776-4870-bead-616da317abdb" Name="SitePurpose" DisplayName="Purpose" />
+            <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" DisplayName="Alias" />
+            <pnp:FieldRef ID="ba0008f5-2d95-4e44-8758-44fc8b544e6f" Name="EUMSiteURL" DisplayName="Site URL" />
+            <pnp:FieldRef ID="025178bb-56c0-4c03-a1ba-95252a59ec4a" Name="EUMPublicGroup" DisplayName="Public Group" />
+            <pnp:FieldRef ID="97622179-c8e0-4c63-bb07-edda4350013a" Name="EUMGroupSummary" DisplayName="Group Summary" />
+            <pnp:FieldRef ID="13942e0b-b747-41c5-a9f0-aade28718abc" Name="EUMParentURL" DisplayName="Parent URL" />
+            <pnp:FieldRef ID="84b67cff-f12f-4587-9544-151557fe84d3" Name="EUMSiteCreated" DisplayName="Site Created" />
+            <pnp:FieldRef ID="e93efad7-759d-4e45-81f5-5add566efe28" Name="EUMDivision" DisplayName="Division" />
+            <pnp:FieldRef ID="7a01a24f-a7b3-4d9c-bd48-60d7895290f7" Name="EUMSiteTemplate" DisplayName="Site Template" />
+          </pnp:FieldRefs>
+        </pnp:ListInstance>
+      </pnp:Lists>
+    </pnp:ProvisioningTemplate>
+  </pnp:Templates>
+</pnp:Provisioning>

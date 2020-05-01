@@ -1,0 +1,47 @@
+{
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.2/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.2",
+    "packageName": "EumGroupsWebPart",
+    "id": "75dbe34f-74a5-4bbb-9495-41701c0d7ac0",
+    "version": "0.1",
+    "developer": {
+      "name": "Extranet User Manager",
+      "websiteUrl": "https://www.extranetusermanager.com/",
+      "privacyUrl": "https://www.extranetusermanager.com/privacy",
+      "termsOfUseUrl": "https://www.extranetusermanager.com/privacy"
+    },
+    "name": {
+      "short": "Add channel"
+    },
+    "description": {
+      "short": "Request a new teams channel.",
+      "full": "Request a new teams channel."
+    },
+    "icons": {
+      "outline": "75dbe34f-74a5-4bbb-9495-41701c0d7ac0_outline.png",
+      "color": "75dbe34f-74a5-4bbb-9495-41701c0d7ac0_color.png"
+    },
+    "accentColor": "#004578",
+    "configurableTabs": [
+      {
+        "configurationUrl": "https://{teamSiteDomain}{teamSitePath}/_layouts/15/TeamsLogon.aspx?SPFX=true&dest={teamSitePath}/_layouts/15/teamshostedapp.aspx%3FopenPropertyPane=true%26teams%26componentId=75dbe34f-74a5-4bbb-9495-41701c0d7ac0%26forceLocale={locale}",
+        "canUpdateConfiguration": true,
+        "scopes": [
+          "team"
+        ]
+      }
+    ],
+    "validDomains": [
+      "*.login.microsoftonline.com",
+      "*.sharepoint.com",
+      "*.sharepoint-df.com",
+      "spoppe-a.akamaihd.net",
+      "spoprod-a.akamaihd.net",
+      "resourceseng.blob.core.windows.net",
+      "msft.spoppe.com"
+    ],
+    "webApplicationInfo": {
+      "resource": "https://{teamSiteDomain}",
+      "id": "00000003-0000-0ff1-ce00-000000000000"
+    }
+  }

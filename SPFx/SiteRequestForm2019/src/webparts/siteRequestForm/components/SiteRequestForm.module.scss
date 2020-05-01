@@ -1,0 +1,27 @@
+@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+
+.siteRequestForm {
+  .webpartTitle {
+    display: block;
+    font-size: 24px;
+    margin-bottom: 8px;
+    font-weight: 100;
+  }
+
+  .richText {
+    border: 1px solid #a6a6a6;
+  }
+
+  .richText:hover {
+    border-color: #333333;
+  }
+
+  .formButtonsContainer {
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    button {
+      margin-right: 4px;
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "connectionsName": {
+          "value": "office365"
+      },
+      "workflowsName": {
+          "value": "logic-app-test-10"
+      },
+      "fromEmailAddress": {
+          "value": "peter@envisionit.com"
+      },
+      "toEmailAddress": {
+          "value": "jack.lee.consulting@live.com"
+      },
+      "emailSubject": {
+          "value": "Email Subject"
+      },
+      "emailBody": {
+          "value": "Email Body"
+      }
+  }
+}

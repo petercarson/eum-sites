@@ -1,0 +1,11 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "isCreatingSolution": true,
+    "environment": "spo",
+    "version": "1.7.1",
+    "libraryName": "site-request-form",
+    "libraryId": "f1ecd9bb-70e8-4ab2-91dd-d37478f23d75",
+    "packageManager": "npm",
+    "componentType": "webpart"
+  }
+}

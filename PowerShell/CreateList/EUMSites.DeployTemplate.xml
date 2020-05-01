@@ -1,0 +1,517 @@
+<?xml version="1.0"?>
+<pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2020/02/ProvisioningSchema">
+  <pnp:Preferences Generator="OfficeDevPnP.Core, Version=3.19.2003.0, Culture=neutral, PublicKeyToken=5e633289e95c321a" />
+  <pnp:Templates ID="CONTAINER-TEMPLATE-6C7AB0BB6EA84F139BD9BD33FD76C9F8">
+    <pnp:ProvisioningTemplate ID="TEMPLATE-6C7AB0BB6EA84F139BD9BD33FD76C9F8" Version="1" BaseSiteTemplate="" Scope="RootSite">
+      <pnp:SiteFields>
+        <Field Type="Text" DisplayName="Parent URL" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{13942e0b-b747-41c5-a9f0-aade28718abc}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMParentURL" Name="EUMParentURL" CustomFormatter="">
+        </Field>
+        <Field Type="Boolean" DisplayName="Subsite" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{67ec520e-cf70-47ab-a62e-f332782bef91}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMIsSubsite" Name="EUMIsSubsite" CustomFormatter="" Required="FALSE">
+          <Default>0</Default>
+        </Field>
+        <Field Type="Boolean" DisplayName="Create Planner" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{775dcb0e-68e4-4504-9db6-5b0e4bbf5924}" SourceID="{fa8b3fca-3827-44e3-9806-4ded1a958f8c}" StaticName="EUMCreatePlanner" Name="EUMCreatePlanner" CustomFormatter="" Required="FALSE" AllowDeletion="TRUE">
+          <Default>1</Default>
+        </Field>
+        <Field Type="Note" DisplayName="Purpose" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" Group="EUM Columns" ID="{66ccfe1b-0776-4870-bead-616da317abdb}" SourceID="{2e6acc72-9f0a-43c3-923d-fd4a0eb3feb3}" StaticName="SitePurpose" Name="SitePurpose" CustomFormatter="" RestrictedMode="TRUE" RichTextMode="Compatible" IsolateStyles="FALSE" AppendOnly="FALSE" UnlimitedLengthInDocumentLibrary="FALSE" AllowDeletion="TRUE">
+        </Field>
+        <Field Type="Note" DisplayName="Breadcrumb HTML" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="TRUE" RichTextMode="FullHtml" IsolateStyles="TRUE" Sortable="FALSE" Group="EUM Columns" ID="{aa755f30-c1f5-489a-a31d-6bb850cb182c}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMBreadcrumbHTML" Name="EUMBreadcrumbHTML" CustomFormatter="" RestrictedMode="TRUE" AppendOnly="FALSE" UnlimitedLengthInDocumentLibrary="FALSE">
+        </Field>
+        <Field Type="Boolean" DisplayName="Add OneNote Teams Tab" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{6b813e3b-fde5-4042-8601-b34228a1d826}" SourceID="{fa8b3fca-3827-44e3-9806-4ded1a958f8c}" StaticName="EUMCreateOneNote" Name="EUMCreateOneNote" CustomFormatter="" Required="FALSE" AllowDeletion="TRUE">
+          <Default>1</Default>
+        </Field>
+        <Field Type="Boolean" DisplayName="Create Team" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{aadce642-b3f7-4672-8c84-97dbc9c63de6}" SourceID="{09862c64-9219-4963-ae0e-d3361604f74d}" StaticName="EUMCreateTeam" Name="EUMCreateTeam" CustomFormatter="" Required="FALSE" AllowDeletion="TRUE">
+          <Default>1</Default>
+        </Field>
+        <Field Type="Boolean" DisplayName="Group Approval Required" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{f91b1147-bfad-495c-8f3d-1f6f90b3b23d}" SourceID="{b722af88-a83d-4dcc-9a6d-8d476f034ea2}" StaticName="EUMGroupApprovalRequired" Name="EUMGroupApprovalRequired" CustomFormatter="" Required="FALSE" AllowDeletion="TRUE">
+          <Default>1</Default>
+        </Field>
+        <Field Type="Text" DisplayName="Site Template" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{7a01a24f-a7b3-4d9c-bd48-60d7895290f7}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMSiteTemplate" Name="EUMSiteTemplate" CustomFormatter="">
+        </Field>
+        <Field Type="Boolean" DisplayName="Group Publicly Available" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{cb058d67-a28d-4126-a8bf-2f39c36606e0}" SourceID="{b722af88-a83d-4dcc-9a6d-8d476f034ea2}" StaticName="EUMGroupPubliclyAvailable" Name="EUMGroupPubliclyAvailable" CustomFormatter="" Required="FALSE" AllowDeletion="TRUE">
+          <Default>1</Default>
+        </Field>
+        <Field Type="HTML" DisplayName="Group Summary" RichText="TRUE" RichTextMode="ThemeHtml" Required="FALSE" Group="EUM Columns" ID="{97622179-c8e0-4c63-bb07-edda4350013a}" SourceID="{b722af88-a83d-4dcc-9a6d-8d476f034ea2}" StaticName="EUMGroupSummary" Name="EUMGroupSummary" AllowDeletion="TRUE" />
+        <Field Type="Text" DisplayName="Group Approver Email" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{c8e61e7c-e228-4342-8493-137acbbc2430}" SourceID="{b722af88-a83d-4dcc-9a6d-8d476f034ea2}" StaticName="EUMGroupApproverEmail" Name="EUMGroupApproverEmail" CustomFormatter="" AllowDeletion="TRUE">
+        </Field>
+        <Field Type="HTML" DisplayName="Group Description" RichText="TRUE" RichTextMode="ThemeHtml" Required="FALSE" Group="EUM Columns" ID="{6ce7357d-cea8-4df1-9664-5eca19851c33}" SourceID="{b722af88-a83d-4dcc-9a6d-8d476f034ea2}" StaticName="EUMGroupDescription" Name="EUMGroupDescription" AllowDeletion="TRUE" />
+        <Field Type="Boolean" DisplayName="Group Available For Registration" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{c2518c8a-91f5-48b3-a892-ccf29b9618ac}" SourceID="{b722af88-a83d-4dcc-9a6d-8d476f034ea2}" StaticName="EUMGroupAvailableForRegistration" Name="EUMGroupAvailableForRegistration" CustomFormatter="" Required="FALSE" AllowDeletion="TRUE">
+          <Default>1</Default>
+        </Field>
+        <Field Type="Text" Name="EUMAlias" ID="{30c15ea5-28b2-415f-abe1-5887cca7fcca}" Description="" DisplayName="Alias" StaticName="EUMAlias" Group="EUM Columns" Hidden="" Required="FALSE" Sealed="" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" SourceID="{8b0d841b-a2ff-47b8-9ab2-fb8b66a1e6b8}" AllowDeletion="TRUE">
+        </Field>
+        <Field Type="Text" DisplayName="Division" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{e93efad7-759d-4e45-81f5-5add566efe28}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMDivision" Name="EUMDivision" CustomFormatter="">
+        </Field>
+        <Field Type="Text" DisplayName="Site URL" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{ba0008f5-2d95-4e44-8758-44fc8b544e6f}" SourceID="{09862c64-9219-4963-ae0e-d3361604f74d}" StaticName="EUMSiteURL" Name="EUMSiteURL" CustomFormatter="" AllowDeletion="TRUE">
+        </Field>
+        <Field Type="Choice" DisplayName="Site Visibility" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" Group="EUM Columns" ID="{64dcb5fa-8eef-4194-803b-be0897a8628d}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMSiteVisibility" Name="EUMSiteVisibility" CustomFormatter="">
+          <Default>Public</Default>
+          <CHOICES>
+            <CHOICE>Public</CHOICE>
+            <CHOICE>Private</CHOICE>
+            <CHOICE>Hidden</CHOICE>
+          </CHOICES>
+        </Field>
+        <Field Type="DateTime" DisplayName="Site Created" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="DateTime" Group="EUM Columns" FriendlyDisplayFormat="Disabled" ID="{84b67cff-f12f-4587-9544-151557fe84d3}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMSiteCreated" Name="EUMSiteCreated" CustomFormatter="" CalType="0">
+        </Field>
+      </pnp:SiteFields>
+      <pnp:ContentTypes>
+        <pnp:ContentType ID="0x01005523126250026546A5BECAD9F6679577" Name="Site Metadata" Description="" Group="EUM Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="fa564e0f-0c70-4ab9-b863-0177e6ddd247" Name="Title" Required="true" UpdateChildren="true" />
+            <pnp:FieldRef ID="66ccfe1b-0776-4870-bead-616da317abdb" Name="SitePurpose" UpdateChildren="true" />
+            <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" UpdateChildren="true" />
+            <pnp:FieldRef ID="ba0008f5-2d95-4e44-8758-44fc8b544e6f" Name="EUMSiteURL" UpdateChildren="true" />
+            <pnp:FieldRef ID="64dcb5fa-8eef-4194-803b-be0897a8628d" Name="EUMSiteVisibility" UpdateChildren="true" />
+            <pnp:FieldRef ID="97622179-c8e0-4c63-bb07-edda4350013a" Name="EUMGroupSummary" UpdateChildren="true" />
+            <pnp:FieldRef ID="13942e0b-b747-41c5-a9f0-aade28718abc" Name="EUMParentURL" UpdateChildren="true" />
+            <pnp:FieldRef ID="84b67cff-f12f-4587-9544-151557fe84d3" Name="EUMSiteCreated" UpdateChildren="true" />
+            <pnp:FieldRef ID="e93efad7-759d-4e45-81f5-5add566efe28" Name="EUMDivision" UpdateChildren="true" />
+            <pnp:FieldRef ID="7a01a24f-a7b3-4d9c-bd48-60d7895290f7" Name="EUMSiteTemplate" UpdateChildren="true" />
+            <pnp:FieldRef ID="c042a256-787d-4a6f-8a8a-cf6ab767f12d" Name="ContentType" UpdateChildren="true" />
+            <pnp:FieldRef ID="67ec520e-cf70-47ab-a62e-f332782bef91" Name="EUMIsSubsite" UpdateChildren="true" />
+            <pnp:FieldRef ID="aa755f30-c1f5-489a-a31d-6bb850cb182c" Name="EUMBreadcrumbHTML" UpdateChildren="true" />
+          </pnp:FieldRefs>
+        </pnp:ContentType>
+        <pnp:ContentType ID="0x0100782F293576407D449F1EE4AB1DD1F7CC" Name="Base Site Request" Description="" Group="EUM Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="fa564e0f-0c70-4ab9-b863-0177e6ddd247" Name="Title" Required="true" UpdateChildren="true" />
+            <pnp:FieldRef ID="66ccfe1b-0776-4870-bead-616da317abdb" Name="SitePurpose" UpdateChildren="true" />
+            <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" UpdateChildren="true" />
+            <pnp:FieldRef ID="ba0008f5-2d95-4e44-8758-44fc8b544e6f" Name="EUMSiteURL" UpdateChildren="true" />
+            <pnp:FieldRef ID="64dcb5fa-8eef-4194-803b-be0897a8628d" Name="EUMSiteVisibility" UpdateChildren="true" />
+            <pnp:FieldRef ID="aadce642-b3f7-4672-8c84-97dbc9c63de6" Name="EUMCreateTeam" UpdateChildren="true" />
+            <pnp:FieldRef ID="6b813e3b-fde5-4042-8601-b34228a1d826" Name="EUMCreateOneNote" UpdateChildren="true" />
+            <pnp:FieldRef ID="775dcb0e-68e4-4504-9db6-5b0e4bbf5924" Name="EUMCreatePlanner" UpdateChildren="true" />
+            <pnp:FieldRef ID="c042a256-787d-4a6f-8a8a-cf6ab767f12d" Name="ContentType" UpdateChildren="true" />
+          </pnp:FieldRefs>
+        </pnp:ContentType>
+        <pnp:ContentType ID="0x0100782F293576407D449F1EE4AB1DD1F7CC01" Name="General Site Request" Description="" Group="EUM Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="fa564e0f-0c70-4ab9-b863-0177e6ddd247" Name="Title" Required="true" UpdateChildren="true" />
+            <pnp:FieldRef ID="66ccfe1b-0776-4870-bead-616da317abdb" Name="SitePurpose" UpdateChildren="true" />
+            <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" UpdateChildren="true" />
+            <pnp:FieldRef ID="ba0008f5-2d95-4e44-8758-44fc8b544e6f" Name="EUMSiteURL" UpdateChildren="true" />
+            <pnp:FieldRef ID="64dcb5fa-8eef-4194-803b-be0897a8628d" Name="EUMSiteVisibility" UpdateChildren="true" />
+            <pnp:FieldRef ID="aadce642-b3f7-4672-8c84-97dbc9c63de6" Name="EUMCreateTeam" UpdateChildren="true" />
+            <pnp:FieldRef ID="6b813e3b-fde5-4042-8601-b34228a1d826" Name="EUMCreateOneNote" UpdateChildren="true" />
+            <pnp:FieldRef ID="775dcb0e-68e4-4504-9db6-5b0e4bbf5924" Name="EUMCreatePlanner" UpdateChildren="true" />
+            <pnp:FieldRef ID="c042a256-787d-4a6f-8a8a-cf6ab767f12d" Name="ContentType" UpdateChildren="true" />
+          </pnp:FieldRefs>
+        </pnp:ContentType>
+        <pnp:ContentType ID="0x0100782F293576407D449F1EE4AB1DD1F7CC02" Name="EUM Groups Site Request" Description="" Group="EUM Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="fa564e0f-0c70-4ab9-b863-0177e6ddd247" Name="Title" Required="true" UpdateChildren="true" />
+            <pnp:FieldRef ID="66ccfe1b-0776-4870-bead-616da317abdb" Name="SitePurpose" UpdateChildren="true" />
+            <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" UpdateChildren="true" />
+            <pnp:FieldRef ID="ba0008f5-2d95-4e44-8758-44fc8b544e6f" Name="EUMSiteURL" UpdateChildren="true" />
+            <pnp:FieldRef ID="64dcb5fa-8eef-4194-803b-be0897a8628d" Name="EUMSiteVisibility" UpdateChildren="true" />
+            <pnp:FieldRef ID="aadce642-b3f7-4672-8c84-97dbc9c63de6" Name="EUMCreateTeam" UpdateChildren="true" />
+            <pnp:FieldRef ID="6b813e3b-fde5-4042-8601-b34228a1d826" Name="EUMCreateOneNote" UpdateChildren="true" />
+            <pnp:FieldRef ID="775dcb0e-68e4-4504-9db6-5b0e4bbf5924" Name="EUMCreatePlanner" UpdateChildren="true" />
+            <pnp:FieldRef ID="cb058d67-a28d-4126-a8bf-2f39c36606e0" Name="EUMGroupPubliclyAvailable" UpdateChildren="true" />
+            <pnp:FieldRef ID="f91b1147-bfad-495c-8f3d-1f6f90b3b23d" Name="EUMGroupApprovalRequired" UpdateChildren="true" />
+            <pnp:FieldRef ID="c8e61e7c-e228-4342-8493-137acbbc2430" Name="EUMGroupApproverEmail" UpdateChildren="true" />
+            <pnp:FieldRef ID="97622179-c8e0-4c63-bb07-edda4350013a" Name="EUMGroupSummary" UpdateChildren="true" />
+            <pnp:FieldRef ID="6ce7357d-cea8-4df1-9664-5eca19851c33" Name="EUMGroupDescription" UpdateChildren="true" />
+            <pnp:FieldRef ID="c2518c8a-91f5-48b3-a892-ccf29b9618ac" Name="EUMGroupAvailableForRegistration" UpdateChildren="true" />
+            <pnp:FieldRef ID="c042a256-787d-4a6f-8a8a-cf6ab767f12d" Name="ContentType" UpdateChildren="true" />
+          </pnp:FieldRefs>
+        </pnp:ContentType>
+      </pnp:ContentTypes>
+      <pnp:Lists>
+        <pnp:ListInstance Title="Blacklisted Words" Description="" DocumentTemplate="" OnQuickLaunch="true" TemplateType="100" Url="Lists/BlacklistedWords" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" EnableFolderCreation="false" DefaultDisplayFormUrl="{site}/Lists/BlacklistedWords/DispForm.aspx" DefaultEditFormUrl="{site}/Lists/BlacklistedWords/EditForm.aspx" DefaultNewFormUrl="{site}/Lists/BlacklistedWords/NewForm.aspx" ImageUrl="/_layouts/15/images/itgen.png?rev=47" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x01" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{55E5A4A8-9CC7-4FDF-920D-B67833BD199F}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/BlacklistedWords/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="ID" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="LinkTitle" />
+                <FieldRef Name="BlacklistedWordsCSV" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:Fields>
+            <Field Type="Note" DisplayName="Blacklisted Words CSV" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" ID="{e24931a4-e6bd-4517-bb3e-b7b5ec62f8ae}" SourceID="{{listid:Blacklisted Words}}" StaticName="BlacklistedWordsCSV" Name="BlacklistedWordsCSV" ColName="ntext2" RowOrdinal="0" Description="Enter a comma-separated list of words and phrases to blacklist" CustomFormatter="" RestrictedMode="TRUE" RichTextMode="Compatible" IsolateStyles="FALSE" AppendOnly="FALSE" Version="1" />
+          </pnp:Fields>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="Channel Templates" Description="" DocumentTemplate="" OnQuickLaunch="true" TemplateType="100" Url="Lists/ChannelTemplates" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" EnableFolderCreation="false" DefaultDisplayFormUrl="{site}/Lists/ChannelTemplates/DispForm.aspx" DefaultEditFormUrl="{site}/Lists/ChannelTemplates/EditForm.aspx" DefaultNewFormUrl="{site}/Lists/ChannelTemplates/NewForm.aspx" ImageUrl="/_layouts/15/images/itgen.png?rev=47" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x01" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{71E3C3F3-926E-4692-996D-4519DBE1E271}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/ChannelTemplates/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="ID" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="LinkTitle" />
+                <FieldRef Name="TemplateDescription" />
+                <FieldRef Name="CreateOneNoteDefaultValue" />
+                <FieldRef Name="CreateOneNoteShowToggle" />
+                <FieldRef Name="CreatePlannerDefaultValue" />
+                <FieldRef Name="CreatePlannerShowToggle" />
+                <FieldRef Name="Divisions" />
+                <FieldRef Name="PlannerTemplate" />
+                <FieldRef Name="PrivateChannelDefaultValue" />
+                <FieldRef Name="PrivateChannelShowToggle" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:Fields>
+            <Field Type="Note" DisplayName="Template Description" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="TRUE" RichTextMode="FullHtml" IsolateStyles="TRUE" Sortable="FALSE" ID="{2413ceb8-a34d-445e-8ea1-edf042461f95}" SourceID="{{listid:Channel Templates}}" StaticName="TemplateDescription" Name="TemplateDescription" ColName="ntext2" RowOrdinal="0" CustomFormatter="" RestrictedMode="TRUE" AppendOnly="FALSE" Version="1" />
+            <Field Type="Boolean" DisplayName="Create OneNote Default Value" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{c96417cf-e280-466b-bb04-a08677b44d4e}" SourceID="{{listid:Channel Templates}}" StaticName="CreateOneNoteDefaultValue" Name="CreateOneNoteDefaultValue" ColName="bit1" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Create OneNote Show Toggle" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{f274c336-d2a1-44d1-b020-007964f60634}" SourceID="{{listid:Channel Templates}}" StaticName="CreateOneNoteShowToggle" Name="CreateOneNoteShowToggle" ColName="bit2" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Create Planner Default Value" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{9d2584cd-5646-45d9-804c-085e85c7cf15}" SourceID="{{listid:Channel Templates}}" StaticName="CreatePlannerDefaultValue" Name="CreatePlannerDefaultValue" ColName="bit3" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Create Planner Show Toggle" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{219d4ccc-0fdf-4133-b62f-9350e571b92e}" SourceID="{{listid:Channel Templates}}" StaticName="CreatePlannerShowToggle" Name="CreatePlannerShowToggle" ColName="bit4" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Private Channel Default Value" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{ef0b510d-6bc6-4c6c-ba48-c6a35dd23779}" SourceID="{{listid:Channel Templates}}" StaticName="PrivateChannelDefaultValue" Name="PrivateChannelDefaultValue" ColName="bit5" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Private Channel Show Toggle" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{b4e4c137-9dd8-43a2-933b-33e1790c2880}" SourceID="{{listid:Channel Templates}}" StaticName="PrivateChannelShowToggle" Name="PrivateChannelShowToggle" ColName="bit6" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+            <Field Type="LookupMulti" DisplayName="Divisions" Required="FALSE" EnforceUniqueValues="FALSE" List="{listid:Divisions}" ShowField="Title" Mult="TRUE" Sortable="FALSE" UnlimitedLengthInDocumentLibrary="FALSE" ID="{1bf353d2-f18e-4708-b04d-412aa1ef8074}" SourceID="{{listid:Channel Templates}}" StaticName="Divisions" Name="Divisions" ColName="int1" RowOrdinal="0" Version="2" />
+            <Field Type="Lookup" DisplayName="Planner Template" Required="FALSE" EnforceUniqueValues="FALSE" List="{listid:Planner Templates}" ShowField="Title" UnlimitedLengthInDocumentLibrary="FALSE" ID="{a866208e-745e-45d3-91c6-ab3e552cd1d3}" SourceID="{{listid:Channel Templates}}" StaticName="PlannerTemplate" Name="PlannerTemplate" ColName="int2" RowOrdinal="0" Group="" Version="3" />
+          </pnp:Fields>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="Divisions" Description="" DocumentTemplate="" TemplateType="100" Url="Lists/Divisions" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" EnableAttachments="false" EnableFolderCreation="false" DefaultDisplayFormUrl="{site}/Lists/Divisions/DispForm.aspx" DefaultEditFormUrl="{site}/Lists/Divisions/EditForm.aspx" DefaultNewFormUrl="{site}/Lists/Divisions/NewForm.aspx" ImageUrl="/_layouts/15/images/itgen.png?rev=45" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x01" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{8745DF7A-F6E9-49D5-A765-18235DE72EC6}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/Divisions/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="ID" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="LinkTitle" />
+                <FieldRef Name="Approver" />
+                <FieldRef Name="Prefix" />
+                <FieldRef Name="SiteURL" />
+                <FieldRef Name="HubSite" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:Fields>
+            <Field Type="Text" DisplayName="Prefix" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{03c14753-c527-4009-abe9-9bec4f2b324e}" SourceID="{{listid:Divisions}}" StaticName="Prefix" Name="Prefix" ColName="nvarchar4" RowOrdinal="0" />
+            <Field Type="URL" DisplayName="Site URL" Required="TRUE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Hyperlink" ID="{6cb9dfe5-6a66-4f83-881c-9b2505ca9d6a}" SourceID="{{listid:Divisions}}" StaticName="SiteURL" Name="SiteURL" ColName="nvarchar5" RowOrdinal="0" ColName2="nvarchar6" RowOrdinal2="0" CustomFormatter="" Version="1" />
+            <Field Type="UserMulti" DisplayName="Approver" List="UserInfo" Required="FALSE" EnforceUniqueValues="FALSE" ShowField="ImnName" UserSelectionMode="PeopleAndGroups" UserSelectionScope="0" ID="{4bc358cb-fa04-46c6-a977-ecc3c2413b8b}" SourceID="{{listid:Divisions}}" StaticName="Approver" Name="Approver" ColName="int1" RowOrdinal="0" Group="" Mult="TRUE" Sortable="FALSE" Version="2" />
+            <Field Type="Boolean" DisplayName="Hub Site" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{f29bd740-f890-4812-9a34-fa605b207e96}" SourceID="{{listid:Divisions}}" StaticName="HubSite" Name="HubSite" ColName="bit1" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+          </pnp:Fields>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="Planner Templates" Description="" DocumentTemplate="{site}/PlannerTemplates/Forms/template.dotx" OnQuickLaunch="true" TemplateType="101" Url="PlannerTemplates" EnableVersioning="true" MinorVersionLimit="0" MaxVersionLimit="500" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-e717-4e80-aa17-d0c71b360101" EnableAttachments="false" DefaultDisplayFormUrl="{site}/PlannerTemplates/Forms/DispForm.aspx" DefaultEditFormUrl="{site}/PlannerTemplates/Forms/EditForm.aspx" DefaultNewFormUrl="{site}/PlannerTemplates/Forms/Upload.aspx" ImageUrl="/_layouts/15/images/itdl.png?rev=47" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x0101" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{16218EED-2B00-4019-B3C4-EE69544753C2}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Documents" Url="{site}/PlannerTemplates/Forms/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/dlicon.png?rev=47">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="FileLeafRef" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Editor" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="d307dff3-340f-44a2-9f4b-fbfe1ba07459" Name="_CommentCount" DisplayName="Comment count" />
+            <pnp:FieldRef ID="db8d9d6d-dc9a-4fbd-85f3-4a753bfdc58c" Name="_LikeCount" DisplayName="Like count" />
+            <pnp:FieldRef ID="3a8ee3f8-166b-4394-b3e2-e98dcf86a847" Name="A2ODMountCount" DisplayName="A2OD Mount Count" />
+          </pnp:FieldRefs>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="PnP Templates" Description="" DocumentTemplate="{site}/PnPTemplates/Forms/template.dotx" TemplateType="101" Url="PnPTemplates" EnableVersioning="true" MinorVersionLimit="0" MaxVersionLimit="500" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-e717-4e80-aa17-d0c71b360101" EnableAttachments="false" DefaultDisplayFormUrl="{site}/PnPTemplates/Forms/DispForm.aspx" DefaultEditFormUrl="{site}/PnPTemplates/Forms/EditForm.aspx" DefaultNewFormUrl="{site}/PnPTemplates/Forms/Upload.aspx" ImageUrl="/_layouts/15/images/itdl.png?rev=46" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x0101" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{F3A90EA0-ED8C-44A9-B10D-AE6299FC3CF4}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Documents" Url="{site}/PnPTemplates/Forms/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/dlicon.png?rev=47">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="FileLeafRef" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="Title" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Editor" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <Aggregations Value="Off" />
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="d307dff3-340f-44a2-9f4b-fbfe1ba07459" Name="_CommentCount" DisplayName="Comment count" />
+            <pnp:FieldRef ID="db8d9d6d-dc9a-4fbd-85f3-4a753bfdc58c" Name="_LikeCount" DisplayName="Like count" />
+            <pnp:FieldRef ID="3a8ee3f8-166b-4394-b3e2-e98dcf86a847" Name="A2ODMountCount" DisplayName="A2OD Mount Count" />
+          </pnp:FieldRefs>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="Site Templates" Description="" DocumentTemplate="" OnQuickLaunch="true" TemplateType="100" Url="Lists/SiteTemplates" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" EnableAttachments="false" EnableFolderCreation="false" DefaultDisplayFormUrl="{site}/Lists/SiteTemplates/DispForm.aspx" DefaultEditFormUrl="{site}/Lists/SiteTemplates/EditForm.aspx" DefaultNewFormUrl="{site}/Lists/SiteTemplates/NewForm.aspx" ImageUrl="/_layouts/15/images/itgen.png?rev=45" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x01" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{679AEB94-31DC-48E8-AE08-66402FF89820}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/SiteTemplates/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="ID" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="LinkTitle" />
+                <FieldRef Name="TemplateDescription" />
+                <FieldRef Name="UseDefaultForm" />
+                <FieldRef Name="ContentTypeName" />
+                <FieldRef Name="Divisions" />
+                <FieldRef Name="PlannerTemplate" />
+                <FieldRef Name="Office365Group" />
+                <FieldRef Name="BaseClassicSiteTemplate" />
+                <FieldRef Name="BaseModernSiteType" />
+                <FieldRef Name="PnPSiteTemplate" />
+                <FieldRef Name="CreateTeamDefaultValue" />
+                <FieldRef Name="CreateTeamShowToggle" />
+                <FieldRef Name="CreateOneNoteDefaultValue" />
+                <FieldRef Name="CreateOneNoteShowToggle" />
+                <FieldRef Name="CreatePlannerDefaultValue" />
+                <FieldRef Name="CreatePlannerShowToggle" />
+                <FieldRef Name="SiteVisibilityDefaultValue" />
+                <FieldRef Name="SiteVisibilityShowChoice" />
+                <FieldRef Name="JoinHubSite" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <Aggregations Value="Off" />
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:Fields>
+            <Field Type="Note" DisplayName="Template Description" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" ID="{c3542cfe-d4c4-4064-ad5c-f5b0dc0dd717}" SourceID="{{listid:Site Templates}}" StaticName="TemplateDescription" Name="TemplateDescription" ColName="ntext2" RowOrdinal="0" CustomFormatter="" RestrictedMode="TRUE" RichTextMode="Compatible" IsolateStyles="FALSE" AppendOnly="FALSE" Version="1" />
+            <Field Type="Boolean" DisplayName="Use Default Form?" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{f12b9dae-f7b0-4bab-8058-2e6ff8889b21}" SourceID="{{listid:Site Templates}}" StaticName="UseDefaultForm" Name="UseDefaultForm" ColName="bit1" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>0</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Office 365 Group" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{c1eae12a-8685-4456-8031-dfffd8989d1b}" SourceID="{{listid:Site Templates}}" StaticName="Office365Group" Name="Office365Group" ColName="bit2" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Choice" DisplayName="Base Classic Site Template" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" ID="{b32d924f-6d43-44a2-8eaa-6f0fc3499625}" SourceID="{{listid:Site Templates}}" StaticName="BaseClassicSiteTemplate" Name="BaseClassicSiteTemplate" ColName="nvarchar5" RowOrdinal="0" CustomFormatter="" Version="11">
+              <CHOICES>
+                <CHOICE>BDR#0</CHOICE>
+                <CHOICE>BICenterSite#0</CHOICE>
+                <CHOICE>BLANKINTERNETCONTAINER#0</CHOICE>
+                <CHOICE>BLOG#0</CHOICE>
+                <CHOICE>COMMUNITY#0</CHOICE>
+                <CHOICE>COMMUNITYPORTAL#0</CHOICE>
+                <CHOICE>DEV#0</CHOICE>
+                <CHOICE>EHS#1</CHOICE>
+                <CHOICE>ENTERWIKI#0</CHOICE>
+                <CHOICE>OFFILE#1</CHOICE>
+                <CHOICE>PRODUCTCATALOG#0</CHOICE>
+                <CHOICE>PROJECTSITE#0</CHOICE>
+                <CHOICE>SITEPAGEPUBLISHING#0</CHOICE>
+                <CHOICE>SRCHCEN#0</CHOICE>
+                <CHOICE>SRCHCENTERLITE#0</CHOICE>
+                <CHOICE>STS#0</CHOICE>
+                <CHOICE>STS#3</CHOICE>
+                <CHOICE>visprus#0</CHOICE>
+              </CHOICES>
+            </Field>
+            <Field Type="Choice" DisplayName="Base Modern Site Type" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" ID="{3c71f9a1-9ffa-48e6-ad72-413124ac6300}" SourceID="{{listid:Site Templates}}" StaticName="BaseModernSiteType" Name="BaseModernSiteType" ColName="nvarchar6" RowOrdinal="0" CustomFormatter="" Version="11">
+              <CHOICES>
+                <CHOICE>CommunicationSite</CHOICE>
+                <CHOICE>TeamSite</CHOICE>
+              </CHOICES>
+            </Field>
+            <Field Type="Lookup" DisplayName="PnP Site Template" Required="FALSE" EnforceUniqueValues="FALSE" List="{listid:PnP Templates}" ShowField="Title" UnlimitedLengthInDocumentLibrary="FALSE" RelationshipDeleteBehavior="None" ID="{5f234025-15b8-446f-a2f6-4ceaf1660eac}" SourceID="{{listid:Site Templates}}" StaticName="PnPSiteTemplate" Name="PnPSiteTemplate" ColName="int3" RowOrdinal="0" Group="" Version="1" />
+            <Field Type="Choice" DisplayName="Site Visibility Default Value" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" ID="{077a728a-6c58-470a-b9d6-74494ec9a8be}" SourceID="{{listid:Site Templates}}" StaticName="SiteVisibilityDefaultValue" Name="SiteVisibilityDefaultValue" ColName="nvarchar4" RowOrdinal="0" CustomFormatter="" Version="1">
+              <Default>Public</Default>
+              <CHOICES>
+                <CHOICE>Public</CHOICE>
+                <CHOICE>Private</CHOICE>
+                <CHOICE>Hidden</CHOICE>
+              </CHOICES>
+            </Field>
+            <Field Type="Boolean" DisplayName="Site Visibility Show Choice" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{edb942e7-ef6b-4a34-8f75-8f63e4a24afe}" SourceID="{{listid:Site Templates}}" StaticName="SiteVisibilityShowChoice" Name="SiteVisibilityShowChoice" ColName="bit3" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Create Team Default Value" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{b01adcdf-8d04-46cb-9b9d-9de5daa4cd40}" SourceID="{{listid:Site Templates}}" StaticName="CreateTeamDefaultValue" Name="CreateTeamDefaultValue" ColName="bit6" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="8">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Create Team Show Toggle" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{9f718317-2626-434d-9926-1e6c4dc9aec3}" SourceID="{{listid:Site Templates}}" StaticName="CreateTeamShowToggle" Name="CreateTeamShowToggle" ColName="bit7" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="8">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Add OneNote Teams Tab Default Value" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{6b74374c-1d0f-461b-a3a8-31e0c9112a50}" SourceID="{{listid:Site Templates}}" StaticName="CreateOneNoteDefaultValue" Name="CreateOneNoteDefaultValue" ColName="bit8" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="8">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Add OneNote Teams Tab Show Toggle" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{c00fb25e-7169-447d-bc69-d44c48afd8b9}" SourceID="{{listid:Site Templates}}" StaticName="CreateOneNoteShowToggle" Name="CreateOneNoteShowToggle" ColName="bit9" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="8">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Create Planner Default Value" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{63b9de93-5885-4aab-a168-3dafe6c43976}" SourceID="{{listid:Site Templates}}" StaticName="CreatePlannerDefaultValue" Name="CreatePlannerDefaultValue" ColName="bit10" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="7">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Create Planner Show Toggle" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{03dfbfa2-bc11-44e1-a80a-bcc9bd82790b}" SourceID="{{listid:Site Templates}}" StaticName="CreatePlannerShowToggle" Name="CreatePlannerShowToggle" ColName="bit11" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="7">
+              <Default>1</Default>
+            </Field>
+            <Field Name="ContentTypeName" FromBaseType="FALSE" Type="Choice" DisplayName="Content Type Name" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" ID="{93fb2ff6-20e4-4a71-b7e6-36c6afa5d488}" Version="4" StaticName="ContentTypeName" SourceID="{{listid:Site Templates}}" ColName="nvarchar8" RowOrdinal="0" CustomFormatter="">
+              <CHOICES>
+                <CHOICE>Demo Site Request</CHOICE>
+                <CHOICE>EUM Groups Site Request</CHOICE>
+                <CHOICE>General Site Request</CHOICE>
+              </CHOICES>
+            </Field>
+            <Field Type="LookupMulti" DisplayName="Divisions" Required="TRUE" EnforceUniqueValues="FALSE" List="{listid:Divisions}" ShowField="Title" Mult="TRUE" Sortable="FALSE" UnlimitedLengthInDocumentLibrary="FALSE" ID="{9b343465-06df-44eb-b95e-ee373f49abcd}" SourceID="{{listid:Site Templates}}" StaticName="Divisions" Name="Divisions" ColName="int1" RowOrdinal="0" Group="" Version="1" />
+            <Field Type="Lookup" DisplayName="Planner Template" Required="FALSE" EnforceUniqueValues="FALSE" List="{listid:Planner Templates}" ShowField="Title" UnlimitedLengthInDocumentLibrary="FALSE" ID="{cac993c6-cb9b-4e12-a1b4-30ad7e06c592}" SourceID="{{listid:Site Templates}}" StaticName="PlannerTemplate" Name="PlannerTemplate" ColName="int2" RowOrdinal="0" Group="" Version="3" />
+            <Field Type="Boolean" DisplayName="Join Hub Site" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{8b817101-13b8-48a7-b088-255e15e625e4}" SourceID="{{listid:Site Templates}}" StaticName="JoinHubSite" Name="JoinHubSite" ColName="bit12" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+          </pnp:Fields>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="Sites" Description="" DocumentTemplate="" OnQuickLaunch="true" TemplateType="100" Url="Lists/Sites" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" EnableFolderCreation="false" DefaultDisplayFormUrl="{site}/Lists/Sites/DispForm.aspx" DefaultEditFormUrl="{site}/Lists/Sites/EditForm.aspx" DefaultNewFormUrl="{site}/Lists/Sites/NewForm.aspx" ImageUrl="/_layouts/15/images/itgen.png?rev=47" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" Default="true" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{2B463725-9929-4609-A372-C3E9E12EC54C}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/Sites/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="ID" Ascending="FALSE" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="ID" />
+                <FieldRef Name="LinkTitle" />
+                <FieldRef Name="EUMAlias" />
+                <FieldRef Name="EUMCreateOneNote" />
+                <FieldRef Name="EUMCreatePlanner" />
+                <FieldRef Name="EUMCreateTeam" />
+                <FieldRef Name="SitePurpose" />
+                <FieldRef Name="EUMSiteURL" />
+                <FieldRef Name="EUMBreadcrumbHTML" />
+                <FieldRef Name="EUMDivision" />
+                <FieldRef Name="EUMParentURL" />
+                <FieldRef Name="EUMSiteCreated" />
+                <FieldRef Name="EUMSiteTemplate" />
+                <FieldRef Name="EUMIsSubsite" />
+                <FieldRef Name="EUMGroupSummary" />
+                <FieldRef Name="EUMSiteVisibility" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <Aggregations Value="Off" />
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:Fields>
+            <Field Type="Choice" DisplayName="Site Visibility" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" ID="{54984a7a-ed42-487c-b531-257de2d5162d}" SourceID="{{listid:Sites}}" StaticName="EUMSiteVisibility" Name="EUMSiteVisibility" ColName="nvarchar7" RowOrdinal="0" CustomFormatter="" Version="1">
+              <Default>Public</Default>
+              <CHOICES>
+                <CHOICE>Public</CHOICE>
+                <CHOICE>Private</CHOICE>
+                <CHOICE>Hidden</CHOICE>
+              </CHOICES>
+            </Field>
+            <Field Type="Note" DisplayName="Breadcrumb HTML" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="TRUE" RichTextMode="FullHtml" IsolateStyles="TRUE" Sortable="FALSE" ID="{9ecba208-c8bc-4144-8d3d-02012b355a96}" SourceID="{{listid:Sites}}" StaticName="EUMBreadcrumbHTML" Name="EUMBreadcrumbHTML" ColName="ntext3" RowOrdinal="0" CustomFormatter="" RestrictedMode="TRUE" AppendOnly="FALSE" Version="1" />
+            <Field Type="Text" DisplayName="Parent URL" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{604c9c38-f79b-4a9a-a738-4aada67aca8a}" SourceID="{{listid:Sites}}" StaticName="EUMParentURL" Name="EUMParentURL" ColName="nvarchar6" RowOrdinal="0" CustomFormatter="" Version="1" />
+            <Field Type="DateTime" DisplayName="Site Created" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="DateTime" FriendlyDisplayFormat="Disabled" ID="{ebae0d7e-d09a-4d70-82b6-2911e96452af}" SourceID="{{listid:Sites}}" StaticName="EUMSiteCreated" Name="EUMSiteCreated" ColName="datetime1" RowOrdinal="0" CustomFormatter="" CalType="0" Version="1" />
+            <Field Type="Boolean" DisplayName="Subsite" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{01d2d34a-1378-4a91-96bd-d80311465666}" SourceID="{{listid:Sites}}" StaticName="EUMIsSubsite" Name="EUMIsSubsite" ColName="bit5" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>0</Default>
+            </Field>
+            <Field Type="Note" DisplayName="Group Summary" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="TRUE" RichTextMode="FullHtml" IsolateStyles="TRUE" Sortable="FALSE" ID="{6410bad7-3dbb-4b32-aa81-f09222269dbc}" SourceID="{{listid:Sites}}" StaticName="EUMGroupSummary" Name="EUMGroupSummary" ColName="ntext4" RowOrdinal="0" CustomFormatter="" RestrictedMode="TRUE" AppendOnly="FALSE" Version="1" />
+            <Field Type="Lookup" DisplayName="Division" Required="FALSE" EnforceUniqueValues="FALSE" List="{listid:Divisions}" ShowField="Title" UnlimitedLengthInDocumentLibrary="FALSE" ID="{f1d0e659-ccc3-4c69-86e7-f13cf3f2747c}" SourceID="{{listid:Sites}}" StaticName="EUMDivision" Name="EUMDivision" ColName="int1" RowOrdinal="0" Group="" Version="1" />
+            <Field Type="Lookup" DisplayName="Site Template" Required="FALSE" EnforceUniqueValues="FALSE" List="{listid:Site Templates}" ShowField="Title" UnlimitedLengthInDocumentLibrary="FALSE" ID="{020c79c2-2b60-4e22-8f4d-858f12d5a76b}" SourceID="{{listid:Sites}}" StaticName="EUMSiteTemplate" Name="EUMSiteTemplate" ColName="int2" RowOrdinal="0" Group="" Version="1" />
+          </pnp:Fields>
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="66ccfe1b-0776-4870-bead-616da317abdb" Name="SitePurpose" DisplayName="Purpose" />
+            <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" DisplayName="Alias" />
+            <pnp:FieldRef ID="ba0008f5-2d95-4e44-8758-44fc8b544e6f" Name="EUMSiteURL" DisplayName="Site URL" />
+            <pnp:FieldRef ID="aadce642-b3f7-4672-8c84-97dbc9c63de6" Name="EUMCreateTeam" DisplayName="Create Team" />
+            <pnp:FieldRef ID="6b813e3b-fde5-4042-8601-b34228a1d826" Name="EUMCreateOneNote" DisplayName="Add OneNote Teams Tab" />
+            <pnp:FieldRef ID="775dcb0e-68e4-4504-9db6-5b0e4bbf5924" Name="EUMCreatePlanner" DisplayName="Create Planner" />
+          </pnp:FieldRefs>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="Teams Channels" Description="" DocumentTemplate="" TemplateType="100" Url="Lists/TeamsChannels" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" EnableFolderCreation="false" DefaultDisplayFormUrl="{site}/Lists/TeamsChannels/DispForm.aspx" DefaultEditFormUrl="{site}/Lists/TeamsChannels/EditForm.aspx" DefaultNewFormUrl="{site}/Lists/TeamsChannels/NewForm.aspx" ImageUrl="/_layouts/15/images/itgen.png?rev=47" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x01" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{BD4C4F36-316F-4D20-9A22-4B2A356B2840}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/TeamsChannels/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="ID" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="ID" />
+                <FieldRef Name="LinkTitle" />
+                <FieldRef Name="IsPrivate" />
+                <FieldRef Name="TeamSiteURL" />
+                <FieldRef Name="Description" />
+                <FieldRef Name="ChannelCreationDate" />
+                <FieldRef Name="CreateOneNoteSection" />
+                <FieldRef Name="CreateChannelPlanner" />
+                <FieldRef Name="ChannelTemplate" />
+                <FieldRef Name="TeamSite" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <Aggregations Value="Off" />
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:Fields>
+            <Field Type="Boolean" DisplayName="Is Private" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{993eaf51-7c57-4b24-b1d3-c2fd84895f7c}" SourceID="{{listid:Teams Channels}}" StaticName="IsPrivate" Name="IsPrivate" ColName="bit1" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="8">
+              <Default>0</Default>
+            </Field>
+            <Field Type="Text" DisplayName="TeamSite URL" Required="TRUE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{225d6bf4-4fc2-43bb-a337-e70585dc85d9}" SourceID="{{listid:Teams Channels}}" StaticName="TeamSiteURL" Name="TeamSiteURL" ColName="nvarchar4" RowOrdinal="0" CustomFormatter="" Version="8" />
+            <Field Type="Note" DisplayName="Description" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" ID="{1c7f8017-ea16-4c22-b9bd-bcb8d93d06dc}" SourceID="{{listid:Teams Channels}}" StaticName="Description" Name="Description" ColName="ntext2" RowOrdinal="0" />
+            <Field Type="DateTime" DisplayName="Channel Creation Date" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="DateTime" FriendlyDisplayFormat="Disabled" ID="{282044d2-6c43-4d02-bd23-7bb84b3e30be}" SourceID="{{listid:Teams Channels}}" StaticName="ChannelCreationDate" Name="ChannelCreationDate" ColName="datetime1" RowOrdinal="0" CustomFormatter="" CalType="0" Version="8" />
+            <Field Type="Boolean" DisplayName="Create OneNote Section" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{e902d141-bdf4-44f4-870b-47605223a36e}" SourceID="{{listid:Teams Channels}}" StaticName="CreateOneNoteSection" Name="CreateOneNoteSection" ColName="bit2" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Boolean" DisplayName="Create Channel Planner" EnforceUniqueValues="FALSE" Indexed="FALSE" ID="{4abb20c0-92f6-489e-b0a6-51f1a8f0fa90}" SourceID="{{listid:Teams Channels}}" StaticName="CreateChannelPlanner" Name="CreateChannelPlanner" ColName="bit3" RowOrdinal="0" CustomFormatter="" Required="FALSE" Version="1">
+              <Default>1</Default>
+            </Field>
+            <Field Type="Lookup" DisplayName="Channel Template" Required="FALSE" EnforceUniqueValues="FALSE" List="{listid:Channel Templates}" ShowField="Title" UnlimitedLengthInDocumentLibrary="FALSE" ID="{ce395f43-10cb-48bc-84ac-b1c514c8fbdf}" SourceID="{{listid:Teams Channels}}" StaticName="ChannelTemplate" Name="ChannelTemplate" ColName="int1" RowOrdinal="0" Group="" Version="3" />
+            <Field Type="Lookup" DisplayName="TeamSite" Required="FALSE" EnforceUniqueValues="FALSE" List="3429b25d-3c67-4b25-a0bf-062a5187a56f" ShowField="EUMSiteURL" UnlimitedLengthInDocumentLibrary="FALSE" ID="{442eb93e-3f56-435f-9613-e74ffa3a665a}" SourceID="{{listid:Teams Channels}}" StaticName="TeamSite" Name="TeamSite" ColName="int2" RowOrdinal="0" Version="2" />
+          </pnp:Fields>
+        </pnp:ListInstance>
+      </pnp:Lists>
+    </pnp:ProvisioningTemplate>
+  </pnp:Templates>
+</pnp:Provisioning>

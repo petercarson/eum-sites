@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2020/02/ProvisioningSchema">
+  <pnp:Preferences Generator="OfficeDevPnP.Core, Version=3.19.2003.0, Culture=neutral, PublicKeyToken=5e633289e95c321a" />
+  <pnp:Templates ID="CONTAINER-TEMPLATE-6F9F97D3E5FF48CFA8B6C732A39432AF">
+    <pnp:ProvisioningTemplate ID="TEMPLATE-6F9F97D3E5FF48CFA8B6C732A39432AF" Version="1" BaseSiteTemplate="" Scope="Undefined">
+      <pnp:Lists>
+        <pnp:ListInstance Title="Site Metadata" Description="" DocumentTemplate="" TemplateType="100" Url="Lists/SiteMetadata" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" ContentTypesEnabled="true" EnableFolderCreation="false" DefaultDisplayFormUrl="{site}/Lists/SiteMetadata/DispForm.aspx" DefaultEditFormUrl="{site}/Lists/SiteMetadata/EditForm.aspx" DefaultNewFormUrl="{site}/Lists/SiteMetadata/NewForm.aspx" ImageUrl="/_layouts/15/images/itgen.png?rev=47" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x01005523126250026546A5BECAD9F6679577" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{F17FECF7-B5FC-4BE7-AE53-77F890B3B008}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/SiteMetadata/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="ID" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="LinkTitle" />
+                <FieldRef Name="SitePurpose" />
+                <FieldRef Name="EUMAlias" />
+                <FieldRef Name="EUMSiteURL" />
+                <FieldRef Name="EUMSiteVisibility" />
+                <FieldRef Name="EUMGroupSummary" />
+                <FieldRef Name="EUMParentURL" />
+                <FieldRef Name="EUMBreadcrumbHTML" />
+                <FieldRef Name="EUMSiteCreated" />
+                <FieldRef Name="EUMDivision" />
+                <FieldRef Name="EUMSiteTemplate" />
+                <FieldRef Name="EUMIsSubsite" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <Aggregations Value="Off" />
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="66ccfe1b-0776-4870-bead-616da317abdb" Name="SitePurpose" DisplayName="Purpose" />
+            <pnp:FieldRef ID="30c15ea5-28b2-415f-abe1-5887cca7fcca" Name="EUMAlias" DisplayName="Alias" />
+            <pnp:FieldRef ID="ba0008f5-2d95-4e44-8758-44fc8b544e6f" Name="EUMSiteURL" DisplayName="Site URL" />
+            <pnp:FieldRef ID="64dcb5fa-8eef-4194-803b-be0897a8628d" Name="EUMSiteVisibility" DisplayName="Site Visibility" />
+            <pnp:FieldRef ID="97622179-c8e0-4c63-bb07-edda4350013a" Name="EUMGroupSummary" DisplayName="Group Summary" />
+            <pnp:FieldRef ID="13942e0b-b747-41c5-a9f0-aade28718abc" Name="EUMParentURL" DisplayName="Parent URL" />
+            <pnp:FieldRef ID="84b67cff-f12f-4587-9544-151557fe84d3" Name="EUMSiteCreated" DisplayName="Site Created" />
+            <pnp:FieldRef ID="e93efad7-759d-4e45-81f5-5add566efe28" Name="EUMDivision" DisplayName="Division" />
+            <pnp:FieldRef ID="7a01a24f-a7b3-4d9c-bd48-60d7895290f7" Name="EUMSiteTemplate" DisplayName="Site Template" />
+            <pnp:FieldRef ID="67ec520e-cf70-47ab-a62e-f332782bef91" Name="EUMIsSubsite" DisplayName="Subsite" />
+            <pnp:FieldRef ID="aa755f30-c1f5-489a-a31d-6bb850cb182c" Name="EUMBreadcrumbHTML" DisplayName="Breadcrumb HTML" />
+          </pnp:FieldRefs>
+        </pnp:ListInstance>
+      </pnp:Lists>
+    </pnp:ProvisioningTemplate>
+  </pnp:Templates>
+</pnp:Provisioning>

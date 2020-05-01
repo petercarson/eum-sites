@@ -1,0 +1,32 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "75dbe34f-74a5-4bbb-9495-41701c0d7ac0",
+  "alias": "TeamsChannelWebPart",
+  "componentType": "WebPart",
+
+  // The "*" signifies that the version should be taken from the package.json
+  "version": "*",
+  "manifestVersion": 2,
+
+  // If true, the component can only be installed on sites where Custom Script is allowed.
+  // Components that allow authors to embed arbitrary script code should set this to true.
+  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart", "TeamsTab"],
+
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
+    "group": { "default": "Other" },
+    "title": { "default": "Add channel" },
+    "description": { "default": "Request a new teams channel" },
+    "officeFabricIconFontName": "TeamsLogo",
+    "properties": {
+      "WebPartTitle": "{SiteCollectionTitle} Teams Channel Request",
+      "MasterSiteUrl": "/sites/landing",
+      "SitesListName": "Sites",
+      "TeamsChannelsListName": "Teams Channels",
+      "ChannelTemplatesListName": "Channel Templates",
+      "DivisionsListName": "Divisions"
+    }
+  }]
+}

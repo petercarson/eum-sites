@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "site-request-form-2019-client-side-solution",
+    "id": "5080a0fa-ba94-428e-b7f1-2fa6e3bb38ae",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true
+  },
+  "paths": {
+    "zippedPackage": "solution/site-request-form-2019.sppkg"
+  }
+}

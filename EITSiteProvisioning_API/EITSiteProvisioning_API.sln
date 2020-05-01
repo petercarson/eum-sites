@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EITSiteProvisioning_API", "EITSiteProvisioning_API\EITSiteProvisioning_API.csproj", "{F2F9F334-6784-441E-9135-FF180700EAA6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F2F9F334-6784-441E-9135-FF180700EAA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2F9F334-6784-441E-9135-FF180700EAA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2F9F334-6784-441E-9135-FF180700EAA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2F9F334-6784-441E-9135-FF180700EAA6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {966C6642-CCAB-4B32-A5B7-76431EF6360F}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 2
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://dev.azure.com/envisionit-corporate
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = EITSiteProvisioning_API\\EITSiteProvisioning_API.csproj
+		SccProjectName1 = EITSiteProvisioning_API
+		SccLocalPath1 = EITSiteProvisioning_API
+	EndGlobalSection
+EndGlobal

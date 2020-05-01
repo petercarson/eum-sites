@@ -1,0 +1,35 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "c1459e49-a296-4cbc-a8b8-56cd3ee5d003",
+  "alias": "SitesListWebPartWebPart",
+  "componentType": "WebPart",
+
+  // The "*" signifies that the version should be taken from the package.json
+  "version": "*",
+  "manifestVersion": 2,
+
+  // If true, the component can only be installed on sites where Custom Script is allowed.
+  // Components that allow authors to embed arbitrary script code should set this to true.
+  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
+  "requiresCustomScript": false,
+
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
+    "group": { "default": "Other" },
+    "title": { "default": "Sites List Web Part" },
+    "description": { "default": "A list of sites" },
+    "officeFabricIconFontName": "Org",
+    "properties": {
+      "description": "Sites List Web Part",
+      "webpartTitle": "Sites",
+      "masterSiteURL": "/sites/landing",
+      "siteListName": "Sites",
+      "parentSiteURL": "",
+      "tabHeaderUserSites": "My sites",
+      "tabHeaderAvailableSites": "Available sites",
+      "tabHeaderAllSites": "All sites",
+      "siteMetadataSearchQuery": "ContentTypeId:0x01005523126250026546A5BECAD9F6679577*",
+      "siteMetadataManagedProperties": "Id,Title,EUMAlias,EUMSiteVisibility,SitePurpose,EUMSiteURL,EUMParentURL,EUMSiteCreated,EUMGroupSummary,EUMDivision,EUMSiteTemplate"
+    }
+  }]
+}
