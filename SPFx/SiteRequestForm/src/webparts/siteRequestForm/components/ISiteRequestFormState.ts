@@ -33,4 +33,9 @@ export interface ISiteRequestFormState {
     title?: string;
     
     selectedPrefix: string;
+    preselectedPrefix : string;
+
+    externalSharing : any;
+    aliasValidationMessage : string;
+    siteUrlValidationMessage : string;
 }

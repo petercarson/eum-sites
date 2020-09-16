@@ -20,4 +20,5 @@ export interface ISiteRequestFormProps {
   siteProvisioningApiClientID: string;
   HttpClient: HttpClient;
   AadTokenProvider: AadTokenProvider;
+  siteProvisioningExternalSharingPrefix : string;
 }

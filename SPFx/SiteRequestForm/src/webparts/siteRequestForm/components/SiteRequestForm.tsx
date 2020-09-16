@@ -22,6 +22,7 @@ import * as strings from 'SiteRequestFormWebPartStrings';
 import { sp, ItemAddResult, Web, SPHttpClient } from "@pnp/sp";
 import { HttpClient, HttpClientResponse } from '@microsoft/sp-http';
 import { IBlacklistedWordsListItem } from './IBlacklistedWordsListItem';
+import { IPropertyPaneTextFieldProps } from '@microsoft/sp-webpart-base';
 
 export default class SiteRequestForm extends React.Component<ISiteRequestFormProps, ISiteRequestFormState> {
   private ModernTeamSite: boolean = false;
@@ -37,6 +38,16 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
   private ShowCreateOneNoteToggle: boolean = true;
   private CreatePlannerDefault: boolean = true;
   private ShowCreatePlannerToggle: boolean = true;
+  private ExternalSharingDefault: string;
+  private AllowedExternalSharingOptions: any;
+  private ShowExternalSharing : boolean;
+  private SharingLinkTypeDefault : string;
+  private SharingLinkShowChoiceDefault : boolean;
+  private LinkPermissionDefault : string;
+  private LinkPermissionShowChoiceDefault : boolean;
+  private aliasInput : IPropertyPaneTextFieldProps;
+  private siteUrlInput : IPropertyPaneTextFieldProps;
+  private defaultExternalValue : string;
 
   constructor(props: ISiteRequestFormProps) {
     super(props);
@@ -57,7 +68,11 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
       titleValidating: false,
       titleIsValid: false,
       title: null,
-      selectedPrefix: ''
+      selectedPrefix: '',
+      preselectedPrefix : '',
+      externalSharing : '',
+      aliasValidationMessage : '',
+      siteUrlValidationMessage : ''
     };
   }
 
@@ -98,7 +113,6 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
       </div>
     );
   }
-
 
   private RenderErrors() {
     return (
@@ -149,16 +163,17 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
       .items
       .get()
       .then((items: IDivisionListItem[]): void => {
+        items.sort((a, b) => a.Title.localeCompare(b.Title)); 
         this.PreselectedDivision = null;
         // if only 1 item returned, then default to that item
         if (items.length === 1) {
-          this.setState({ isLoading: false, divisions: items, divisionsLoaded: true, selectedDivision: items[0].Id, selectedPrefix: items[0].Prefix });
+          this.setState({ isLoading: false, divisions: items, divisionsLoaded: true, selectedDivision: items[0].Id, selectedPrefix: items[0].Prefix , preselectedPrefix :items[0].Prefix});
         } else if (this.props.preselectedDivision) {
           // if preselected division specified, retrieve that division from the list of items returned and default to that item
           let filteredItems: IDivisionListItem[] = items.filter(d => d.Title === this.props.preselectedDivision);
           if (filteredItems.length > 0) {
             this.PreselectedDivision = filteredItems[0];
-            this.setState({ isLoading: false, divisions: items, divisionsLoaded: true, selectedDivision: this.PreselectedDivision.Id, selectedPrefix: this.PreselectedDivision.Prefix });
+            this.setState({ isLoading: false, divisions: items, divisionsLoaded: true, selectedDivision: this.PreselectedDivision.Id, selectedPrefix: this.PreselectedDivision.Prefix , preselectedPrefix: this.PreselectedDivision.Prefix});
           } else {
             this.setState({ isLoading: false, divisions: items, divisionsLoaded: true });
           }
@@ -185,7 +200,7 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
           placeholder={strings.DivsionDropdownPlaceholderText}
           required={true}
           options={this.state.divisions.map(division => ({ key: division.Id, text: division.Title, data: { prefix: division.Prefix } }))}
-          onChanged={(item) => { this.setState({ isLoading: true, siteTemplatesLoaded: false, selectedSiteTemplate: null, selectedDivision: item.key.toString(), selectedPrefix: item.data.prefix }); }}
+          onChanged={(item) => { this.setState({ isLoading: true, siteTemplatesLoaded: false, selectedSiteTemplate: null, selectedDivision: item.key.toString(), selectedPrefix: item.data.prefix, preselectedPrefix : item.data.prefix }); }}
           disabled={this.state.isSaving || this.state.isLoading}
         />
       </div>
@@ -258,6 +273,16 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
     this.CreatePlannerDefault = this.state.siteTemplates.filter(s => s.Id == this.state.selectedSiteTemplate)[0].CreatePlannerDefaultValue;
     this.ShowCreatePlannerToggle = this.state.siteTemplates.filter(s => s.Id == this.state.selectedSiteTemplate)[0].CreatePlannerShowToggle;
 
+    this.ExternalSharingDefault = this.state.siteTemplates.filter(s => s.Id == this.state.selectedSiteTemplate)[0].ExternalSharingDefaultValue;
+    this.ShowExternalSharing = this.state.siteTemplates.filter(s => s.Id == this.state.selectedSiteTemplate)[0].ExternalSharingShowChoice;
+    this.AllowedExternalSharingOptions = this.state.siteTemplates.filter(s => s.Id == this.state.selectedSiteTemplate)[0].ExternalSharingAllowedOptions;
+
+    this.SharingLinkTypeDefault  = this.state.siteTemplates.filter(s => s.Id == this.state.selectedSiteTemplate)[0].DefaultSharingLinkType ;
+    this.SharingLinkShowChoiceDefault  = this.state.siteTemplates.filter(s => s.Id == this.state.selectedSiteTemplate)[0].DefaultSharingLinkShowChoice  ;
+
+    this.LinkPermissionDefault  = this.state.siteTemplates.filter(s => s.Id == this.state.selectedSiteTemplate)[0].DefaultLinkPermission ;
+    this.LinkPermissionShowChoiceDefault  = this.state.siteTemplates.filter(s => s.Id == this.state.selectedSiteTemplate)[0].DefaultLinkPermissionShowChoice  ;
+
     this.ModernTeamSite = false;
     sp.web.contentTypes
       .filter(`Name eq '${contentTypeName}'`)
@@ -266,18 +291,16 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
       .then((data: any[]): void => {
         if (data && data.length > 0) {
           let fields: any[] = data[0].Fields.results.filter(f => !f.Title.startsWith("Hide_Form_"));
-
           // if office365Group, then show Alias, Create Team, and hide Site URL. Otherwise, hide Alias and show site URL
           if (office365Group) {
-            fields = fields.filter(f => !(f.InternalName === "EUMSiteURL"));
+            fields = fields.filter(f => !(f.InternalName === "EUMSiteURL"));         
             this.ModernTeamSite = true;
           } else {
             fields = fields.filter(f => !(f.InternalName === "EUMAlias") &&
               !(f.InternalName === "EUMCreateTeam") &&
               !(f.InternalName === "EUMCreateOneNote") &&
-              !(f.InternalName === "EUMCreatePlanner"));
+              !(f.InternalName === "EUMCreatePlanner"));             
           }
-
           // hide the toggles if specified
           if (!this.ShowSiteVisibilityDropdown) {
             fields = fields.filter(f => !(f.InternalName === "EUMSiteVisibility"));
@@ -294,7 +317,16 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
           if (this.ModernTeamSite && !this.ShowCreatePlannerToggle) {
             fields = fields.filter(f => !(f.InternalName === "EUMCreatePlanner"));
           }
-
+          
+          if (!this.ShowExternalSharing) {
+            fields = fields.filter(f => !(f.InternalName === "EUMExternalSharing"));
+          }
+          if (!this.SharingLinkShowChoiceDefault) {
+            fields = fields.filter(f => !(f.InternalName === "EUMDefaultSharingLinkType"));
+          }
+          if (!this.LinkPermissionShowChoiceDefault) {
+            fields = fields.filter(f => !(f.InternalName === "EUMDefaultLinkPermission"));
+          }
           let contentTypeId: string = data[0].Id.StringValue;
           this.setState({ isLoading: false, fields: fields, fieldsLoaded: true, contentTypeId: contentTypeId });
         }
@@ -308,7 +340,7 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
       this.state.fields.map((spField) => {
 
         if (!spField.Hidden) {
-          if (spField.InternalName === 'Title') {
+          if ((spField.InternalName === 'Title') && (this.state.selectedPrefix)) {
             return (
               <div>
                 <TextField
@@ -327,9 +359,27 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
                 <Label htmlFor={spField.InternalName}>{spField.Description}</Label>
               </div>
             );
+          }else if (spField.InternalName === 'Title' ){
+            return (
+              <div>
+                <TextField
+                  id={spField.InternalName}
+                  name={spField.InternalName}
+                  label={this.props.titleFieldLabel ? this.props.titleFieldLabel : spField.Title}
+                  multiline={spField.TypeAsString === 'Note'}
+                  required={true}
+                  onChanged={(value) => { this.SaveTitleFieldValue(spField.InternalName, value, spField.TypeAsString); }}
+                  validateOnLoad={false}
+                  onGetErrorMessage={(value) => this.ValidateTitleField(value, true)}
+                  disabled={this.state.isSaving || this.state.isLoading}
+                  value= {this.state.title}
+                />
+                <Label htmlFor={spField.InternalName}>{spField.Description}</Label>
+              </div>
+            );
           }
 
-          if (spField.InternalName === 'EUMAlias') {
+          if ((spField.InternalName === 'EUMAlias') && (this.state.selectedPrefix)) {
             return (
               <div>
                 <TextField
@@ -343,6 +393,27 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
                   onGetErrorMessage={(value) => this.ValidateAliasField(value, true)}
                   disabled={this.state.isSaving || this.state.isLoading}
                   prefix={this.state.selectedPrefix}
+                  value={this.state.alias}
+                  componentRef = {(input)=> {this.aliasInput = input;}}
+                  errorMessage = {this.state.aliasValidationMessage}
+                />
+                <Label htmlFor={spField.InternalName}>{spField.Description}</Label>
+              </div> 
+           
+            );
+          }else if(spField.InternalName === 'EUMAlias'){
+            return (
+              <div>
+                <TextField
+                  id={spField.InternalName}
+                  name={spField.InternalName}
+                  label={spField.Title}
+                  multiline={spField.TypeAsString === 'Note'}
+                  required={true}
+                  onChanged={(value) => this.SaveAliasFieldValue(value)}
+                  validateOnLoad={false}
+                  onGetErrorMessage={(value) => this.ValidateAliasField(value, true)}
+                  disabled={this.state.isSaving || this.state.isLoading}
                   value={this.state.alias}
                 />
                 <Label htmlFor={spField.InternalName}>{spField.Description}</Label>
@@ -365,6 +436,8 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
                   disabled={this.state.isSaving || this.state.isLoading}
                   prefix={this.state.selectedPrefix ? `/sites/${this.state.selectedPrefix}` : '/sites/'}
                   value={this.state.alias}
+                  componentRef = {(input)=> {this.siteUrlInput = input;}}
+                  errorMessage = {this.state.siteUrlValidationMessage}
                 />
                 <Label htmlFor={spField.InternalName}>{spField.Description}</Label>
               </div>
@@ -391,6 +464,135 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
             );
           }
 
+          if (spField.InternalName === 'EUMExternalSharing') {
+            let allowedSharingOptions = this.AllowedExternalSharingOptions.results;  
+            return (
+              <div>
+                <Dropdown
+                  id={spField.InternalName}
+                  title={spField.InternalName}
+                  label={spField.Title}
+                  required={true}
+                  multiSelect={false}
+                  options={allowedSharingOptions.map((option: string) => ({ key: option, text: option }))}
+                  onChanged={(value) => {
+                    this.SaveFieldValue(spField.InternalName, value.key.toString(), spField.TypeAsString); 
+                    let validationFunction;                           
+                    if (this.aliasInput){
+                     validationFunction = () => this.ValidateAliasField(this.aliasInput.value, true).then(result => {
+                        result ? this.setState({aliasValidationMessage : result}) : this.setState({aliasValidationMessage : ''});
+                      });
+                    } else if (this.siteUrlInput){
+                      validationFunction = () => this.ValidateSiteUrlField(this.siteUrlInput.value, true).then(result => {
+                        result ? this.setState({siteUrlValidationMessage : result}) : this.setState({siteUrlValidationMessage : ''});
+                      });
+                    }
+                    if (this.state.selectedPrefix){
+                      if (value.key.toString() !== 'Only people in your organization'){
+                        this.setState({selectedPrefix: `${this.props.siteProvisioningExternalSharingPrefix}${this.state.preselectedPrefix}`}, validationFunction);
+                      }
+                      else {
+                        this.setState({selectedPrefix : this.state.preselectedPrefix}, validationFunction);
+                      }
+                      this.setState({externalSharing : value.key.toString()});        
+                    }  
+                  }}  
+                  disabled={this.state.isSaving || this.state.isLoading}
+                  defaultSelectedKey= {allowedSharingOptions.includes(this.ExternalSharingDefault) ? this.defaultExternalValue = this.ExternalSharingDefault: this.defaultExternalValue = allowedSharingOptions[0]}                 
+                />
+                <Label htmlFor={spField.InternalName}>{spField.Description}</Label>
+              </div>
+            );
+          }
+
+          if (spField.InternalName === 'EUMDefaultSharingLinkType') {
+           let sharingObj: {sharingType: string, sharingOption: string[]}; 
+           let sharingOptions: typeof sharingObj[];
+            sharingOptions = [
+              {
+                "sharingType": "Anyone",
+                "sharingOption":[                 
+                  "People with existing access",
+                  "Specific people",
+                  "Only people in your organization",
+                  "Anyone with the link",        
+                ]
+              }, 
+              {
+                "sharingType": "Existing guests only",
+                "sharingOption": [
+                  "People with existing access",
+                  "Specific people",
+                  "Only people in your organization"        
+                ],   
+              }, 
+              {
+                "sharingType": "New and existing guests",
+                "sharingOption": [
+                  "People with existing access",
+                  "Specific people",
+                  "Only people in your organization"        
+                ]       
+              },
+              {
+                "sharingType": "Only people in your organization",
+                "sharingOption": [
+                  "People with existing access",
+                  "Only people in your organization"        
+                ],
+              }, 
+            ];
+            var sharing: typeof sharingObj[];
+            if (this.state.externalSharing !== ''){
+               sharing = sharingOptions.filter( sharingOption => sharingOption.sharingType === this.state.externalSharing);
+            } else{
+              if (this.defaultExternalValue){
+               sharing = sharingOptions.filter( sharingOption => sharingOption.sharingType === this.defaultExternalValue);   
+              } else{
+                sharing = sharingOptions.filter( sharingOption => sharingOption.sharingType === this.ExternalSharingDefault);   
+              }
+            }
+            var sharingOptionSelected; 
+            var sharingoptionstemp = sharing[0].sharingOption;
+            sharingOptionSelected = sharingoptionstemp.map(option=> ({key:option, text:option}));
+            return (
+              <div>
+                <Dropdown
+                  id={spField.InternalName}
+                  title={spField.InternalName}
+                  label={spField.Title}
+                  required={true}
+                  multiSelect={false}
+                  options={sharingOptionSelected}
+                  onChanged={(value) => this.SaveFieldValue(spField.InternalName, value.key.toString(), spField.TypeAsString)}
+                  disabled={this.state.isSaving || this.state.isLoading}
+                  defaultSelectedKey={this.SharingLinkTypeDefault}
+                />
+                <Label htmlFor={spField.InternalName}>{spField.Description}</Label>
+              </div>
+            );
+          }
+
+          if (spField.InternalName === 'EUMDefaultLinkPermission') {
+            let options: string[] = spField.Required ? spField.Choices.results : [''].concat(spField.Choices.results);
+            return (
+              <div>
+                <Dropdown
+                  id={spField.InternalName}
+                  title={spField.InternalName}
+                  label={spField.Title}
+                  required={true}
+                  multiSelect={false}
+                  options={options.map((option: string) => ({ key: option, text: option }))}
+                  onChanged={(value) => this.SaveFieldValue(spField.InternalName, value.key.toString(), spField.TypeAsString)}
+                  disabled={this.state.isSaving || this.state.isLoading}
+                  defaultSelectedKey={this.LinkPermissionDefault}
+                />
+                <Label htmlFor={spField.InternalName}>{spField.Description}</Label>
+              </div>
+            );
+          }
+          
           if ((!(spField.InternalName === 'Title') && !(spField.InternalName === 'EUMAlias') && !(spField.InternalName === 'EUMAlias')) &&
             spField.TypeAsString === 'Text' || spField.TypeAsString === 'Note') {
             return (
@@ -792,8 +994,10 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
         this.setState({ aliasValidating: false });
         return strings.AliasInUseMessage;
       }
-
       this.setState({ aliasValidating: false });
+      this.setState({aliasValidationMessage : ''});
+    }else{
+      this.setState({ aliasIsValid: false});
     }
 
     if (required) {
@@ -837,6 +1041,9 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
       }
 
       this.setState({ aliasValidating: false });
+      this.setState({siteUrlValidationMessage : ''});
+    }else{
+      this.setState({ aliasIsValid: false});
     }
 
     if (required) {
@@ -860,6 +1067,8 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
 
       // title doesn't contain any blacklisted characters
       this.setState({ titleValidating: false, titleIsValid: true });
+    }else{
+      this.setState({ titleIsValid: false});
     }
 
     if (required) {
@@ -930,6 +1139,7 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
       this.setState({ alias: generatedAlias });
     } else {
       this.setState({ alias: '' });
+      
     }
   }
 
@@ -1273,7 +1483,15 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
     if (this.ModernTeamSite && (!this.ShowCreatePlannerToggle || postData['EUMCreatePlanner'] == null)) {
       postData['EUMCreatePlanner'] = this.CreatePlannerDefault;
     }
-
+    if (!this.ShowExternalSharing || postData['EUMExternalSharing'] == null) {
+      postData['EUMExternalSharing'] = this.ExternalSharingDefault;
+    }
+    if (!this.SharingLinkShowChoiceDefault || postData['EUMDefaultSharingLinkType'] == null) {
+      postData['EUMDefaultSharingLinkType'] = this.SharingLinkTypeDefault ;
+    }
+    if (!this.LinkPermissionShowChoiceDefault || postData['EUMDefaultLinkPermission'] == null) {
+      postData['EUMDefaultLinkPermission'] = this.LinkPermissionDefault ;
+    }
     if (!this.ModernTeamSite) {
       postData['EUMCreateTeam'] = false;
       postData['EUMCreateOneNote'] = false;
@@ -1343,7 +1561,15 @@ export default class SiteRequestForm extends React.Component<ISiteRequestFormPro
     if (this.ModernTeamSite && (!this.ShowCreatePlannerToggle || postData['EUMCreatePlanner'] == null)) {
       postData['EUMCreatePlanner'] = this.CreatePlannerDefault;
     }
-
+    if (!this.ShowExternalSharing || postData['EUMExternalSharing'] == null) {
+      postData['EUMExternalSharing'] = this.ExternalSharingDefault;
+    }
+    if (!this.SharingLinkShowChoiceDefault || postData['EUMDefaultSharingLinkType'] == null) {
+      postData['EUMDefaultSharingLinkType'] = this.SharingLinkTypeDefault ;
+    }
+    if (!this.LinkPermissionShowChoiceDefault || postData['EUMDefaultLinkPermission'] == null) {
+      postData['EUMDefaultLinkPermission'] = this.LinkPermissionDefault ;
+    }
     if (!this.ModernTeamSite) {
       postData['EUMCreateTeam'] = false;
       postData['EUMCreateOneNote'] = false;

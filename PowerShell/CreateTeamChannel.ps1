@@ -9,9 +9,8 @@ if ($AzureAutomation) {
     . .\Customizations.ps1
 }
 else {
-    $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
-    . $DistributionFolder\EUMSites_Helper.ps1
-    . $DistributionFolder\Customizations.ps1
+    . $PSScriptRoot\EUMSites_Helper.ps1
+    . $PSScriptRoot\Customizations.ps1
 }
 
 LoadEnvironmentSettings

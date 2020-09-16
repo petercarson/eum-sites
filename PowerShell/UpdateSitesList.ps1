@@ -132,8 +132,7 @@ if ($AzureAutomation) {
     . .\EUMSites_Helper.ps1
 }
 else {
-    $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
-    . $DistributionFolder\EUMSites_Helper.ps1
+    . $PSScriptRoot\EUMSites_Helper.ps1
 }
 
 LoadEnvironmentSettings

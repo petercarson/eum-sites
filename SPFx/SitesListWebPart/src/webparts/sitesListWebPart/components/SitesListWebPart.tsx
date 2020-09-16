@@ -64,7 +64,7 @@ export default class SitesListWebPart extends React.Component<ISitesListWebPartP
     let allSitesDisplay: JSX.Element = this.props.displayAllSites && this.state.sitesListItems && this.state.sitesListItems.length > 0 ? this.GetJsxForSites(this.state.sitesListItems) : null;
     let availableSitesDisplay: JSX.Element = this.props.displayAvailableSites && this.state.availableSites && this.state.availableSites.length > 0 ? this.GetJsxForSites(this.state.availableSites) : null;
     let currentUserSitesDisplay: JSX.Element = this.props.displayUserSites && this.state.currentUserSites && this.state.currentUserSites.length > 0 ? this.GetJsxForSites(this.state.currentUserSites) : null;
-
+    
     return (
       <Pivot aria-label={this.props.webpartTitle}>
 
@@ -86,6 +86,7 @@ export default class SitesListWebPart extends React.Component<ISitesListWebPartP
 
   private GetJsxForSites(sites: ISiteListItem[]) {
     let groupedSites: IGroupedSites[] = this.GroupSites(sites);
+    groupedSites.sort(function(a,b){return a.index.localeCompare(b.index);});
     if (groupedSites.length === 0) {
       return this.RenderNoSitesMessage();
     } else if (this.props.displayMode === strings.DisplayModeTabs) {
@@ -408,7 +409,7 @@ export default class SitesListWebPart extends React.Component<ISitesListWebPartP
     }
 
     return sites.sort(function (a, b) {
-      return a.Title === b.Title ? 0 : a.Title < b.Title ? -1 : 1;
+      return a.Title.localeCompare(b.Title);
     });
   }
 

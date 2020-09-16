@@ -502,6 +502,54 @@ function GetGroupIdByName() {
     }
 }
 
+function GetGroupIdByAlias() {
+    Param
+    (
+        [parameter(Mandatory = $true)]$groupAlias
+    )
+
+    $graphApiBaseUrl = "https://graph.microsoft.com/v1.0"
+
+    # Retrieve access token for graph API
+    $accessToken = GetGraphAPIBearerToken
+    Write-Verbose -Verbose -Message "Retrieving group ID for group $($groupAlias)..."
+    $graphGETEndpoint = "$($graphApiBaseUrl)/groups?`$filter=mailNickname eq '$($groupAlias)'"
+
+    try {
+        $getResponse = Invoke-RestMethod -Headers @{Authorization = "Bearer $accessToken" } -Uri $graphGETEndpoint -Method Get -ContentType 'application/json'
+        Write-Verbose -Verbose -Message "Retrieving group ID $($getResponse.value.id) for group $($groupAlias)."
+        return $getResponse.value.id
+    }
+    catch [System.Net.WebException] {
+        if ([int]$_.Exception.Response.StatusCode -eq 404) {
+            return $null
+        }
+        else {
+            Write-Error "Exception Type: $($_.Exception.GetType().FullName)"
+            Write-Error "Exception Message: $($_.Exception.Message)"
+        }
+    }
+    catch {
+        Write-Error "Exception Type: $($_.Exception.GetType().FullName)"
+        Write-Error "Exception Message: $($_.Exception.Message)"
+    }
+}
+
+function ConvertGroupNameToAlias() {
+    Param
+    (
+        [parameter(Mandatory = $true)]$groupName
+    )
+	[string]$groupAlias = $groupName.Replace(' ', '-')
+    # https://docs.microsoft.com/en-us/office/troubleshoot/error-messages/username-contains-special-character
+    # Convert any accented characters
+    $groupAlias = [Text.Encoding]::ASCII.GetString([Text.Encoding]::GetEncoding("Cyrillic").GetBytes($groupAlias))
+    # Remove any special characters
+    $groupAlias = $groupAlias -replace '[^a-zA-Z0-9\-]', ''
+
+    return $groupAlias
+}
+
 function GetGroupSiteUrl() {
     Param
     (
@@ -567,11 +615,6 @@ function ProvisionSite {
 
     Write-Verbose -Verbose -Message "listItemID = $($listItemID)"
 
-    $AzureAutomation = (Get-Command "Get-AutomationVariable" -errorAction SilentlyContinue)
-    if ($AzureAutomation) {
-        LoadEnvironmentSettings
-    }
-
     $connLandingSite = Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
     New-Item -Path $pnpTemplatePath -ItemType "directory" -Force | out-null
@@ -616,6 +659,9 @@ function ProvisionSite {
             <FieldRef Name='EUMCreateTeam'></FieldRef>
             <FieldRef Name='EUMCreateOneNote'></FieldRef>
             <FieldRef Name='EUMCreatePlanner'></FieldRef>
+            <FieldRef Name='EUMExternalSharing'></FieldRef>
+            <FieldRef Name='EUMDefaultSharingLinkType'></FieldRef>
+            <FieldRef Name='EUMDefaultLinkPermission'></FieldRef>
             <FieldRef Name='Author'></FieldRef>
         </ViewFields>
     </View>"
@@ -659,6 +705,9 @@ function ProvisionSite {
 
         [string]$breadcrumbHTML = $pendingSite["EUMBreadcrumbHTML"]
         [string]$parentURL = $pendingSite["EUMParentURL"]
+        [string]$eumExternalSharing = $pendingSite["EUMExternalSharing"]
+        [string]$eumDefaultSharingLinkType = $pendingSite["EUMDefaultSharingLinkType"]
+        [string]$eumDefaultLinkPermission = $pendingSite["EUMDefaultLinkPermission"]
         [string]$Division = $pendingSite["EUMDivision"].LookupValue
         [string]$eumSiteTemplate = $pendingSite["EUMSiteTemplate"].LookupValue
         [string]$author = $pendingSite["Author"].Email
@@ -781,7 +830,7 @@ function ProvisionSite {
                     catch { 
                         Write-Error "Failed creating site collection $($siteURL)"
                         Write-Error $_
-                        exit
+                        return $false
                     }
                 }
                 "TeamSite" {
@@ -805,7 +854,7 @@ function ProvisionSite {
                     catch { 
                         Write-Error "Failed creating site collection $($siteURL)"
                         Write-Error $_
-                        exit
+                        return $false
                     }
                 }
             }
@@ -837,8 +886,53 @@ function ProvisionSite {
 
             $connSite = Helper-Connect-PnPOnline -Url $siteURL
 
+            #Set the external sharing capabilities 
+            if ($eumExternalSharing){
+                switch ($eumExternalSharing){
+                    'Anyone' {$externalSharingOption = "ExternalUserAndGuestSharing"  ; Break}
+                    'New and existing guests' {$externalSharingOption = "ExternalUserSharingOnly" ; Break}
+                    'Existing guests only' {$externalSharingOption = "ExistingExternalUserSharingOnly" ; Break}
+                    'Only people in your organization' {$externalSharingOption = "Disabled" ; Break}
+                }
+
+                Write-Verbose -Verbose -Message "Setting external sharing to $($externalSharingOption)"
+                Set-PnPSite -Identity $siteURL -Sharing $externalSharingOption
+            }
+
+            #Set the default sharing link type 
+            if ($eumDefaultSharingLinkType){
+                 switch ($eumDefaultSharingLinkType){
+                    'Anyone with the link' {$defaultSharingLinkTypeOption = "AnonymousAccess" ; Break}
+                    'Specific people' {$defaultSharingLinkTypeOption = "Direct" ; Break}
+                    'Only people in your organization' {$defaultSharingLinkTypeOption = "Internal "; Break}
+                    'People with existing access' {$defaultSharingLinkTypeOption = "ExistingAccess"; Break}  
+                }
+                if ($defaultSharingLinkTypeOption -and $defaultSharingLinkTypeOption -ne "ExistingAccess"){
+                    Connect-SPOService -Url $AdminURL -credential $SPCredentials
+                    Set-SPOSite -Identity $siteURL -DefaultLinkToExistingAccess $false
+                    Disconnect-SPOService
+
+                    Set-PnPSite -Identity $siteURL -DefaultSharingLinkType $defaultSharingLinkTypeOption
+                } elseif ($defaultSharingLinkTypeOption -eq "ExistingAccess"){     
+                    Connect-SPOService -Url $AdminURL -credential $SPCredentials
+                    Set-SPOSite -Identity $siteURL -DefaultLinkToExistingAccess $true
+                    Disconnect-SPOService
+                }
+                Write-Verbose -Verbose -Message "Setting default sharing link type to $($defaultSharingLinkTypeOption)"
+            }
+
+            #Set the default link permission type 
+            if ($eumDefaultLinkPermission){
+                 switch ($eumDefaultLinkPermission){
+                    'View' {$defaultLinkPermissionOption = "View" ; Break}
+                    'Edit' {$defaultLinkPermissionOption = "Edit" ; Break}
+                }
+                Write-Verbose -Verbose -Message "Setting default link permission to $($defaultLinkPermissionOption)"
+                Set-PnPSite -Identity $siteURL -DefaultLinkPermission $defaultLinkPermissionOption  
+            }  
+
             # Set the site collection admin
-            if ($SiteCollectionAdministrator -ne "") {
+             if ($SiteCollectionAdministrator -ne "") {
                 Add-PnPSiteCollectionAdmin -Owners $SiteCollectionAdministrator -Connection $connSite
             }
             Add-PnPSiteCollectionAdmin -Owners $author -Connection $connSite
@@ -977,19 +1071,6 @@ function CreateTeamChannel () {
         [Parameter (Mandatory = $true)][int]$listItemID
     )
 
-    $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -ErrorAction SilentlyContinue)
-    if ($AzureAutomation) { 
-        . .\EUMSites_Helper.ps1
-        . .\Customizations.ps1
-    }
-    else {
-        $DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
-        . $DistributionFolder\EUMSites_Helper.ps1
-        . $DistributionFolder\Customizations.ps1
-    }
-
-    LoadEnvironmentSettings
-
     try {
         Write-Verbose -Verbose -Message "Retrieving teams channel request details for listItemID $($listItemID)..."
         $connLandingSite = Helper-Connect-PnPOnline -Url $SitesListSiteURL
@@ -1015,7 +1096,7 @@ function CreateTeamChannel () {
     catch {
         Write-Error "Failed retrieving information for listItemID $($listItemID)"
         Write-Error $_
-        exit    
+        return $false    
     }
 
 
@@ -1052,6 +1133,77 @@ function CreateTeamChannel () {
     catch {
         Write-Error "Failed creating teams channel $($channelName)"
         Write-Error $_
-        exit   
+        return $false   
+    }
+}
+
+function Check-RunbookLock {
+    [String] $ServicePrincipalConnectionName = 'AzureRunAsConnection'
+    $AutomationAccountName = Get-AutomationVariable -Name 'AutomationAccountName'
+    $ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
+    $AutomationJobID = $PSPrivateMetadata.JobId.Guid
+
+    Write-Verbose "Set-RunbookLock Job ID: $AutomationJobID"
+
+    $ServicePrincipalConnection = Get-AutomationConnection -Name $ServicePrincipalConnectionName   
+    if (!$ServicePrincipalConnection) {
+        $ErrorString = 
+        @"
+        Service principal connection $ServicePrincipalConnectionName not found.  Make sure you have created it in Assets. 
+        See http://aka.ms/runasaccount to learn more about creating Run As accounts. 
+"@
+        throw $ErrorString
+    }  	
+    
+    Add-AzureRmAccount `
+        -ServicePrincipal `
+        -TenantId $ServicePrincipalConnection.TenantId `
+        -ApplicationId $ServicePrincipalConnection.ApplicationId `
+        -CertificateThumbprint $ServicePrincipalConnection.CertificateThumbprint | Write-Verbose
+
+    # Get the information for this job so we can retrieve the Runbook Id
+    $CurrentJob = Get-AzureRmAutomationJob -AutomationAccountName $AutomationAccountName -ResourceGroupName $ResourceGroupName -Id $AutomationJobID
+    Write-Verbose "Set-RunbookLock AutomationAccountName: $($CurrentJob.AutomationAccountName)"
+    Write-Verbose "Set-RunbookLock RunbookName: $($CurrentJob.RunbookName)"
+    Write-Verbose "Set-RunbookLock ResourceGroupName: $($CurrentJob.ResourceGroupName)"
+    
+    $AllJobs = Get-AzureRmAutomationJob -AutomationAccountName $CurrentJob.AutomationAccountName `
+        -ResourceGroupName $CurrentJob.ResourceGroupName `
+        -RunbookName $CurrentJob.RunbookName | Sort-Object -Property CreationTime, JobId | Select-Object -Last 10
+
+    foreach ($job in $AllJobs) {
+        Write-Verbose "JobID: $($job.JobId), CreationTime: $($job.CreationTime), Status: $($job.Status)"
+    }
+
+    $AllActiveJobs = Get-AzureRmAutomationJob -AutomationAccountName $CurrentJob.AutomationAccountName `
+        -ResourceGroupName $CurrentJob.ResourceGroupName `
+        -RunbookName $CurrentJob.RunbookName | Where -FilterScript { ($_.Status -ne "Completed") `
+            -and ($_.Status -ne "Failed") `
+            -and ($_.Status -ne "Stopped") } 
+
+    Write-Verbose "AllActiveJobs.Count $($AllActiveJobs.Count)"
+
+    # If there are any active jobs for this runbook, return false. If this is the only job
+    # running then return true
+    If ($AllActiveJobs.Count -gt 1) {
+        # In order to prevent a race condition (although still possible if two jobs were created at the 
+        # exact same time), let this job continue if it is the oldest created running job
+        $OldestJob = $AllActiveJobs | Sort-Object -Property CreationTime, JobId | Select-Object -First 1
+        Write-Verbose "AutomationJobID: $($AutomationJobID), OldestJob.JobId: $($OldestJob.JobId)"
+
+        # If this job is not the oldest created job we will suspend it and let the oldest one go through.
+        # When the oldest job completes it will call Set-RunbookLock to make sure the next-oldest job for this runbook is resumed.
+        if ($AutomationJobID -ne $OldestJob.JobId) {
+            Write-Verbose "Returning false as there is an older currently running job for this runbook already"
+            return $false
+        }
+        else {
+            Write-Verbose "Returning true as this is the oldest currently running job for this runbook"
+            return $true
+        }
+    }
+    Else {
+        Write-Verbose "No other currently running jobs for this runbook"
+        return $true
     }
 }

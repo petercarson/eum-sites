@@ -35,6 +35,7 @@ export interface ISiteRequestFormWebPartProps {
   siteProvisioningApiUrl: string;
   siteProvisioningApiClientID: string;
   AadTokenProvider: AadTokenProvider;
+  siteProvisioningExternalSharingPrefix : string;
 }
 
 export default class SiteRequestFormWebPart extends BaseClientSideWebPart<ISiteRequestFormWebPartProps> {
@@ -68,7 +69,8 @@ export default class SiteRequestFormWebPart extends BaseClientSideWebPart<ISiteR
         tenantUrl: this.GetRootSiteUrl(),
         HttpClient: this.context.httpClient,
         siteProvisioningApiClientID: this.properties.siteProvisioningApiClientID,
-        AadTokenProvider: this.properties.AadTokenProvider
+        AadTokenProvider: this.properties.AadTokenProvider,
+        siteProvisioningExternalSharingPrefix : this.properties.siteProvisioningExternalSharingPrefix
       }
     );
     ReactDom.render(element, this.domElement);
@@ -202,6 +204,10 @@ export default class SiteRequestFormWebPart extends BaseClientSideWebPart<ISiteR
       if (!this.properties.siteProvisioningApiClientID) {
         storageEntity = await currentWeb.getStorageEntity('siteProvisioningApiClientID');
         this.properties.siteProvisioningApiClientID = storageEntity ? storageEntity.Value : null;
+      }
+      if (!this.properties.siteProvisioningExternalSharingPrefix) {
+        storageEntity = await currentWeb.getStorageEntity('siteProvisioningExternalSharingPrefix');
+        this.properties.siteProvisioningExternalSharingPrefix = storageEntity ? storageEntity.Value : null;
       }
     }
   }
