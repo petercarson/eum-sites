@@ -1,0 +1,544 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workflows_CreateSite_ProvisionSite_name": {
+      "type": "String"
+    },
+    "connections_azureautomation_externalid": {
+      "type": "String"
+    },
+    "connections_office365_externalid": {
+      "type": "String"
+    },
+    "connections_sharepointonline_externalid": {
+      "type": "String"
+    },
+    "connections_teams_externalid": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "name": "[parameters('workflows_CreateSite_ProvisionSite_name')]",
+      "location": "canadacentral",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            },
+            "Communication Method": {
+              "defaultValue": "Email",
+              "type": "String"
+            },
+            "Operator Email": {
+              "defaultValue": "pcarson@envisionitdev.onmicrosoft.com",
+              "type": "String"
+            },
+            "Site Address": {
+              "defaultValue": "https://envisionitdev.sharepoint.com/sites/Landing",
+              "type": "String"
+            },
+            "Sites List GUID": {
+              "defaultValue": "35416f1d-f09b-4503-a8ed-106e11c7ea43",
+              "type": "String"
+            }
+          },
+          "triggers": {
+            "manual": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "schema": {
+                  "properties": {
+                    "ListItemId": {
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "actions": {
+            "Check_for_missing_ListItemID": {
+              "actions": {
+                "Terminate_Missing_ListItemID": {
+                  "runAfter": {},
+                  "type": "Terminate",
+                  "inputs": {
+                    "runError": {
+                      "code": "500",
+                      "message": "Missing ListItemID"
+                    },
+                    "runStatus": "Failed"
+                  }
+                }
+              },
+              "runAfter": {
+                "Initialize_DebugOutput": [
+                  "Succeeded"
+                ]
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@triggerBody()?['ListItemId']",
+                      "@null"
+                    ]
+                  }
+                ]
+              },
+              "type": "If"
+            },
+            "Check_if_the_site_was_successfully_created": {
+              "actions": {
+                "Check_for_Teams_or_Email_success_message": {
+                  "actions": {
+                    "Send_success_email": {
+                      "runAfter": {},
+                      "type": "ApiConnection",
+                      "inputs": {
+                        "body": {
+                          "Body": "<p>Your site request for @{body('Get_Provisioned_Site')['Title']} has been approved and created<br>\n<br>\n@{body('Get_Provisioned_Site')?['EUMSiteURL']}</p>",
+                          "Cc": "@parameters('Operator Email')",
+                          "Subject": "Your site request for @{body('Get_Provisioned_Site')['Title']} has been approved and created",
+                          "To": "@parameters('Operator Email')"
+                        },
+                        "host": {
+                          "connection": {
+                            "name": "@parameters('$connections')['office365']['connectionId']"
+                          }
+                        },
+                        "method": "post",
+                        "path": "/v2/Mail"
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Get_Provisioned_Site": [
+                      "Succeeded"
+                    ]
+                  },
+                  "else": {
+                    "actions": {
+                      "Post_success_chat": {
+                        "runAfter": {},
+                        "type": "ApiConnection",
+                        "inputs": {
+                          "body": {
+                            "messageBody": "<p>Your site request for @{body('Get_Provisioned_Site')['Title']} has been approved and created<br>\n<br>\n@{body('Get_Provisioned_Site')?['EUMSiteURL']}</p>",
+                            "recipient": "@parameters('Operator Email')"
+                          },
+                          "host": {
+                            "connection": {
+                              "name": "@parameters('$connections')['teams']['connectionId']"
+                            }
+                          },
+                          "method": "post",
+                          "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Chat with Flow bot')}"
+                        }
+                      }
+                    }
+                  },
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@parameters('Communication Method')",
+                          "Email"
+                        ]
+                      }
+                    ]
+                  },
+                  "type": "If"
+                },
+                "Get_Provisioned_Site": {
+                  "runAfter": {},
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                      }
+                    },
+                    "method": "get",
+                    "path": "/datasets/@{encodeURIComponent(encodeURIComponent(parameters('Site Address')))}/tables/@{encodeURIComponent(encodeURIComponent(parameters('Sites List GUID')))}/items/@{encodeURIComponent(triggerBody()?['ListItemId'])}"
+                  }
+                },
+                "Response_-_Success": {
+                  "runAfter": {
+                    "Check_for_Teams_or_Email_success_message": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "Response",
+                  "kind": "Http",
+                  "inputs": {
+                    "body": "Success",
+                    "statusCode": 200
+                  }
+                }
+              },
+              "runAfter": {
+                "Until": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Check_for_Teams_or_Email_failure_message": {
+                    "actions": {
+                      "Send_error_email": {
+                        "runAfter": {},
+                        "type": "ApiConnection",
+                        "inputs": {
+                          "body": {
+                            "Body": "<p>The site request did not complete successfully</p>",
+                            "Subject": "The site request for @{body('Get_Requested_Site')['Title']} did not complete successfully",
+                            "To": "@parameters('Operator Email')"
+                          },
+                          "host": {
+                            "connection": {
+                              "name": "@parameters('$connections')['office365']['connectionId']"
+                            }
+                          },
+                          "method": "post",
+                          "path": "/v2/Mail"
+                        }
+                      }
+                    },
+                    "runAfter": {},
+                    "else": {
+                      "actions": {
+                        "Post_error_chat": {
+                          "runAfter": {},
+                          "type": "ApiConnection",
+                          "inputs": {
+                            "body": {
+                              "messageBody": "<p>The site request for @{body('Get_Requested_Site')['Title']}did not complete successfully</p>",
+                              "recipient": "@parameters('Operator Email')"
+                            },
+                            "host": {
+                              "connection": {
+                                "name": "@parameters('$connections')['teams']['connectionId']"
+                              }
+                            },
+                            "method": "post",
+                            "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Chat with Flow bot')}"
+                          }
+                        }
+                      }
+                    },
+                    "expression": {
+                      "and": [
+                        {
+                          "equals": [
+                            "@parameters('Communication Method')",
+                            "Email"
+                          ]
+                        }
+                      ]
+                    },
+                    "type": "If"
+                  },
+                  "Response_-_Failure": {
+                    "runAfter": {
+                      "Check_for_Teams_or_Email_failure_message": [
+                        "Succeeded"
+                      ]
+                    },
+                    "type": "Response",
+                    "kind": "Http",
+                    "inputs": {
+                      "body": "Error",
+                      "statusCode": 500
+                    }
+                  },
+                  "Terminate": {
+                    "runAfter": {
+                      "Response_-_Failure": [
+                        "Succeeded"
+                      ]
+                    },
+                    "type": "Terminate",
+                    "inputs": {
+                      "runError": {
+                        "message": "@variables('Job Output')"
+                      },
+                      "runStatus": "Failed"
+                    }
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "startsWith": [
+                      "@variables('Job Output')",
+                      "Success"
+                    ]
+                  }
+                ]
+              },
+              "type": "If"
+            },
+            "Condition_-_Check_if_already_created_or_not_approved": {
+              "actions": {
+                "Response_-_No_further_processing_needed": {
+                  "runAfter": {},
+                  "type": "Response",
+                  "kind": "Http",
+                  "inputs": {
+                    "statusCode": 200
+                  }
+                },
+                "Terminate_-_No_further_processing_needed": {
+                  "runAfter": {
+                    "Response_-_No_further_processing_needed": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "Terminate",
+                  "inputs": {
+                    "runStatus": "Succeeded"
+                  }
+                }
+              },
+              "runAfter": {
+                "Initialize_Job_Output": [
+                  "Succeeded"
+                ]
+              },
+              "expression": {
+                "or": [
+                  {
+                    "not": {
+                      "equals": [
+                        "@variables('SiteCreated')",
+                        ""
+                      ]
+                    }
+                  },
+                  {
+                    "and": [
+                      {
+                        "not": {
+                          "equals": [
+                            "@body('Get_Requested_Site')?['{ModerationStatus}']",
+                            "Approved"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "type": "If"
+            },
+            "Get_Requested_Site": {
+              "runAfter": {
+                "Check_for_missing_ListItemID": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent(parameters('Site Address')))}/tables/@{encodeURIComponent(encodeURIComponent(parameters('Sites List GUID')))}/items/@{encodeURIComponent(triggerBody()?['ListItemId'])}"
+              }
+            },
+            "Initialize_DebugOutput": {
+              "runAfter": {},
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "DebugOutput",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "Initialize_Job_Output": {
+              "runAfter": {
+                "Initialize_SiteCreated": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "Job Output",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "Initialize_SiteCreated": {
+              "runAfter": {
+                "Get_Requested_Site": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "SiteCreated",
+                    "type": "string",
+                    "value": "@body('Get_Requested_Site')?['EUMSiteCreated']"
+                  }
+                ]
+              }
+            },
+            "Until": {
+              "actions": {
+                "Condition": {
+                  "actions": {
+                    "Delay": {
+                      "runAfter": {},
+                      "type": "Wait",
+                      "inputs": {
+                        "interval": {
+                          "count": 5,
+                          "unit": "Minute"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Set_variable_Job_Output": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "and": [
+                      {
+                        "startsWith": [
+                          "@variables('Job Output')",
+                          "Suspended"
+                        ]
+                      }
+                    ]
+                  },
+                  "type": "If"
+                },
+                "Create_job": {
+                  "runAfter": {},
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "body": {
+                      "properties": {
+                        "parameters": {
+                          "listItemID": "@triggerBody()?['ListItemId']"
+                        }
+                      }
+                    },
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureautomation']['connectionId']"
+                      }
+                    },
+                    "method": "put",
+                    "path": "/subscriptions/@{encodeURIComponent('b906693c-5167-4a56-bbf3-b56142ee7219')}/resourceGroups/@{encodeURIComponent('EUMSites')}/providers/Microsoft.Automation/automationAccounts/@{encodeURIComponent('eitdev-siteprovisioning')}/jobs",
+                    "queries": {
+                      "runbookName": "CreateSite",
+                      "wait": true,
+                      "x-ms-api-version": "2015-10-31"
+                    }
+                  }
+                },
+                "Get_job_output": {
+                  "runAfter": {
+                    "Create_job": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['azureautomation']['connectionId']"
+                      }
+                    },
+                    "method": "get",
+                    "path": "/subscriptions/@{encodeURIComponent('b906693c-5167-4a56-bbf3-b56142ee7219')}/resourceGroups/@{encodeURIComponent('EUMSites')}/providers/Microsoft.Automation/automationAccounts/@{encodeURIComponent('eitdev-siteprovisioning')}/jobs/@{encodeURIComponent(body('Create_job')?['properties']?['jobId'])}/output",
+                    "queries": {
+                      "x-ms-api-version": "2015-10-31"
+                    }
+                  }
+                },
+                "Set_variable_Job_Output": {
+                  "runAfter": {
+                    "Get_job_output": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Job Output",
+                    "value": "@{body('Get_job_output')}"
+                  }
+                }
+              },
+              "runAfter": {
+                "Condition_-_Check_if_already_created_or_not_approved": [
+                  "Succeeded"
+                ]
+              },
+              "expression": "@not(startsWith(variables('Job Output'), 'Suspended'))",
+              "limit": {
+                "count": 60,
+                "timeout": "PT1H"
+              },
+              "type": "Until"
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "azureautomation": {
+                "connectionId": "[parameters('connections_azureautomation_externalid')]",
+                "connectionName": "azureautomation",
+                "id": "/subscriptions/b906693c-5167-4a56-bbf3-b56142ee7219/providers/Microsoft.Web/locations/canadacentral/managedApis/azureautomation"
+              },
+              "office365": {
+                "connectionId": "[parameters('connections_office365_externalid')]",
+                "connectionName": "office365",
+                "id": "/subscriptions/b906693c-5167-4a56-bbf3-b56142ee7219/providers/Microsoft.Web/locations/canadacentral/managedApis/office365"
+              },
+              "sharepointonline": {
+                "connectionId": "[parameters('connections_sharepointonline_externalid')]",
+                "connectionName": "sharepointonline",
+                "id": "/subscriptions/b906693c-5167-4a56-bbf3-b56142ee7219/providers/Microsoft.Web/locations/canadacentral/managedApis/sharepointonline"
+              },
+              "teams": {
+                "connectionId": "[parameters('connections_teams_externalid')]",
+                "connectionName": "teams",
+                "id": "/subscriptions/b906693c-5167-4a56-bbf3-b56142ee7219/providers/Microsoft.Web/locations/canadacentral/managedApis/teams"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

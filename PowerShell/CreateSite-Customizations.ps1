@@ -4,14 +4,9 @@ function CreateSite-Customizations {
         [Parameter (Mandatory = $true)][int]$listItemID
     )
 
-    $AzureAutomation = (Get-Command "Get-AutomationVariable" -errorAction SilentlyContinue)
-    if ($AzureAutomation) {
-        LoadEnvironmentSettings
-    }
-
     Write-Verbose "CreateSite-Customizations Debug 1"
 
-    $connLandingSite = Helper-Connect-PnPOnline -Url SiteCollectionFullURL
+    $connLandingSite = Helper-Connect-PnPOnline -Url $SiteCollectionFullURL
 
     $pendingSiteCollection = Get-PnPListItem -Connection $connLandingSite -List $SiteListName -Query "
     <View>
@@ -72,18 +67,25 @@ function CreateSite-Customizations {
             }
         }
 
-        if ($siteTemplate -like "ABC") {
-            Write-Verbose "Updating Site"
+        if (($pnpSiteTemplate -like "*Client-Template.xml")) {
+            Write-Verbose "Updating Client Site"
             Helper-Connect-PnPOnline -Url $siteURL
+
+            $spFolder = Add-PnPFolder -Name "Quotes" -Folder "/Shared Documents"
+            $spFolder = Add-PnPFolder -Name "Signed Quotes" -Folder "/Shared Documents/Quotes"
+            $spFolder = Add-PnPFolder -Name "Invoices" -Folder "/Shared Documents"
+
+            $spFolder = Add-PnPFolder -Name "Business Development" -Folder "/Private Documents"
+            $spFolder = Add-PnPFolder -Name "Confidential" -Folder "/Private Documents"
+            $spFolder = Add-PnPFolder -Name "Quotes" -Folder "/Private Documents"
+
+            Remove-PnPContentTypeFromList -List "Shared Documents" -ContentType "Document"
+            Remove-PnPContentTypeFromList -List "Private Documents" -ContentType "Document"
         }
         else {
             Write-Verbose "No customizations to apply"
         }
-
-        # Reconnect to the master site and update the site collection list
-        $connLandingSite = Helper-Connect-PnPOnline -Url $SitesListSiteURL
-
-        # Set the site created date
-        [Microsoft.SharePoint.Client.ListItem]$spListItem = Set-PnPListItem -List $SiteListName -Identity $listItemID -Values @{ "EUMSiteCreated" = [System.DateTime]::Now } -Connection $connLandingSite
     }
+
+    return $True
 }

@@ -5,7 +5,7 @@
         [parameter(Mandatory = $false)][string]$parentURL
     )
 
-    $connSite = Helper-Connect-PnPOnline -Url $siteURL
+    $connSite = Connect-PnPOnline -Url $siteURL
 
     #Check Site Metadata list exists
     $listSiteMetaData = "Site Metadata"
@@ -28,20 +28,13 @@
     }
 }
 
-[string]$DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
-$DistributionFolderArray = $DistributionFolder.Split('\')
-$DistributionFolderArray[$DistributionFolderArray.Count - 1] = ""
-$DistributionFolder = $DistributionFolderArray -join "\"
-
-. $DistributionFolder\EUMSites_Helper.ps1
-
-LoadEnvironmentSettings
+$siteURL = Read-Host "Enter a URL of a tenant site to connect to"
 
 # ---------------------------------------------------------
 # 1. Iterate through all site collections and subsites and remove list instances
 # ---------------------------------------------------------
 Write-Output "Checking all site collections..."
-$connLanding = Helper-Connect-PnPOnline -Url $SitesListSiteURL
+$connLanding = Connect-PnPOnline -Url $siteURL -Interactive
 $siteCollections = Get-PnPTenantSite -Connection $connLanding
 
 $siteCollections | ForEach {
@@ -73,17 +66,17 @@ $siteCollections | ForEach {
         ($SiteURL.ToLower() -notlike "*/sites/compliancepolicycenter") -and 
         ($SiteURL.ToLower() -notlike "*-my.sharepoint.com*") -and 
         ($SiteURL.ToLower() -notlike "http://bot*") -and 
-        ($SiteURL.ToLower() -ne $SitesListSiteURL) -and 
+        ($SiteURL.ToLower() -ne $siteURL) -and 
         ($SiteURL.ToLower() -notlike "https://envisionitdev.sharepoint.com/sites/EUMSitesTemplate")) {
         Write-Host "Remove content type and fields from ""$($SiteURL)""..."
-        $connSite = Helper-Connect-PnPOnline -Url $SiteURL
+        $connSite = Connect-PnPOnline -Url $SiteURL
 
         $contentType = Get-PnPContentType -Identity "Site Metadata"
         if ($contentType.Count -eq 1) {
             Remove-PnPContentType -Identity "Site Metadata" -Force -Connection $connSite
         }
 
-        if ($SiteURL -ne $SitesListSiteURL) {
+        if ($SiteURL -ne $siteURL) {
             Get-PnPField -Group "EUM Columns" -Connection $connSite | Remove-PnPField -Identity { $_.ID } -Force -Connection $connSite
         }
     }

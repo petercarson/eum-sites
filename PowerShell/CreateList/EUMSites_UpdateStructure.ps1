@@ -1,13 +1,7 @@
-﻿[string]$DistributionFolder = (Split-Path $MyInvocation.MyCommand.Path)
-$DistributionFolderArray = $DistributionFolder.Split('\')
-$DistributionFolderArray[$DistributionFolderArray.Count - 1] = ""
-$DistributionFolder = $DistributionFolderArray -join "\"
+﻿$siteURL = Read-Host "Enter the URL of the site to deploy to"
 
-. $DistributionFolder\EUMSites_Helper.ps1
-LoadEnvironmentSettings
-
-Write-Host "Connecting to "$SitesListSiteURL
-$connLanding = Helper-Connect-PnPOnline -Url $SitesListSiteURL
+Write-Host "Connecting to "$siteURL
+$connLanding = Connect-PnPOnline -Url $siteURL -Interactive
 
 $siteCollections = Get-PnPListItem -Connection $connLanding -List $SiteListName -Query "
 <View>

@@ -1,0 +1,664 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workflows_CreateSite_SubmitForm_name": {
+      "type": "String"
+    },
+    "workflows_CreateSite_ProvisionSite_externalid": {
+      "type": "String"
+    },
+    "workflows_ValidateBearerToken_externalid": {
+      "type": "String"
+    },
+    "connections_office365_externalid": {
+      "type": "String"
+    },
+    "connections_sharepointonline_externalid": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "name": "[parameters('workflows_CreateSite_SubmitForm_name')]",
+      "location": "canadacentral",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            },
+            "Divisions List GUID": {
+              "defaultValue": "21b67df9-a804-45ea-9ebc-56ed397b806c",
+              "type": "String"
+            },
+            "Operator Email": {
+              "defaultValue": "pcarson@envisionitdev.onmicrosoft.com",
+              "type": "String"
+            },
+            "Site Address": {
+              "defaultValue": "https://envisionitdev.sharepoint.com/sites/Landing",
+              "type": "String"
+            },
+            "Sites List GUID": {
+              "defaultValue": "35416f1d-f09b-4503-a8ed-106e11c7ea43",
+              "type": "String"
+            },
+            "Use Logic App Approval": {
+              "defaultValue": true,
+              "type": "Bool"
+            }
+          },
+          "triggers": {
+            "manual": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "schema": {
+                  "properties": {
+                    "ContentTypeId": {
+                      "type": "string"
+                    },
+                    "EUMAlias": {
+                      "type": "string"
+                    },
+                    "EUMCreateOneNote": {
+                      "type": "boolean"
+                    },
+                    "EUMCreatePlanner": {
+                      "type": "boolean"
+                    },
+                    "EUMCreateTeam": {
+                      "type": "boolean"
+                    },
+                    "EUMDefaultLinkPermission": {
+                      "type": "string"
+                    },
+                    "EUMDefaultSharingLinkType": {
+                      "type": "string"
+                    },
+                    "EUMDivision": {
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "EUMExternalSharing": {
+                      "type": "string"
+                    },
+                    "EUMSiteTemplate": {
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "EUMSiteURL": {
+                      "type": "string"
+                    },
+                    "EUMSiteVisibility": {
+                      "type": "string"
+                    },
+                    "SitePurpose": {
+                      "type": "string"
+                    },
+                    "Title": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "operationOptions": "IncludeAuthorizationHeadersInOutputs"
+            }
+          },
+          "actions": {
+            "Check_if_there_is_an_approver": {
+              "actions": {
+                "Check_if_Logic_App_Approval_is_enabled": {
+                  "actions": {
+                    "Check_if_approved": {
+                      "actions": {
+                        "Set_Logic_App_content_approval_status": {
+                          "runAfter": {},
+                          "type": "ApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connection": {
+                                "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                              }
+                            },
+                            "method": "post",
+                            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://envisionitdev.sharepoint.com/sites/Landing'))}/tables/@{encodeURIComponent(encodeURIComponent('35416f1d-f09b-4503-a8ed-106e11c7ea43'))}/items/@{encodeURIComponent(encodeURIComponent(body('Create_Sites_item')?['ID']))}/setapprovalstatus",
+                            "queries": {
+                              "approvalAction": "Approve",
+                              "comments": "Approved",
+                              "entityTag": ""
+                            }
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Send_approval_email": [
+                          "Succeeded"
+                        ]
+                      },
+                      "else": {
+                        "actions": {
+                          "Send_rejection_email": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                              "body": {
+                                "Body": "<p>&nbsp;</p>",
+                                "Cc": "@parameters('Operator Email')",
+                                "Subject": "Your site request for @{triggerBody()?['EUMSiteURL']}@{triggerBody()?['EUMAlias']} was rejected",
+                                "To": "@body('Parse_User_JSON')?['upn']"
+                              },
+                              "host": {
+                                "connection": {
+                                  "name": "@parameters('$connections')['office365']['connectionId']"
+                                }
+                              },
+                              "method": "post",
+                              "path": "/v2/Mail"
+                            }
+                          },
+                          "Terminate": {
+                            "runAfter": {
+                              "Send_rejection_email": [
+                                "Succeeded"
+                              ]
+                            },
+                            "type": "Terminate",
+                            "inputs": {
+                              "runStatus": "Succeeded"
+                            }
+                          }
+                        }
+                      },
+                      "expression": {
+                        "and": [
+                          {
+                            "equals": [
+                              "@body('Send_approval_email')?['SelectedOption']",
+                              "Approve"
+                            ]
+                          }
+                        ]
+                      },
+                      "type": "If"
+                    },
+                    "Send_approval_email": {
+                      "runAfter": {},
+                      "type": "ApiConnectionWebhook",
+                      "inputs": {
+                        "body": {
+                          "Message": {
+                            "Importance": "Normal",
+                            "Options": "Approve, Reject",
+                            "Subject": "Approval Request was made by @{body('Parse_User_JSON')?['given_name']} @{body('Parse_User_JSON')?['family_name']} for Team / Site @{triggerBody()?['Title']} at @{triggerBody()?['EUMSiteURL']}@{triggerBody()?['EUMAlias']}",
+                            "To": "@variables('Approver')"
+                          },
+                          "NotificationUrl": "@{listCallbackUrl()}"
+                        },
+                        "host": {
+                          "connection": {
+                            "name": "@parameters('$connections')['office365']['connectionId']"
+                          }
+                        },
+                        "path": "/approvalmail/$subscriptions"
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "else": {
+                    "actions": {
+                      "Terminate_-_Success": {
+                        "runAfter": {
+                          "Update_item_-_Set_Complete_List_Submission_to_Yes": [
+                            "Succeeded"
+                          ]
+                        },
+                        "type": "Terminate",
+                        "inputs": {
+                          "runStatus": "Succeeded"
+                        }
+                      },
+                      "Update_item_-_Set_Complete_List_Submission_to_Yes": {
+                        "runAfter": {},
+                        "type": "ApiConnection",
+                        "inputs": {
+                          "body": {
+                            "EUMCompleteListSubmission": true,
+                            "Title": "@triggerBody()?['Title']"
+                          },
+                          "host": {
+                            "connection": {
+                              "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                            }
+                          },
+                          "method": "patch",
+                          "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://envisionitdev.sharepoint.com/sites/Landing'))}/tables/@{encodeURIComponent(encodeURIComponent('35416f1d-f09b-4503-a8ed-106e11c7ea43'))}/items/@{encodeURIComponent(body('Create_Sites_item')?['ID'])}"
+                        }
+                      }
+                    }
+                  },
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@parameters('Use Logic App Approval')",
+                          true
+                        ]
+                      }
+                    ]
+                  },
+                  "type": "If"
+                }
+              },
+              "runAfter": {
+                "For_each": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Set_content_approval_status": {
+                    "runAfter": {},
+                    "type": "ApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connection": {
+                          "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                        }
+                      },
+                      "method": "post",
+                      "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://envisionitdev.sharepoint.com/sites/Landing'))}/tables/@{encodeURIComponent(encodeURIComponent('35416f1d-f09b-4503-a8ed-106e11c7ea43'))}/items/@{encodeURIComponent(encodeURIComponent(body('Create_Sites_item')?['ID']))}/setapprovalstatus",
+                      "queries": {
+                        "approvalAction": "Approve",
+                        "comments": "No approval required",
+                        "entityTag": ""
+                      }
+                    }
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "not": {
+                      "equals": [
+                        "@variables('Approver')",
+                        ""
+                      ]
+                    }
+                  }
+                ]
+              },
+              "type": "If"
+            },
+            "CreateSite-ProvisionSite": {
+              "runAfter": {
+                "Check_if_there_is_an_approver": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Workflow",
+              "inputs": {
+                "body": {
+                  "ListItemId": "@{body('Create_Sites_item')?['ID']}"
+                },
+                "host": {
+                  "triggerName": "manual",
+                  "workflow": {
+                    "id": "[parameters('workflows_CreateSite_ProvisionSite_externalid')]"
+                  }
+                },
+                "retryPolicy": {
+                  "type": "none"
+                }
+              }
+            },
+            "Create_Sites_item": {
+              "runAfter": {
+                "Parse_Site_Template_JSON": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ApiConnection",
+              "inputs": {
+                "body": {
+                  "EUMAlias": "@triggerBody()?['EUMAlias']",
+                  "EUMCompleteListSubmission": false,
+                  "EUMCreateOneNote": "@triggerBody()?['EUMCreateOneNote']",
+                  "EUMCreatePlanner": "@triggerBody()?['EUMCreatePlanner']",
+                  "EUMCreateTeam": "@triggerBody()?['EUMCreateTeam']",
+                  "EUMDefaultLinkPermission": {
+                    "Value": "@triggerBody()?['EUMDefaultLinkPermission']"
+                  },
+                  "EUMDefaultSharingLinkType": {
+                    "Value": "@triggerBody()?['EUMDefaultSharingLinkType']"
+                  },
+                  "EUMDivision": {
+                    "Id": "@body('Parse_Division_JSON')?['value']"
+                  },
+                  "EUMExternalSharing": {
+                    "Value": "@triggerBody()?['EUMExternalSharing']"
+                  },
+                  "EUMSiteTemplate": {
+                    "Id": "@body('Parse_Site_Template_JSON')?['value']"
+                  },
+                  "EUMSiteURL": "@triggerBody()?['EUMSiteURL']",
+                  "EUMSiteVisibility": {
+                    "Value": "@triggerBody()?['EUMSiteVisibility']"
+                  },
+                  "Requestor": {
+                    "Claims": "@body('Parse_User_JSON')?['upn']"
+                  },
+                  "SitePurpose": "@triggerBody()?['SitePurpose']",
+                  "Title": "@triggerBody()?['Title']"
+                },
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://envisionitdev.sharepoint.com/sites/Landing'))}/tables/@{encodeURIComponent(encodeURIComponent('35416f1d-f09b-4503-a8ed-106e11c7ea43'))}/items"
+              }
+            },
+            "For_each": {
+              "foreach": "@body('Get_Division_list_lookup')?['value']",
+              "actions": {
+                "For_each_2": {
+                  "foreach": "@items('For_each')['Approver']",
+                  "actions": {
+                    "Set_variable": {
+                      "runAfter": {},
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "Approver",
+                        "value": "@items('For_each_2')?['Email']"
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "type": "Foreach"
+                }
+              },
+              "runAfter": {
+                "Get_Division_list_lookup": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Foreach"
+            },
+            "Get_Division_list_lookup": {
+              "runAfter": {
+                "Create_Sites_item": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent(parameters('Site Address')))}/tables/@{encodeURIComponent(encodeURIComponent(parameters('Divisions List GUID')))}/items",
+                "queries": {
+                  "$filter": "Id eq '@{body('Parse_Division_JSON')?['value']}'"
+                }
+              }
+            },
+            "Initialize_ApprovalSelectedOption": {
+              "runAfter": {
+                "Initialize_Approver": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "ApprovalSelectedOption",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "Initialize_Approver": {
+              "runAfter": {
+                "Initialize_DebugOutput": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "Approver",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "Initialize_DebugOutput": {
+              "runAfter": {},
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "DebugOutput",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "Parse_Division_JSON": {
+              "runAfter": {
+                "Parse_User_JSON": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ParseJson",
+              "inputs": {
+                "content": "@triggerBody()?['EUMDivision']",
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "Parse_Site_Template_JSON": {
+              "runAfter": {
+                "Parse_Division_JSON": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ParseJson",
+              "inputs": {
+                "content": "@triggerBody()?['EUMSiteTemplate']",
+                "schema": {
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "Parse_User_JSON": {
+              "runAfter": {
+                "Response": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ParseJson",
+              "inputs": {
+                "content": "@body('ValidateBearerToken')",
+                "schema": {
+                  "properties": {
+                    "acr": {
+                      "type": "string"
+                    },
+                    "aio": {
+                      "type": "string"
+                    },
+                    "amr": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "appid": {
+                      "type": "string"
+                    },
+                    "appidacr": {
+                      "type": "string"
+                    },
+                    "aud": {
+                      "type": "string"
+                    },
+                    "exp": {
+                      "type": "integer"
+                    },
+                    "family_name": {
+                      "type": "string"
+                    },
+                    "given_name": {
+                      "type": "string"
+                    },
+                    "iat": {
+                      "type": "integer"
+                    },
+                    "ipaddr": {
+                      "type": "string"
+                    },
+                    "iss": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "nbf": {
+                      "type": "integer"
+                    },
+                    "oid": {
+                      "type": "string"
+                    },
+                    "rh": {
+                      "type": "string"
+                    },
+                    "scp": {
+                      "type": "string"
+                    },
+                    "sub": {
+                      "type": "string"
+                    },
+                    "tid": {
+                      "type": "string"
+                    },
+                    "unique_name": {
+                      "type": "string"
+                    },
+                    "upn": {
+                      "type": "string"
+                    },
+                    "uti": {
+                      "type": "string"
+                    },
+                    "ver": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "Response": {
+              "runAfter": {
+                "ValidateBearerToken": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Response",
+              "kind": "Http",
+              "inputs": {
+                "body": "@triggerBody()",
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "statusCode": 200
+              }
+            },
+            "ValidateBearerToken": {
+              "runAfter": {
+                "Initialize_ApprovalSelectedOption": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Workflow",
+              "inputs": {
+                "body": "@triggerOutputs()['headers']",
+                "host": {
+                  "triggerName": "manual",
+                  "workflow": {
+                    "id": "[parameters('workflows_ValidateBearerToken_externalid')]"
+                  }
+                }
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "office365": {
+                "connectionId": "[parameters('connections_office365_externalid')]",
+                "connectionName": "office365",
+                "id": "/subscriptions/b906693c-5167-4a56-bbf3-b56142ee7219/providers/Microsoft.Web/locations/canadacentral/managedApis/office365"
+              },
+              "sharepointonline": {
+                "connectionId": "[parameters('connections_sharepointonline_externalid')]",
+                "connectionName": "sharepointonline",
+                "id": "/subscriptions/b906693c-5167-4a56-bbf3-b56142ee7219/providers/Microsoft.Web/locations/canadacentral/managedApis/sharepointonline"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

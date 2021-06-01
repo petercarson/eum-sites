@@ -14,8 +14,14 @@ else {
 
 LoadEnvironmentSettings
 
-$connLandingSite = Helper-Connect-PnPOnline -Url $SitesListSiteURL
+$connLandingSite = Helper-Connect-PnPOnline -Url $SiteCollectionFullURL
 
 Set-PnPStorageEntity -Scope Tenant -Key siteProvisioningApiUrl -Value $siteProvisioningApiUrl -Comment "The Site Provisioning API URL" -Description "The Site Provisioning API URL" -Connection $connLandingSite
 Set-PnPStorageEntity -Scope Tenant -Key siteProvisioningApiClientID -Value $siteProvisioningApiClientID -Comment "The Site Provisioning API Client ID" -Description "The Site Provisioning API Client ID" -Connection $connLandingSite
 Set-PnPStorageEntity -Scope Tenant -Key siteProvisioningExternalSharingPrefix -Value $ExternalSharingPrefix -Comment "External Sharing Prefix" -Description "External Sharing Prefix" -Connection $connLandingSite
+
+<#
+Remove-PnPStorageEntity -Scope Tenant -Key siteProvisioningApiUrl -Connection $connLandingSite
+Remove-PnPStorageEntity -Scope Tenant -Key siteProvisioningApiClientID -Connection $connLandingSite
+Remove-PnPStorageEntity -Scope Tenant -Key siteProvisioningExternalSharingPrefix -Connection $connLandingSite
+#>

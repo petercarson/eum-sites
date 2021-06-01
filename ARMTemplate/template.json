@@ -1,0 +1,2011 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "credentials_PlannerClient_password": {
+            "type": "SecureString"
+        },
+        "connections_teams_name": {
+            "type": "String"
+        },
+        "connections_office365_name": {
+            "type": "String"
+        },
+        "vaults_kvEUMSites_name": {
+            "type": "String"
+        },
+        "connections_azureautomation_name": {
+            "type": "String"
+        },
+        "connections_sharepointonline_name": {
+            "type": "String"
+        },
+        "workflows_ValidateBearerToken_name": {
+            "type": "String"
+        },
+        "workflows_CreateSite_SubmitForm_name": {
+            "type": "String"
+        },
+        "workflows_CreateSite_ProvisionSite_name": {
+            "type": "String"
+        },
+        "workflows_CreateSite_CompleteListSubmission_name": {
+            "type": "String"
+        },
+        "automationAccounts_eitdev_siteprovisioning_name": {
+            "type": "String"
+        },
+        "Divisions List GUID": {
+            "defaultValue": "21b67df9-a804-45ea-9ebc-56ed397b806c",
+            "type": "String"
+        },
+        "Site Address": {
+            "defaultValue": "https://envisionitdev.sharepoint.com/sites/Landing",
+            "type": "String"
+        },
+        "Sites List GUID": {
+            "defaultValue": "35416f1d-f09b-4503-a8ed-106e11c7ea43",
+            "type": "String"
+        },
+        "AutomationAccountName": {
+            "defaultValue": "eitdev-siteprovisioning",
+            "type": "String"
+        },
+        "PrimaryDomain": {
+            "defaultValue": "envisionitdev.onmicrosoft.com",
+            "type": "String"
+        },
+        "ResourceGroupName": {
+            "defaultValue": "EUMSites",
+            "type": "String"
+        },
+        "RootURL": {
+            "defaultValue": "https://envisionitdev.sharepoint.com",
+            "type": "String"
+        },
+        "SiteCollectionAdministrator": {
+            "defaultValue": "pcarson@envisionitdev.onmicrosoft.com",
+            "type": "String"
+        },
+        "SiteCollectionRelativeURL": {
+            "defaultValue": "/sites/landing",
+            "type": "String"
+        },
+        "TeamsSPFxAppId": {
+            "defaultValue": "c62c7bd0-0313-4438-895e-a26ac6a97024",
+            "type": "String"
+        }
+    },
+    "variables": {
+        
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Automation/automationAccounts",
+            "apiVersion": "2020-01-13-preview",
+            "name": "[parameters('automationAccounts_eitdev_siteprovisioning_name')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "name": "Basic"
+                },
+                "encryption": {
+                    "keySource": "Microsoft.Automation",
+                    "identity": {
+                        
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2021-04-01-preview",
+            "name": "[parameters('vaults_kvEUMSites_name')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "Standard"
+                },
+                "tenantId": "64a54bf1-8d0d-4741-a2ae-36eb0bfa4c58",
+                "accessPolicies": [
+                    {
+                        "tenantId": "64a54bf1-8d0d-4741-a2ae-36eb0bfa4c58",
+                        "objectId": "0fbf43c8-839e-45f7-af2f-ca0b4738c770",
+                        "permissions": {
+                            "keys": [
+                                
+                            ],
+                            "secrets": [
+                                "Get",
+                                "List"
+                            ],
+                            "certificates": [
+                                
+                            ]
+                        }
+                    },
+                    {
+                        "tenantId": "64a54bf1-8d0d-4741-a2ae-36eb0bfa4c58",
+                        "objectId": "88025026-b83b-4c51-aad5-d9ad755aeca3",
+                        "permissions": {
+                            "keys": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "secrets": [
+                                "Get",
+                                "List",
+                                "Set",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "certificates": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore",
+                                "ManageContacts",
+                                "ManageIssuers",
+                                "GetIssuers",
+                                "ListIssuers",
+                                "SetIssuers",
+                                "DeleteIssuers"
+                            ]
+                        }
+                    }
+                ],
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": false,
+                "enableSoftDelete": true,
+                "softDeleteRetentionInDays": 90,
+                "enableRbacAuthorization": false,
+                "vaultUri": "https://kveumsites.vault.azure.net/",
+                "provisioningState": "Succeeded"
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_ValidateBearerToken_name')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        
+                    },
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "body": {
+                                            "properties": {
+                                                "Header": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Ensure_we_can_properly_decode_the_User_token_string": {
+                            "runAfter": {
+                                "Initialize_DecodedUserString": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "cases": {
+                                "Case_0": {
+                                    "case": 0,
+                                    "actions": {
+                                        "Set_variable_Base64_Decode_User_String_no_padding": {
+                                            "runAfter": {
+                                                
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "DecodedUserString",
+                                                "value": "@{base64ToString(variables('Base64AuthUser'))}"
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_2": {
+                                    "case": 2,
+                                    "actions": {
+                                        "Set_variable_Base64_Decode_User_String_with_2_padding": {
+                                            "runAfter": {
+                                                
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "DecodedUserString",
+                                                "value": "@{base64ToString(concat(variables('Base64AuthUser'),'=='))}"
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_3": {
+                                    "case": 3,
+                                    "actions": {
+                                        "Set_variable_Base64_Decode_User_String_with_1_padding": {
+                                            "runAfter": {
+                                                
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "DecodedUserString",
+                                                "value": "@{base64ToString(concat(variables('Base64AuthUser'),'='))}"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "default": {
+                                "actions": {
+                                    "Terminate_3": {
+                                        "runAfter": {
+                                            
+                                        },
+                                        "type": "Terminate",
+                                        "inputs": {
+                                            "runError": {
+                                                "code": "500",
+                                                "message": "Unable to Parse User Info"
+                                            },
+                                            "runStatus": "Failed"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": "@mod(length(variables('Base64AuthUser')),4)",
+                            "type": "Switch"
+                        },
+                        "Initialize_AuthorizationToken": {
+                            "runAfter": {
+                                "Parse_Request_Headers": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "AuthorizationToken",
+                                        "type": "string",
+                                        "value": "@body('Parse_Request_Headers')?['Authorization']"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_Base64AuthUser": {
+                            "runAfter": {
+                                "Initialize_AuthorizationToken": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Base64AuthUser",
+                                        "type": "string",
+                                        "value": "@{split(variables('AuthorizationToken'),'.')[1]}"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_DebugOutput": {
+                            "runAfter": {
+                                
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DebugOutput",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_DecodedUserString": {
+                            "runAfter": {
+                                "Initialize_Base64AuthUser": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DecodedUserString",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_Request_Headers": {
+                            "runAfter": {
+                                "Initialize_DebugOutput": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@triggerBody()",
+                                "schema": {
+                                    "properties": {
+                                        "Accept": {
+                                            "type": "string"
+                                        },
+                                        "Accept-Encoding": {
+                                            "type": "string"
+                                        },
+                                        "Accept-Language": {
+                                            "type": "string"
+                                        },
+                                        "Authorization": {
+                                            "type": "string"
+                                        },
+                                        "Connection": {
+                                            "type": "string"
+                                        },
+                                        "Content-Length": {
+                                            "type": "string"
+                                        },
+                                        "Content-Type": {
+                                            "type": "string"
+                                        },
+                                        "Host": {
+                                            "type": "string"
+                                        },
+                                        "Referer": {
+                                            "type": "string"
+                                        },
+                                        "User-Agent": {
+                                            "type": "string"
+                                        },
+                                        "origin": {
+                                            "type": "string"
+                                        },
+                                        "sec-fetch-dest": {
+                                            "type": "string"
+                                        },
+                                        "sec-fetch-mode": {
+                                            "type": "string"
+                                        },
+                                        "sec-fetch-site": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Response": {
+                            "runAfter": {
+                                "Ensure_we_can_properly_decode_the_User_token_string": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": "@variables('DecodedUserString')",
+                                "statusCode": 200
+                            }
+                        }
+                    },
+                    "outputs": {
+                        
+                    }
+                },
+                "parameters": {
+                    
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('connections_azureautomation_name')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[concat('\"',parameters('SiteCollectionAdministrator'),'\"')]",
+                "customParameterValues": {
+                    
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', parameters('connections_azureautomation_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('connections_office365_name')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[concat('\"',parameters('SiteCollectionAdministrator'),'\"')]",
+                "customParameterValues": {
+                    
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', parameters('connections_office365_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('connections_sharepointonline_name')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[concat('\"',parameters('SiteCollectionAdministrator'),'\"')]",
+                "customParameterValues": {
+                    
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', parameters('connections_sharepointonline_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('connections_teams_name')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[concat('\"',parameters('SiteCollectionAdministrator'),'\"')]",
+                "customParameterValues": {
+                    
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', parameters('connections_teams_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/credentials",
+            "apiVersion": "2020-01-13-preview",
+            "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/PlannerClient')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+            ],
+            "properties": {
+                "userName": "c0f68247-3e93-4bbd-99d6-c285a6160bd0",
+                "description": "clientid/secret used with PlannerRefreshToken from KeyVault to get access token for use with Planner operations",
+                "password": "[parameters('credentials_PlannerClient_password')]"
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/variables",
+            "apiVersion": "2020-01-13-preview",
+            "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AutomationAccountName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+            ],
+            "properties": {
+                "isEncrypted": false,
+                "value": "[parameters('AutomationAccountName')]"
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/variables",
+            "apiVersion": "2020-01-13-preview",
+            "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/KeyVaultName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+            ],
+            "properties": {
+                "isEncrypted": false,
+                "value": "\"kvEUMSites\""
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/variables",
+            "apiVersion": "2020-01-13-preview",
+            "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/PrimaryDomain')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+            ],
+            "properties": {
+                "isEncrypted": false,
+                "value": "[parameters('PrimaryDomain')]"
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/variables",
+            "apiVersion": "2020-01-13-preview",
+            "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ResourceGroupName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+            ],
+            "properties": {
+                "isEncrypted": false,
+                "value": "[parameters('ResourceGroupName')]"
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/variables",
+            "apiVersion": "2020-01-13-preview",
+            "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/RootURL')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+            ],
+            "properties": {
+                "isEncrypted": false,
+                "value": "[parameters('RootURL')]"
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/variables",
+            "apiVersion": "2020-01-13-preview",
+            "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/SiteCollectionAdministrator')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+            ],
+            "properties": {
+                "isEncrypted": false,
+                "value": "[parameters('SiteCollectionAdministrator')]"
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/variables",
+            "apiVersion": "2020-01-13-preview",
+            "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/SiteCollectionRelativeURL')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+            ],
+            "properties": {
+                "isEncrypted": false,
+                "value": "[parameters('SiteCollectionRelativeURL')]"
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/variables",
+            "apiVersion": "2020-01-13-preview",
+            "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/TeamsSPFxAppId')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+            ],
+            "properties": {
+                "isEncrypted": false,
+                "value": "[parameters('TeamsSPFxAppId')]"
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2021-04-01-preview",
+            "name": "[concat(parameters('vaults_kvEUMSites_name'), '/PlannerRefreshToken')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_kvEUMSites_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_CreateSite_CompleteListSubmission_name')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows', parameters('workflows_CreateSite_ProvisionSite_name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('connections_sharepointonline_name'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {
+                                
+                            },
+                            "type": "Object"
+                        },
+                        "Site Address": {
+                            "defaultValue": "[parameters('Site Address')]",
+                            "type": "String"
+                        },
+                        "Sites List GUID": {
+                            "defaultValue": "[parameters('Sites List GUID')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "When_an_item_or_a_file_is_modified": {
+                            "recurrence": {
+                                "frequency": "Minute",
+                                "interval": 10
+                            },
+                            "splitOn": "@triggerBody()?['value']",
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/datasets/@{encodeURIComponent(encodeURIComponent(parameters('Site Address')))}/tables/@{encodeURIComponent(encodeURIComponent(parameters('Sites List GUID')))}/onchangeditems"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Condition_-_Check_if_not_created,_approved,_and_marked_for_completion": {
+                            "actions": {
+                                "CreateSite-ProvisionSite": {
+                                    "runAfter": {
+                                        
+                                    },
+                                    "type": "Workflow",
+                                    "inputs": {
+                                        "body": {
+                                            "ListItemId": "@{triggerBody()?['ID']}"
+                                        },
+                                        "host": {
+                                            "triggerName": "manual",
+                                            "workflow": {
+                                                "id": "[resourceId('Microsoft.Logic/workflows', parameters('workflows_CreateSite_ProvisionSite_name'))]"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_Job_Output": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@variables('SiteCreated')",
+                                            ""
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@triggerBody()?['{ModerationStatus}']",
+                                                    "Approved"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['EUMCompleteListSubmission']",
+                                            true
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Initialize_DebugOutput": {
+                            "runAfter": {
+                                
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DebugOutput",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_Job_Output": {
+                            "runAfter": {
+                                "Initialize_SiteCreated": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Job Output",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_SiteCreated": {
+                            "runAfter": {
+                                "Initialize_DebugOutput": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "SiteCreated",
+                                        "type": "string",
+                                        "value": "@triggerBody()?['EUMSiteCreated']"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "outputs": {
+                        
+                    }
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "sharepointonline": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_sharepointonline_name'))]",
+                                "connectionName": "sharepointonline",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/sharepointonline')]"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_CreateSite_ProvisionSite_name')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('connections_azureautomation_name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('connections_office365_name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('connections_sharepointonline_name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('connections_teams_name'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {
+                                
+                            },
+                            "type": "Object"
+                        },
+                        "Communication Method": {
+                            "defaultValue": "Email",
+                            "type": "String"
+                        },
+                        "Operator Email": {
+                            "defaultValue": "[parameters('SiteCollectionAdministrator')]",
+                            "type": "String"
+                        },
+                        "Site Address": {
+                            "defaultValue": "[parameters('Site Address')]",
+                            "type": "String"
+                        },
+                        "Sites List GUID": {
+                            "defaultValue": "[parameters('Sites List GUID')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "ListItemId": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Check_for_missing_ListItemID": {
+                            "actions": {
+                                "Terminate_Missing_ListItemID": {
+                                    "runAfter": {
+                                        
+                                    },
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runError": {
+                                            "code": "500",
+                                            "message": "Missing ListItemID"
+                                        },
+                                        "runStatus": "Failed"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_DebugOutput": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['ListItemId']",
+                                            "@null"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Check_if_the_site_was_successfully_created": {
+                            "actions": {
+                                "Check_for_Teams_or_Email_success_message": {
+                                    "actions": {
+                                        "Send_success_email": {
+                                            "runAfter": {
+                                                
+                                            },
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": {
+                                                    "Body": "<p>Your site request for @{body('Get_Provisioned_Site')['Title']} has been approved and created<br>\n<br>\n@{body('Get_Provisioned_Site')?['EUMSiteURL']}</p>",
+                                                    "Cc": "@parameters('Operator Email')",
+                                                    "Subject": "Your site request for @{body('Get_Provisioned_Site')['Title']} has been approved and created",
+                                                    "To": "@parameters('Operator Email')"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/v2/Mail"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Get_Provisioned_Site": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "else": {
+                                        "actions": {
+                                            "Post_success_chat": {
+                                                "runAfter": {
+                                                    
+                                                },
+                                                "type": "ApiConnection",
+                                                "inputs": {
+                                                    "body": {
+                                                        "messageBody": "<p>Your site request for @{body('Get_Provisioned_Site')['Title']} has been approved and created<br>\n<br>\n@{body('Get_Provisioned_Site')?['EUMSiteURL']}</p>",
+                                                        "recipient": "@parameters('Operator Email')"
+                                                    },
+                                                    "host": {
+                                                        "connection": {
+                                                            "name": "@parameters('$connections')['teams']['connectionId']"
+                                                        }
+                                                    },
+                                                    "method": "post",
+                                                    "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Chat with Flow bot')}"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@parameters('Communication Method')",
+                                                    "Email"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Get_Provisioned_Site": {
+                                    "runAfter": {
+                                        
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                                            }
+                                        },
+                                        "method": "get",
+                                        "path": "/datasets/@{encodeURIComponent(encodeURIComponent(parameters('Site Address')))}/tables/@{encodeURIComponent(encodeURIComponent(parameters('Sites List GUID')))}/items/@{encodeURIComponent(triggerBody()?['ListItemId'])}"
+                                    }
+                                },
+                                "Response_-_Success": {
+                                    "runAfter": {
+                                        "Check_for_Teams_or_Email_success_message": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "body": "Success",
+                                        "statusCode": 200
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Until": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Check_for_Teams_or_Email_failure_message": {
+                                        "actions": {
+                                            "Send_error_email": {
+                                                "runAfter": {
+                                                    
+                                                },
+                                                "type": "ApiConnection",
+                                                "inputs": {
+                                                    "body": {
+                                                        "Body": "<p>The site request did not complete successfully</p>",
+                                                        "Subject": "The site request for @{body('Get_Requested_Site')['Title']} did not complete successfully",
+                                                        "To": "@parameters('Operator Email')"
+                                                    },
+                                                    "host": {
+                                                        "connection": {
+                                                            "name": "@parameters('$connections')['office365']['connectionId']"
+                                                        }
+                                                    },
+                                                    "method": "post",
+                                                    "path": "/v2/Mail"
+                                                }
+                                            }
+                                        },
+                                        "runAfter": {
+                                            
+                                        },
+                                        "else": {
+                                            "actions": {
+                                                "Post_error_chat": {
+                                                    "runAfter": {
+                                                        
+                                                    },
+                                                    "type": "ApiConnection",
+                                                    "inputs": {
+                                                        "body": {
+                                                            "messageBody": "<p>The site request for @{body('Get_Requested_Site')['Title']}did not complete successfully</p>",
+                                                            "recipient": "@parameters('Operator Email')"
+                                                        },
+                                                        "host": {
+                                                            "connection": {
+                                                                "name": "@parameters('$connections')['teams']['connectionId']"
+                                                            }
+                                                        },
+                                                        "method": "post",
+                                                        "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('Flow bot')}/location/@{encodeURIComponent('Chat with Flow bot')}"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "expression": {
+                                            "and": [
+                                                {
+                                                    "equals": [
+                                                        "@parameters('Communication Method')",
+                                                        "Email"
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "type": "If"
+                                    },
+                                    "Response_-_Failure": {
+                                        "runAfter": {
+                                            "Check_for_Teams_or_Email_failure_message": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Response",
+                                        "kind": "Http",
+                                        "inputs": {
+                                            "body": "Error",
+                                            "statusCode": 500
+                                        }
+                                    },
+                                    "Terminate": {
+                                        "runAfter": {
+                                            "Response_-_Failure": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Terminate",
+                                        "inputs": {
+                                            "runError": {
+                                                "message": "@variables('Job Output')"
+                                            },
+                                            "runStatus": "Failed"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "startsWith": [
+                                            "@variables('Job Output')",
+                                            "Success"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Condition_-_Check_if_already_created_or_not_approved": {
+                            "actions": {
+                                "Response_-_No_further_processing_needed": {
+                                    "runAfter": {
+                                        
+                                    },
+                                    "type": "Response",
+                                    "kind": "Http",
+                                    "inputs": {
+                                        "statusCode": 200
+                                    }
+                                },
+                                "Terminate_-_No_further_processing_needed": {
+                                    "runAfter": {
+                                        "Response_-_No_further_processing_needed": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_Job_Output": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "or": [
+                                    {
+                                        "not": {
+                                            "equals": [
+                                                "@variables('SiteCreated')",
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "not": {
+                                                    "equals": [
+                                                        "@body('Get_Requested_Site')?['{ModerationStatus}']",
+                                                        "Approved"
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Get_Requested_Site": {
+                            "runAfter": {
+                                "Check_for_missing_ListItemID": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/datasets/@{encodeURIComponent(encodeURIComponent(parameters('Site Address')))}/tables/@{encodeURIComponent(encodeURIComponent(parameters('Sites List GUID')))}/items/@{encodeURIComponent(triggerBody()?['ListItemId'])}"
+                            }
+                        },
+                        "Initialize_DebugOutput": {
+                            "runAfter": {
+                                
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DebugOutput",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_Job_Output": {
+                            "runAfter": {
+                                "Initialize_SiteCreated": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Job Output",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_SiteCreated": {
+                            "runAfter": {
+                                "Get_Requested_Site": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "SiteCreated",
+                                        "type": "string",
+                                        "value": "@body('Get_Requested_Site')?['EUMSiteCreated']"
+                                    }
+                                ]
+                            }
+                        },
+                        "Until": {
+                            "actions": {
+                                "Condition": {
+                                    "actions": {
+                                        "Delay": {
+                                            "runAfter": {
+                                                
+                                            },
+                                            "type": "Wait",
+                                            "inputs": {
+                                                "interval": {
+                                                    "count": 5,
+                                                    "unit": "Minute"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Set_variable_Job_Output": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "startsWith": [
+                                                    "@variables('Job Output')",
+                                                    "Suspended"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Create_job": {
+                                    "runAfter": {
+                                        
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "properties": {
+                                                "parameters": {
+                                                    "listItemID": "@triggerBody()?['ListItemId']"
+                                                }
+                                            }
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azureautomation']['connectionId']"
+                                            }
+                                        },
+                                        "method": "put",
+                                        "path": "/subscriptions/@{encodeURIComponent('b906693c-5167-4a56-bbf3-b56142ee7219')}/resourceGroups/@{encodeURIComponent('EUMSites')}/providers/Microsoft.Automation/automationAccounts/@{encodeURIComponent('eitdev-siteprovisioning')}/jobs",
+                                        "queries": {
+                                            "runbookName": "CreateSite",
+                                            "wait": true,
+                                            "x-ms-api-version": "2015-10-31"
+                                        }
+                                    }
+                                },
+                                "Get_job_output": {
+                                    "runAfter": {
+                                        "Create_job": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azureautomation']['connectionId']"
+                                            }
+                                        },
+                                        "method": "get",
+                                        "path": "/subscriptions/@{encodeURIComponent('b906693c-5167-4a56-bbf3-b56142ee7219')}/resourceGroups/@{encodeURIComponent('EUMSites')}/providers/Microsoft.Automation/automationAccounts/@{encodeURIComponent('eitdev-siteprovisioning')}/jobs/@{encodeURIComponent(body('Create_job')?['properties']?['jobId'])}/output",
+                                        "queries": {
+                                            "x-ms-api-version": "2015-10-31"
+                                        }
+                                    }
+                                },
+                                "Set_variable_Job_Output": {
+                                    "runAfter": {
+                                        "Get_job_output": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "Job Output",
+                                        "value": "@{body('Get_job_output')}"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Condition_-_Check_if_already_created_or_not_approved": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": "@not(startsWith(variables('Job Output'), 'Suspended'))",
+                            "limit": {
+                                "count": 60,
+                                "timeout": "PT1H"
+                            },
+                            "type": "Until"
+                        }
+                    },
+                    "outputs": {
+                        
+                    }
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureautomation": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_azureautomation_name'))]",
+                                "connectionName": "azureautomation",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureautomation')]"
+                            },
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_office365_name'))]",
+                                "connectionName": "office365",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            },
+                            "sharepointonline": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_sharepointonline_name'))]",
+                                "connectionName": "sharepointonline",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/sharepointonline')]"
+                            },
+                            "teams": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_teams_name'))]",
+                                "connectionName": "teams",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/teams')]"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_CreateSite_SubmitForm_name')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows', parameters('workflows_CreateSite_ProvisionSite_name'))]",
+                "[resourceId('Microsoft.Logic/workflows', parameters('workflows_ValidateBearerToken_name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('connections_office365_name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('connections_sharepointonline_name'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {
+                                
+                            },
+                            "type": "Object"
+                        },
+                        "Divisions List GUID": {
+                            "defaultValue": "[parameters('Divisions List GUID')]",
+                            "type": "String"
+                        },
+                        "Operator Email": {
+                            "defaultValue": "[parameters('SiteCollectionAdministrator')]",
+                            "type": "String"
+                        },
+                        "Site Address": {
+                            "defaultValue": "[parameters('Site Address')]",
+                            "type": "String"
+                        },
+                        "Sites List GUID": {
+                            "defaultValue": "[parameters('Sites List GUID')]",
+                            "type": "String"
+                        },
+                        "Use Logic App Approval": {
+                            "defaultValue": true,
+                            "type": "Bool"
+                        }
+                    },
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "ContentTypeId": {
+                                            "type": "string"
+                                        },
+                                        "EUMAlias": {
+                                            "type": "string"
+                                        },
+                                        "EUMCreateOneNote": {
+                                            "type": "boolean"
+                                        },
+                                        "EUMCreatePlanner": {
+                                            "type": "boolean"
+                                        },
+                                        "EUMCreateTeam": {
+                                            "type": "boolean"
+                                        },
+                                        "EUMDefaultLinkPermission": {
+                                            "type": "string"
+                                        },
+                                        "EUMDefaultSharingLinkType": {
+                                            "type": "string"
+                                        },
+                                        "EUMDivision": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "EUMExternalSharing": {
+                                            "type": "string"
+                                        },
+                                        "EUMSiteTemplate": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "EUMSiteURL": {
+                                            "type": "string"
+                                        },
+                                        "EUMSiteVisibility": {
+                                            "type": "string"
+                                        },
+                                        "SitePurpose": {
+                                            "type": "string"
+                                        },
+                                        "Title": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "operationOptions": "IncludeAuthorizationHeadersInOutputs"
+                        }
+                    },
+                    "actions": {
+                        "Check_if_there_is_an_approver": {
+                            "actions": {
+                                "Check_if_Logic_App_Approval_is_enabled": {
+                                    "actions": {
+                                        "Check_if_approved": {
+                                            "actions": {
+                                                "Set_Logic_App_content_approval_status": {
+                                                    "runAfter": {
+                                                        
+                                                    },
+                                                    "type": "ApiConnection",
+                                                    "inputs": {
+                                                        "host": {
+                                                            "connection": {
+                                                                "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                                                            }
+                                                        },
+                                                        "method": "post",
+                                                        "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://envisionitdev.sharepoint.com/sites/Landing'))}/tables/@{encodeURIComponent(encodeURIComponent('35416f1d-f09b-4503-a8ed-106e11c7ea43'))}/items/@{encodeURIComponent(encodeURIComponent(body('Create_Sites_item')?['ID']))}/setapprovalstatus",
+                                                        "queries": {
+                                                            "approvalAction": "Approve",
+                                                            "comments": "Approved",
+                                                            "entityTag": ""
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Send_approval_email": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "else": {
+                                                "actions": {
+                                                    "Send_rejection_email": {
+                                                        "runAfter": {
+                                                            
+                                                        },
+                                                        "type": "ApiConnection",
+                                                        "inputs": {
+                                                            "body": {
+                                                                "Body": "<p>&nbsp;</p>",
+                                                                "Cc": "@parameters('Operator Email')",
+                                                                "Subject": "Your site request for @{triggerBody()?['EUMSiteURL']}@{triggerBody()?['EUMAlias']} was rejected",
+                                                                "To": "@body('Parse_User_JSON')?['upn']"
+                                                            },
+                                                            "host": {
+                                                                "connection": {
+                                                                    "name": "@parameters('$connections')['office365']['connectionId']"
+                                                                }
+                                                            },
+                                                            "method": "post",
+                                                            "path": "/v2/Mail"
+                                                        }
+                                                    },
+                                                    "Terminate": {
+                                                        "runAfter": {
+                                                            "Send_rejection_email": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "Terminate",
+                                                        "inputs": {
+                                                            "runStatus": "Succeeded"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "equals": [
+                                                            "@body('Send_approval_email')?['SelectedOption']",
+                                                            "Approve"
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If"
+                                        },
+                                        "Send_approval_email": {
+                                            "runAfter": {
+                                                
+                                            },
+                                            "type": "ApiConnectionWebhook",
+                                            "inputs": {
+                                                "body": {
+                                                    "Message": {
+                                                        "Importance": "Normal",
+                                                        "Options": "Approve, Reject",
+                                                        "Subject": "Approval Request was made by @{body('Parse_User_JSON')?['given_name']} @{body('Parse_User_JSON')?['family_name']} for Team / Site @{triggerBody()?['Title']} at @{triggerBody()?['EUMSiteURL']}@{triggerBody()?['EUMAlias']}",
+                                                        "To": "@variables('Approver')"
+                                                    },
+                                                    "NotificationUrl": "@{listCallbackUrl()}"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                                    }
+                                                },
+                                                "path": "/approvalmail/$subscriptions"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        
+                                    },
+                                    "else": {
+                                        "actions": {
+                                            "Terminate_-_Success": {
+                                                "runAfter": {
+                                                    "Update_item_-_Set_Complete_List_Submission_to_Yes": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "Terminate",
+                                                "inputs": {
+                                                    "runStatus": "Succeeded"
+                                                }
+                                            },
+                                            "Update_item_-_Set_Complete_List_Submission_to_Yes": {
+                                                "runAfter": {
+                                                    
+                                                },
+                                                "type": "ApiConnection",
+                                                "inputs": {
+                                                    "body": {
+                                                        "EUMCompleteListSubmission": true,
+                                                        "Title": "@triggerBody()?['Title']"
+                                                    },
+                                                    "host": {
+                                                        "connection": {
+                                                            "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                                                        }
+                                                    },
+                                                    "method": "patch",
+                                                    "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://envisionitdev.sharepoint.com/sites/Landing'))}/tables/@{encodeURIComponent(encodeURIComponent('35416f1d-f09b-4503-a8ed-106e11c7ea43'))}/items/@{encodeURIComponent(body('Create_Sites_item')?['ID'])}"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@parameters('Use Logic App Approval')",
+                                                    true
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                }
+                            },
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Set_content_approval_status": {
+                                        "runAfter": {
+                                            
+                                        },
+                                        "type": "ApiConnection",
+                                        "inputs": {
+                                            "host": {
+                                                "connection": {
+                                                    "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                                                }
+                                            },
+                                            "method": "post",
+                                            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://envisionitdev.sharepoint.com/sites/Landing'))}/tables/@{encodeURIComponent(encodeURIComponent('35416f1d-f09b-4503-a8ed-106e11c7ea43'))}/items/@{encodeURIComponent(encodeURIComponent(body('Create_Sites_item')?['ID']))}/setapprovalstatus",
+                                            "queries": {
+                                                "approvalAction": "Approve",
+                                                "comments": "No approval required",
+                                                "entityTag": ""
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "not": {
+                                            "equals": [
+                                                "@variables('Approver')",
+                                                ""
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "CreateSite-ProvisionSite": {
+                            "runAfter": {
+                                "Check_if_there_is_an_approver": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Workflow",
+                            "inputs": {
+                                "body": {
+                                    "ListItemId": "@{body('Create_Sites_item')?['ID']}"
+                                },
+                                "host": {
+                                    "triggerName": "manual",
+                                    "workflow": {
+                                        "id": "[resourceId('Microsoft.Logic/workflows', parameters('workflows_CreateSite_ProvisionSite_name'))]"
+                                    }
+                                },
+                                "retryPolicy": {
+                                    "type": "none"
+                                }
+                            }
+                        },
+                        "Create_Sites_item": {
+                            "runAfter": {
+                                "Parse_Site_Template_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "EUMAlias": "@triggerBody()?['EUMAlias']",
+                                    "EUMCompleteListSubmission": false,
+                                    "EUMCreateOneNote": "@triggerBody()?['EUMCreateOneNote']",
+                                    "EUMCreatePlanner": "@triggerBody()?['EUMCreatePlanner']",
+                                    "EUMCreateTeam": "@triggerBody()?['EUMCreateTeam']",
+                                    "EUMDefaultLinkPermission": {
+                                        "Value": "@triggerBody()?['EUMDefaultLinkPermission']"
+                                    },
+                                    "EUMDefaultSharingLinkType": {
+                                        "Value": "@triggerBody()?['EUMDefaultSharingLinkType']"
+                                    },
+                                    "EUMDivision": {
+                                        "Id": "@body('Parse_Division_JSON')?['value']"
+                                    },
+                                    "EUMExternalSharing": {
+                                        "Value": "@triggerBody()?['EUMExternalSharing']"
+                                    },
+                                    "EUMSiteTemplate": {
+                                        "Id": "@body('Parse_Site_Template_JSON')?['value']"
+                                    },
+                                    "EUMSiteURL": "@triggerBody()?['EUMSiteURL']",
+                                    "EUMSiteVisibility": {
+                                        "Value": "@triggerBody()?['EUMSiteVisibility']"
+                                    },
+                                    "Requestor": {
+                                        "Claims": "@body('Parse_User_JSON')?['upn']"
+                                    },
+                                    "SitePurpose": "@triggerBody()?['SitePurpose']",
+                                    "Title": "@triggerBody()?['Title']"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('https://envisionitdev.sharepoint.com/sites/Landing'))}/tables/@{encodeURIComponent(encodeURIComponent('35416f1d-f09b-4503-a8ed-106e11c7ea43'))}/items"
+                            }
+                        },
+                        "For_each": {
+                            "foreach": "@body('Get_Division_list_lookup')?['value']",
+                            "actions": {
+                                "For_each_2": {
+                                    "foreach": "@items('For_each')['Approver']",
+                                    "actions": {
+                                        "Set_variable": {
+                                            "runAfter": {
+                                                
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "Approver",
+                                                "value": "@items('For_each_2')?['Email']"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        
+                                    },
+                                    "type": "Foreach"
+                                }
+                            },
+                            "runAfter": {
+                                "Get_Division_list_lookup": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Get_Division_list_lookup": {
+                            "runAfter": {
+                                "Create_Sites_item": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/datasets/@{encodeURIComponent(encodeURIComponent(parameters('Site Address')))}/tables/@{encodeURIComponent(encodeURIComponent(parameters('Divisions List GUID')))}/items",
+                                "queries": {
+                                    "$filter": "Id eq '@{body('Parse_Division_JSON')?['value']}'"
+                                }
+                            }
+                        },
+                        "Initialize_ApprovalSelectedOption": {
+                            "runAfter": {
+                                "Initialize_Approver": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ApprovalSelectedOption",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_Approver": {
+                            "runAfter": {
+                                "Initialize_DebugOutput": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Approver",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_DebugOutput": {
+                            "runAfter": {
+                                
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "DebugOutput",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_Division_JSON": {
+                            "runAfter": {
+                                "Parse_User_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@triggerBody()?['EUMDivision']",
+                                "schema": {
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Parse_Site_Template_JSON": {
+                            "runAfter": {
+                                "Parse_Division_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@triggerBody()?['EUMSiteTemplate']",
+                                "schema": {
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Parse_User_JSON": {
+                            "runAfter": {
+                                "Response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('ValidateBearerToken')",
+                                "schema": {
+                                    "properties": {
+                                        "acr": {
+                                            "type": "string"
+                                        },
+                                        "aio": {
+                                            "type": "string"
+                                        },
+                                        "amr": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "appid": {
+                                            "type": "string"
+                                        },
+                                        "appidacr": {
+                                            "type": "string"
+                                        },
+                                        "aud": {
+                                            "type": "string"
+                                        },
+                                        "exp": {
+                                            "type": "integer"
+                                        },
+                                        "family_name": {
+                                            "type": "string"
+                                        },
+                                        "given_name": {
+                                            "type": "string"
+                                        },
+                                        "iat": {
+                                            "type": "integer"
+                                        },
+                                        "ipaddr": {
+                                            "type": "string"
+                                        },
+                                        "iss": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "nbf": {
+                                            "type": "integer"
+                                        },
+                                        "oid": {
+                                            "type": "string"
+                                        },
+                                        "rh": {
+                                            "type": "string"
+                                        },
+                                        "scp": {
+                                            "type": "string"
+                                        },
+                                        "sub": {
+                                            "type": "string"
+                                        },
+                                        "tid": {
+                                            "type": "string"
+                                        },
+                                        "unique_name": {
+                                            "type": "string"
+                                        },
+                                        "upn": {
+                                            "type": "string"
+                                        },
+                                        "uti": {
+                                            "type": "string"
+                                        },
+                                        "ver": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Response": {
+                            "runAfter": {
+                                "ValidateBearerToken": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": "@triggerBody()",
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "statusCode": 200
+                            }
+                        },
+                        "ValidateBearerToken": {
+                            "runAfter": {
+                                "Initialize_ApprovalSelectedOption": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Workflow",
+                            "inputs": {
+                                "body": "@triggerOutputs()['headers']",
+                                "host": {
+                                    "triggerName": "manual",
+                                    "workflow": {
+                                        "id": "[resourceId('Microsoft.Logic/workflows', parameters('workflows_ValidateBearerToken_name'))]"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {
+                        
+                    }
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_office365_name'))]",
+                                "connectionName": "office365",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            },
+                            "sharepointonline": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_sharepointonline_name'))]",
+                                "connectionName": "sharepointonline",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/sharepointonline')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

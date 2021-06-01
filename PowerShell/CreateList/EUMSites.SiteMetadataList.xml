@@ -1,28 +1,28 @@
 <?xml version="1.0"?>
 <pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2020/02/ProvisioningSchema">
-  <pnp:Preferences Generator="OfficeDevPnP.Core, Version=3.19.2003.0, Culture=neutral, PublicKeyToken=5e633289e95c321a" />
-  <pnp:Templates ID="CONTAINER-TEMPLATE-9D913E99AFBC464D824FE003FD9CEF2B">
-    <pnp:ProvisioningTemplate ID="TEMPLATE-9D913E99AFBC464D824FE003FD9CEF2B" Version="1" BaseSiteTemplate="" Scope="RootSite">
+  <pnp:Preferences Generator="PnP.Framework, Version=1.4.0.0, Culture=neutral, PublicKeyToken=null" />
+  <pnp:Templates ID="CONTAINER-TEMPLATE-F56AB25DB4A24C6C84452B43F945DE35">
+    <pnp:ProvisioningTemplate ID="TEMPLATE-F56AB25DB4A24C6C84452B43F945DE35" Version="1" BaseSiteTemplate="" Scope="RootSite">
       <pnp:SiteFields>
-        <Field Type="Text" DisplayName="Parent URL" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{13942e0b-b747-41c5-a9f0-aade28718abc}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMParentURL" Name="EUMParentURL" CustomFormatter="">
+        <Field Type="Text" DisplayName="Parent URL" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{13942e0b-b747-41c5-a9f0-aade28718abc}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMParentURL" Name="EUMParentURL" CustomFormatter="" AllowDeletion="TRUE">
         </Field>
-        <Field Type="Boolean" DisplayName="Subsite" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{67ec520e-cf70-47ab-a62e-f332782bef91}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMIsSubsite" Name="EUMIsSubsite" CustomFormatter="" Required="FALSE">
+        <Field Type="Boolean" DisplayName="Subsite" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="EUM Columns" ID="{67ec520e-cf70-47ab-a62e-f332782bef91}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMIsSubsite" Name="EUMIsSubsite" CustomFormatter="" Required="FALSE" AllowDeletion="TRUE">
           <Default>0</Default>
         </Field>
         <Field Type="Note" DisplayName="Purpose" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" Group="EUM Columns" ID="{66ccfe1b-0776-4870-bead-616da317abdb}" SourceID="{2e6acc72-9f0a-43c3-923d-fd4a0eb3feb3}" StaticName="SitePurpose" Name="SitePurpose" CustomFormatter="" RestrictedMode="TRUE" RichTextMode="Compatible" IsolateStyles="FALSE" AppendOnly="FALSE" UnlimitedLengthInDocumentLibrary="FALSE" AllowDeletion="TRUE">
         </Field>
-        <Field Type="Note" DisplayName="Breadcrumb HTML" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="TRUE" RichTextMode="FullHtml" IsolateStyles="TRUE" Sortable="FALSE" Group="EUM Columns" ID="{aa755f30-c1f5-489a-a31d-6bb850cb182c}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMBreadcrumbHTML" Name="EUMBreadcrumbHTML" CustomFormatter="" RestrictedMode="TRUE" AppendOnly="FALSE" UnlimitedLengthInDocumentLibrary="FALSE">
+        <Field Type="Note" DisplayName="Breadcrumb HTML" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="TRUE" RichTextMode="FullHtml" IsolateStyles="TRUE" Sortable="FALSE" Group="EUM Columns" ID="{aa755f30-c1f5-489a-a31d-6bb850cb182c}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMBreadcrumbHTML" Name="EUMBreadcrumbHTML" CustomFormatter="" RestrictedMode="TRUE" AppendOnly="FALSE" UnlimitedLengthInDocumentLibrary="FALSE" AllowDeletion="TRUE">
         </Field>
-        <Field Type="Text" DisplayName="Site Template" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{7a01a24f-a7b3-4d9c-bd48-60d7895290f7}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMSiteTemplate" Name="EUMSiteTemplate" CustomFormatter="">
+        <Field Type="Text" DisplayName="Site Template" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{7a01a24f-a7b3-4d9c-bd48-60d7895290f7}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMSiteTemplate" Name="EUMSiteTemplate" CustomFormatter="" AllowDeletion="TRUE">
         </Field>
         <Field Type="HTML" DisplayName="Group Summary" RichText="TRUE" RichTextMode="ThemeHtml" Required="FALSE" Group="EUM Columns" ID="{97622179-c8e0-4c63-bb07-edda4350013a}" SourceID="{b722af88-a83d-4dcc-9a6d-8d476f034ea2}" StaticName="EUMGroupSummary" Name="EUMGroupSummary" AllowDeletion="TRUE" />
         <Field Type="Text" Name="EUMAlias" ID="{30c15ea5-28b2-415f-abe1-5887cca7fcca}" Description="" DisplayName="Alias" StaticName="EUMAlias" Group="EUM Columns" Hidden="" Required="FALSE" Sealed="" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" SourceID="{8b0d841b-a2ff-47b8-9ab2-fb8b66a1e6b8}" AllowDeletion="TRUE">
         </Field>
-        <Field Type="Text" DisplayName="Division" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{e93efad7-759d-4e45-81f5-5add566efe28}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMDivision" Name="EUMDivision" CustomFormatter="">
+        <Field Type="Text" DisplayName="Division" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{e93efad7-759d-4e45-81f5-5add566efe28}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMDivision" Name="EUMDivision" CustomFormatter="" AllowDeletion="TRUE">
         </Field>
         <Field Type="Text" DisplayName="Site URL" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="EUM Columns" ID="{ba0008f5-2d95-4e44-8758-44fc8b544e6f}" SourceID="{09862c64-9219-4963-ae0e-d3361604f74d}" StaticName="EUMSiteURL" Name="EUMSiteURL" CustomFormatter="" AllowDeletion="TRUE">
         </Field>
-        <Field Type="Choice" DisplayName="Site Visibility" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" Group="EUM Columns" ID="{64dcb5fa-8eef-4194-803b-be0897a8628d}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMSiteVisibility" Name="EUMSiteVisibility" CustomFormatter="">
+        <Field Type="Choice" DisplayName="Site Visibility" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" Group="EUM Columns" ID="{64dcb5fa-8eef-4194-803b-be0897a8628d}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMSiteVisibility" Name="EUMSiteVisibility" CustomFormatter="" AllowDeletion="TRUE">
           <Default>Public</Default>
           <CHOICES>
             <CHOICE>Public</CHOICE>
@@ -30,7 +30,7 @@
             <CHOICE>Hidden</CHOICE>
           </CHOICES>
         </Field>
-        <Field Type="DateTime" DisplayName="Site Created" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="DateTime" Group="EUM Columns" FriendlyDisplayFormat="Disabled" ID="{84b67cff-f12f-4587-9544-151557fe84d3}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMSiteCreated" Name="EUMSiteCreated" CustomFormatter="" CalType="0">
+        <Field Type="DateTime" DisplayName="Site Created" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="DateTime" Group="EUM Columns" FriendlyDisplayFormat="Disabled" ID="{84b67cff-f12f-4587-9544-151557fe84d3}" SourceID="{c19d4ea2-b429-4b7b-ab9e-6759b5416956}" StaticName="EUMSiteCreated" Name="EUMSiteCreated" CustomFormatter="" CalType="0" AllowDeletion="TRUE">
         </Field>
       </pnp:SiteFields>
       <pnp:ContentTypes>
@@ -59,7 +59,7 @@
             <pnp:ContentTypeBinding ContentTypeID="0x0120" />
           </pnp:ContentTypeBindings>
           <pnp:Views>
-            <View Name="{F17FECF7-B5FC-4BE7-AE53-77F890B3B008}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/SiteMetadata/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
+            <View Name="{5F8A4461-7457-4FFF-9C3F-4B3B242FFA84}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/SiteMetadata/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
               <Query>
                 <OrderBy>
                   <FieldRef Name="ID" />

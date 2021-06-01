@@ -1,0 +1,249 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workflows_ValidateBearerToken_name": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "name": "[parameters('workflows_ValidateBearerToken_name')]",
+      "location": "canadacentral",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "triggers": {
+            "manual": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "schema": {
+                  "properties": {
+                    "body": {
+                      "properties": {
+                        "Header": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "actions": {
+            "Ensure_we_can_properly_decode_the_User_token_string": {
+              "runAfter": {
+                "Initialize_DecodedUserString": [
+                  "Succeeded"
+                ]
+              },
+              "cases": {
+                "Case_0": {
+                  "case": 0,
+                  "actions": {
+                    "Set_variable_Base64_Decode_User_String_no_padding": {
+                      "runAfter": {},
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "DecodedUserString",
+                        "value": "@{base64ToString(variables('Base64AuthUser'))}"
+                      }
+                    }
+                  }
+                },
+                "Case_2": {
+                  "case": 2,
+                  "actions": {
+                    "Set_variable_Base64_Decode_User_String_with_2_padding": {
+                      "runAfter": {},
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "DecodedUserString",
+                        "value": "@{base64ToString(concat(variables('Base64AuthUser'),'=='))}"
+                      }
+                    }
+                  }
+                },
+                "Case_3": {
+                  "case": 3,
+                  "actions": {
+                    "Set_variable_Base64_Decode_User_String_with_1_padding": {
+                      "runAfter": {},
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "DecodedUserString",
+                        "value": "@{base64ToString(concat(variables('Base64AuthUser'),'='))}"
+                      }
+                    }
+                  }
+                }
+              },
+              "default": {
+                "actions": {
+                  "Terminate_3": {
+                    "runAfter": {},
+                    "type": "Terminate",
+                    "inputs": {
+                      "runError": {
+                        "code": "500",
+                        "message": "Unable to Parse User Info"
+                      },
+                      "runStatus": "Failed"
+                    }
+                  }
+                }
+              },
+              "expression": "@mod(length(variables('Base64AuthUser')),4)",
+              "type": "Switch"
+            },
+            "Initialize_AuthorizationToken": {
+              "runAfter": {
+                "Parse_Request_Headers": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "AuthorizationToken",
+                    "type": "string",
+                    "value": "@body('Parse_Request_Headers')?['Authorization']"
+                  }
+                ]
+              }
+            },
+            "Initialize_Base64AuthUser": {
+              "runAfter": {
+                "Initialize_AuthorizationToken": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "Base64AuthUser",
+                    "type": "string",
+                    "value": "@{split(variables('AuthorizationToken'),'.')[1]}"
+                  }
+                ]
+              }
+            },
+            "Initialize_DebugOutput": {
+              "runAfter": {},
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "DebugOutput",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "Initialize_DecodedUserString": {
+              "runAfter": {
+                "Initialize_Base64AuthUser": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "DecodedUserString",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "Parse_Request_Headers": {
+              "runAfter": {
+                "Initialize_DebugOutput": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ParseJson",
+              "inputs": {
+                "content": "@triggerBody()",
+                "schema": {
+                  "properties": {
+                    "Accept": {
+                      "type": "string"
+                    },
+                    "Accept-Encoding": {
+                      "type": "string"
+                    },
+                    "Accept-Language": {
+                      "type": "string"
+                    },
+                    "Authorization": {
+                      "type": "string"
+                    },
+                    "Connection": {
+                      "type": "string"
+                    },
+                    "Content-Length": {
+                      "type": "string"
+                    },
+                    "Content-Type": {
+                      "type": "string"
+                    },
+                    "Host": {
+                      "type": "string"
+                    },
+                    "Referer": {
+                      "type": "string"
+                    },
+                    "User-Agent": {
+                      "type": "string"
+                    },
+                    "origin": {
+                      "type": "string"
+                    },
+                    "sec-fetch-dest": {
+                      "type": "string"
+                    },
+                    "sec-fetch-mode": {
+                      "type": "string"
+                    },
+                    "sec-fetch-site": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "Response": {
+              "runAfter": {
+                "Ensure_we_can_properly_decode_the_User_token_string": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Response",
+              "kind": "Http",
+              "inputs": {
+                "body": "@variables('DecodedUserString')",
+                "statusCode": 200
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {}
+      }
+    }
+  ]
+}

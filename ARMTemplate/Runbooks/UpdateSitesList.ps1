@@ -1,4 +1,4 @@
-﻿function CheckSite() {
+function CheckSite() {
     Param
     (
         [parameter(Mandatory = $true)][string]$siteURL,
@@ -7,7 +7,7 @@
 
     Write-Host "Checking to see if $SiteURL exists in the list..."
 
-    $connLanding = Helper-Connect-PnPOnline -Url $SiteCollectionFullURL
+    $connLanding = Helper-Connect-PnPOnline -Url $SitesListSiteURL
 
     $siteListItem = Get-PnPListItem -Connection $connLanding -List $SiteListName -Query "
     <View>
@@ -58,7 +58,7 @@
         }
         $newListItemValues.Add("EUMBreadcrumbHTML", (GetBreadcrumbHTML -siteURL $siteURL -siteTitle $Site.Title -parentURL $parentURL))
 
-        $connLanding = Helper-Connect-PnPOnline -Url $SiteCollectionFullURL
+        $connLanding = Helper-Connect-PnPOnline -Url $SitesListSiteURL
         [Microsoft.SharePoint.Client.ListItem]$newListItem = Add-PnPListItem -List $SiteListName -Values $newListItemValues -ContentType "EUM Site Collection List" -Connection $connLanding
     }
     else {
@@ -142,7 +142,13 @@ LoadEnvironmentSettings
 # -----------------------------------------
 # get all sites in the list that have Site Created set
 
-$connLanding = Helper-Connect-PnPOnline -Url $SiteCollectionFullURL
+$connLanding = Helper-Connect-PnPOnline -Url $SitesListSiteURL
+
+New-Item -Path $pnpTemplatePath -ItemType "directory" -Force | out-null
+$pnpTemplates = Find-PnPFile -List "PnPTemplates" -Match *.xml -Connection $connLanding
+$pnpTemplates | ForEach-Object {
+    $File = Get-PnPFile -Url "$($SitesListSiteRelativeURL)/pnptemplates/$($_.Name)" -Path $pnpTemplatePath -AsFile -Force -Connection $connLanding
+}
 
 $siteCollectionListItems = Get-PnPListItem -Connection $connLanding -List $SiteListName -Query "
 <View>
@@ -231,7 +237,7 @@ $siteCollectionListItems | ForEach {
             $newListItemValues.Add("EUMIsSubsite", $updatedSubsite)
 
             Write-Host "$($Site.Title) exists in $($SiteListName) list. Updating..."
-            $connLanding = Helper-Connect-PnPOnline -Url $SiteCollectionFullURL
+            $connLanding = Helper-Connect-PnPOnline -Url $SitesListSiteURL
             [Microsoft.SharePoint.Client.ListItem]$newListItem = Set-PnPListItem -Identity $listItemID -List $SiteListName -Values $newListItemValues -Connection $connLanding
         }
         else {
@@ -240,7 +246,7 @@ $siteCollectionListItems | ForEach {
     }
     else {
         Write-Output "$listSiteTitle, URL:$siteURL does not exist. Deleting from list..."
-        $connLanding = Helper-Connect-PnPOnline -Url $SiteCollectionFullURL
+        $connLanding = Helper-Connect-PnPOnline -Url $SitesListSiteURL
         Remove-PnPListItem -List $SiteListName -Identity $listItemID -Force -Connection $connLanding
     }
 }
@@ -249,7 +255,7 @@ $siteCollectionListItems | ForEach {
 # 2. Iterate through all site collections and add new ones
 # ---------------------------------------------------------
 Write-Output "Adding tenant site collections to ($SiteListName). Please wait..."
-$connLanding = Helper-Connect-PnPOnline -Url $SiteCollectionFullURL
+$connLanding = Helper-Connect-PnPOnline -Url $SitesListSiteURL
 $siteCollections = Get-PnPTenantSite -IncludeOneDriveSites -Connection $connLanding
 
 $siteCollections | ForEach {

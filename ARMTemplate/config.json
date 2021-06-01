@@ -1,0 +1,61 @@
+{
+  "SubscriptionId": "b906693c-5167-4a56-bbf3-b56142ee7219",
+  "TenantId": "64a54bf1-8d0d-4741-a2ae-36eb0bfa4c58",
+  "ResourceGroupName": "EUMSites",
+  "Location": "Canada Central",
+  "TargetFolder": "C:\\Development\\EnvisionIT\\Teams Provisioning\\ARMTemplate",
+  "TemplateFilename": "template.json",
+  "TemplateParameterFilename": "parameters.json",
+  "Parameters": [
+    {
+      "paramName": "Divisions List GUID",
+      "paramValue": "21b67df9-a804-45ea-9ebc-56ed397b806c",
+      "paramAliases": []
+    },
+    {
+      "paramName": "Site Address",
+      "paramValue": "https://envisionitdev.sharepoint.com/sites/Landing",
+      "paramAliases": []
+    },
+    {
+      "paramName": "Sites List GUID",
+      "paramValue": "35416f1d-f09b-4503-a8ed-106e11c7ea43",
+      "paramAliases": []
+    },
+    {
+      "paramName": "AutomationAccountName",
+      "paramValue": "eitdev-siteprovisioning",
+      "paramAliases": []
+    },
+    {
+      "paramName": "PrimaryDomain",
+      "paramValue": "envisionitdev.onmicrosoft.com",
+      "paramAliases": []
+    },
+    {
+      "paramName": "ResourceGroupName",
+      "paramValue": "EUMSites",
+      "paramAliases": []
+    },
+    {
+      "paramName": "RootURL",
+      "paramValue": "https://envisionitdev.sharepoint.com",
+      "paramAliases": []
+    },
+    {
+      "paramName": "SiteCollectionAdministrator",
+      "paramValue": "pcarson@envisionitdev.onmicrosoft.com",
+      "paramAliases": [ "Operator Email" ]
+    },
+    {
+      "paramName": "SiteCollectionRelativeURL",
+      "paramValue": "/sites/landing",
+      "paramAliases": []
+    },
+    {
+      "paramName": "TeamsSPFxAppId",
+      "paramValue": "c62c7bd0-0313-4438-895e-a26ac6a97024",
+      "paramAliases": []
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2020/02/ProvisioningSchema">
-  <pnp:Preferences Generator="OfficeDevPnP.Core, Version=3.19.2003.0, Culture=neutral, PublicKeyToken=5e633289e95c321a" />
-  <pnp:Templates ID="CONTAINER-TEMPLATE-6F9F97D3E5FF48CFA8B6C732A39432AF">
-    <pnp:ProvisioningTemplate ID="TEMPLATE-6F9F97D3E5FF48CFA8B6C732A39432AF" Version="1" BaseSiteTemplate="" Scope="Undefined">
+  <pnp:Preferences Generator="PnP.Framework, Version=1.4.0.0, Culture=neutral, PublicKeyToken=null" />
+  <pnp:Templates ID="CONTAINER-TEMPLATE-33A65CD2B4E54FCF8185FB59483BCCF6">
+    <pnp:ProvisioningTemplate ID="TEMPLATE-33A65CD2B4E54FCF8185FB59483BCCF6" Version="1" BaseSiteTemplate="" Scope="Undefined">
       <pnp:Lists>
         <pnp:ListInstance Title="Site Metadata" Description="" DocumentTemplate="" TemplateType="100" Url="Lists/SiteMetadata" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" ContentTypesEnabled="true" EnableFolderCreation="false" DefaultDisplayFormUrl="{site}/Lists/SiteMetadata/DispForm.aspx" DefaultEditFormUrl="{site}/Lists/SiteMetadata/EditForm.aspx" DefaultNewFormUrl="{site}/Lists/SiteMetadata/NewForm.aspx" ImageUrl="/_layouts/15/images/itgen.png?rev=47" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
           <pnp:ContentTypeBindings>
@@ -10,7 +10,7 @@
             <pnp:ContentTypeBinding ContentTypeID="0x0120" />
           </pnp:ContentTypeBindings>
           <pnp:Views>
-            <View Name="{F17FECF7-B5FC-4BE7-AE53-77F890B3B008}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/SiteMetadata/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
+            <View Name="{5F8A4461-7457-4FFF-9C3F-4B3B242FFA84}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="{site}/Lists/SiteMetadata/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=47">
               <Query>
                 <OrderBy>
                   <FieldRef Name="ID" />

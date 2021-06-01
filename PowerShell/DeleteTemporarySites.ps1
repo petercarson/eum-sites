@@ -21,7 +21,7 @@ Import-PSSession $Session -DisableNameChecking -AllowClobber
 # -----------------------------------------
 # get all sites in the list that their Parent URL set to /sites/tempdemos
 
-$connLandingSite = Helper-Connect-PnPOnline -Url $SitesListSiteURL
+$connLandingSite = Helper-Connect-PnPOnline -Url $SiteCollectionFullURL
 
 $sitesListItems = Get-PnPListItem -Connection $connLandingSite -List $SiteListName -Query "
 <View>
@@ -65,7 +65,7 @@ $sitesListItems | ForEach {
                 Remove-PnPTenantSite -Url $siteURL -Force -ErrorAction Stop -Connection $connSite
             }
 
-            $connLandingSite = Helper-Connect-PnPOnline -Url $SitesListSiteURL
+            $connLandingSite = Helper-Connect-PnPOnline -Url $SiteCollectionFullURL
             Remove-PnPListItem -List $SiteListName -Identity $listItemID -Force -Connection $connLandingSite
         }
         catch {

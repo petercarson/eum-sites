@@ -1,7 +1,11 @@
-﻿Param
+Param
 (
     [Parameter (Mandatory = $false)][int]$listItemID = -1
 )
+
+$VerbosePreference = "Continue"
+Write-Verbose "Startup 1"
+$VerbosePreference = "SilentlyContinue"
 
 $Global:AzureAutomation = (Get-Command "Get-AutomationVariable" -ErrorAction SilentlyContinue)
 if ($AzureAutomation) { 
@@ -17,7 +21,13 @@ else {
     . $PSScriptRoot\CreateSite-Customizations.ps1
 }
 
+$VerbosePreference = "Continue"
+Write-Verbose -Verbose -Message "Startup 2"
+
 LoadEnvironmentSettings
+
+$global:VerbosePreference = "Continue"
+Write-Verbose -Verbose -Message "Startup 3"
 
 if ($listItemID -eq -1) {
     $connLandingSite = Helper-Connect-PnPOnline -Url $SiteCollectionFullURL

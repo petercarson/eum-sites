@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "credentials_PlannerClient_password": {
+      "value": ""
+    },
+    "connections_office365_name": {
+      "value": "office365"
+    },
+    "workflows_ValidateBearerToken_name": {
+      "value": "ValidateBearerToken"
+    },
+    "workflows_CreateSite_SubmitForm_name": {
+      "value": "CreateSite_SubmitForm"
+    },
+    "workflows_CreateSite_ProvisionSite_name": {
+      "value": "CreateSite_ProvisionSite"
+    },
+    "workflows_CreateSite_CompleteListSubmission_name": {
+      "value": "CreateSite_CompleteListSubmission"
+    },
+    "connections_azureautomation_name": {
+      "value": "azureautomation"
+    },
+    "connections_sharepointonline_name": {
+      "value": "sharepointonline"
+    },
+    "connections_teams_name": {
+      "value": "teams"
+    },
+    "automationAccounts_eitdev_siteprovisioning_name": {
+      "value": "Redeploy-EUMSites5"
+    },
+    "divisions List GUID": {
+      "value": "21b67df9-a804-45ea-9ebc-56ed397b806c"
+    },
+    "SiteCollectionAdministrator": {
+      "value": "pcarson@envisionitdev.onmicrosoft.com"
+    },
+    "site Address": {
+      "value": "https://envisionitdev.sharepoint.com/sites/Landing"
+    },
+    "sites List GUID": {
+      "value": "0c6bd8d0-0f96-4371-9c83-14f4a86d0bb8"
+    }
+  }
+}

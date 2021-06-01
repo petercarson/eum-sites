@@ -1,4 +1,4 @@
-﻿Param
+Param
 (
     [Parameter (Mandatory = $false)][int]$testItemID = -1
 )

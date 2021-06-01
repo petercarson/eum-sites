@@ -1,0 +1,174 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workflows_CreateSite_CompleteListSubmission_name": {
+      "type": "String"
+    },
+    "workflows_CreateSite_ProvisionSite_externalid": {
+      "type": "String"
+    },
+    "connections_sharepointonline_externalid": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "name": "[parameters('workflows_CreateSite_CompleteListSubmission_name')]",
+      "location": "canadacentral",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            },
+            "Site Address": {
+              "defaultValue": "https://envisionitdev.sharepoint.com/sites/Landing",
+              "type": "String"
+            },
+            "Sites List GUID": {
+              "defaultValue": "35416f1d-f09b-4503-a8ed-106e11c7ea43",
+              "type": "String"
+            }
+          },
+          "triggers": {
+            "When_an_item_or_a_file_is_modified": {
+              "recurrence": {
+                "frequency": "Minute",
+                "interval": 10
+              },
+              "splitOn": "@triggerBody()?['value']",
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent(parameters('Site Address')))}/tables/@{encodeURIComponent(encodeURIComponent(parameters('Sites List GUID')))}/onchangeditems"
+              }
+            }
+          },
+          "actions": {
+            "Condition_-_Check_if_not_created,_approved,_and_marked_for_completion": {
+              "actions": {
+                "CreateSite-ProvisionSite": {
+                  "runAfter": {},
+                  "type": "Workflow",
+                  "inputs": {
+                    "body": {
+                      "ListItemId": "@{triggerBody()?['ID']}"
+                    },
+                    "host": {
+                      "triggerName": "manual",
+                      "workflow": {
+                        "id": "[parameters('workflows_CreateSite_ProvisionSite_externalid')]"
+                      }
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Initialize_Job_Output": [
+                  "Succeeded"
+                ]
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@variables('SiteCreated')",
+                      ""
+                    ]
+                  },
+                  {
+                    "and": [
+                      {
+                        "equals": [
+                          "@triggerBody()?['{ModerationStatus}']",
+                          "Approved"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "equals": [
+                      "@triggerBody()?['EUMCompleteListSubmission']",
+                      true
+                    ]
+                  }
+                ]
+              },
+              "type": "If"
+            },
+            "Initialize_DebugOutput": {
+              "runAfter": {},
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "DebugOutput",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "Initialize_Job_Output": {
+              "runAfter": {
+                "Initialize_SiteCreated": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "Job Output",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "Initialize_SiteCreated": {
+              "runAfter": {
+                "Initialize_DebugOutput": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "SiteCreated",
+                    "type": "string",
+                    "value": "@triggerBody()?['EUMSiteCreated']"
+                  }
+                ]
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "sharepointonline": {
+                "connectionId": "[parameters('connections_sharepointonline_externalid')]",
+                "connectionName": "sharepointonline",
+                "id": "/subscriptions/b906693c-5167-4a56-bbf3-b56142ee7219/providers/Microsoft.Web/locations/canadacentral/managedApis/sharepointonline"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,3044 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "certificates_AzureRunAsCertificate_base64Value": {
+      "type": "SecureString"
+    },
+    "credentials_PlannerClient_password": {
+      "type": "SecureString"
+    },
+    "automationAccounts_eitdev_siteprovisioning_name": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Automation/automationAccounts",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[parameters('automationAccounts_eitdev_siteprovisioning_name')]",
+      "location": "canadacentral",
+      "properties": {
+        "sku": {
+          "name": "Basic"
+        },
+        "encryption": {
+          "keySource": "Microsoft.Automation",
+          "identity": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/certificates",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AzureRunAsCertificate')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "description": "This certificate is used to authenticate with the service principal that was automatically created for this account. For details on this service principal and certificate, or to recreate them, go to this account’s Settings. For example usage, see the tutorial runbook in this account.",
+        "isExportable": true,
+        "thumbprint": "931623A9D1D325231202294D083010F6A6CFCBC4",
+        "base64Value": "[parameters('certificates_AzureRunAsCertificate_base64Value')]"
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/connections",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AzureRunAsConnection')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "connectionType": {
+          "name": "AzureServicePrincipal"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/connectionTypes",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Azure')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "isGlobal": true,
+        "fieldDefinitions": {
+          "AutomationCertificateName": {
+            "isEncrypted": false,
+            "isOptional": false,
+            "type": "System.String"
+          },
+          "SubscriptionID": {
+            "isEncrypted": false,
+            "isOptional": false,
+            "type": "System.String"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/connectionTypes",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AzureClassicCertificate')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "isGlobal": true,
+        "fieldDefinitions": {
+          "SubscriptionName": {
+            "isEncrypted": false,
+            "isOptional": false,
+            "type": "System.String"
+          },
+          "SubscriptionId": {
+            "isEncrypted": false,
+            "isOptional": false,
+            "type": "System.String"
+          },
+          "CertificateAssetName": {
+            "isEncrypted": false,
+            "isOptional": false,
+            "type": "System.String"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/connectionTypes",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AzureServicePrincipal')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "isGlobal": true,
+        "fieldDefinitions": {
+          "ApplicationId": {
+            "isEncrypted": false,
+            "isOptional": false,
+            "type": "System.String"
+          },
+          "TenantId": {
+            "isEncrypted": false,
+            "isOptional": false,
+            "type": "System.String"
+          },
+          "CertificateThumbprint": {
+            "isEncrypted": false,
+            "isOptional": false,
+            "type": "System.String"
+          },
+          "SubscriptionId": {
+            "isEncrypted": false,
+            "isOptional": false,
+            "type": "System.String"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/credentials",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/PlannerClient')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "userName": "c0f68247-3e93-4bbd-99d6-c285a6160bd0",
+        "description": "clientid/secret used with PlannerRefreshToken from KeyVault to get access token for use with Planner operations",
+        "password": "[parameters('credentials_PlannerClient_password')]"
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/03578fbc-b7bc-419d-b32b-9ff40493dbac')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/069956fa-fc05-4a68-a8c9-1a08fcdc6ae7')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/074d4df7-7412-4867-aff9-a0f28e256911')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/0765571a-2381-4b5d-b69c-e0981cfa344a')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/07c5fbaf-6a23-4cc4-8233-4d7436b99fdc')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/0a5fad12-d751-4b35-b28d-9a6b9b705374')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/0a857032-dbbf-45de-a4b6-74dad16a4339')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "Update-AutomationAzureModulesForAccount"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/0aea2a72-7f4f-448b-b9b1-d2e0b822bfd7')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/0da7132a-c4cc-4a80-b01e-3754c06371d3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/0e0c487f-d766-4484-bfcc-0e6c852beb85')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/10cd5e8c-107f-4ca8-83f2-71b44b223a37')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/1157db1e-ab7d-4d9f-8c85-3920b8963b3a')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/1322a779-fb13-4ef6-860a-75c1634acdf0')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/13c567ce-fbd0-425d-8e3b-cd9b5e58f961')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/153b887f-5a0d-4bd8-a70a-0a14142e8442')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/1612ab1d-e486-4754-9575-ed41f1f79a20')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/181fdaf1-1227-4c70-914c-1296e09278da')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/19efa803-2dba-4456-8f2a-a5851990cf0a')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/1a14915f-bd83-4313-9e13-f04d8e483d66')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/1a17793e-7d67-4807-84b4-07adc1122bd6')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/1b43030d-9eaf-435a-b682-51c27275698d')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/1cc9e752-671a-44e5-82d6-5d5703a566ae')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/1cd531f5-d0ec-49a8-a2c8-180ceb7213f1')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/21975d7c-2313-4a62-a90a-169be788d893')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/2298140a-785a-4089-be50-2ebbaa1f636b')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/23433ee2-211d-4f96-9019-fd8e7c8c8eb5')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/240ff186-5e67-4e3b-a787-2597ae2cfe8e')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/25d17ef2-3f7e-405a-93ed-2d060612f09b')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/26095983-8173-423e-9594-214f1e052b45')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/268827fe-6d5e-4fb1-ba0c-25e27bfa2793')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/274d5f09-7e21-47b6-a1f1-f9c84e7e5b27')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/28bf8a36-db90-4135-afb6-be3a6d520e86')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/29ec3727-c47f-4f4d-aa24-d54f04a0b6b6')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "EUMSites_Helper"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/2abb909e-df88-437b-9aeb-91c508f7fbd5')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/2be2df8d-f5ad-4cb9-bdcb-aeacbef1ef12')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/2c29dcee-f19b-4308-957f-c97609c22674')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "EUMSites_Helper"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/2dccffd6-4934-4bfb-b627-82c73ff06da5')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/2e8017d5-b4da-4da5-b0e6-bfb889962424')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/2fb79a01-6341-4bf4-bc34-74d6527ffea3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/301fa6ec-526d-40e9-bafe-6096f75a7082')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/30b87f50-a66d-4da9-a876-db4ea715dd59')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/32e7a87e-efbb-48f8-ab7f-ea9bdae50206')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/331dfc7b-45eb-4868-9ef8-39f66aeab3c4')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/33b757bb-74f9-4ccd-a14b-0e44d73241d3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/35c5f02c-36a5-4286-95b7-9e70b2fa5127')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/36b4df99-c45d-4624-acbe-b37903f6f03e')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/36bc4ae6-80e5-442a-b97b-59c5c7b019ae')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/3c874701-22b8-40aa-9dff-2356cb2f409c')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/3d0d173d-44a1-44fd-a229-b9df0e32febc')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/3ed419bb-55d6-4998-baf5-c4f4d089f51e')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/40f7d9fe-adf0-4a12-ba05-88a1a6a3ac7b')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/41ae84e3-1b37-4dba-a682-8e828706206c')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/43d4eb63-57b3-45d4-9e1e-6064c23669df')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "EUMSites_Helper"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/449daeb4-a2ed-4753-8601-b852fb20e73f')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/47e386b1-0bf9-4367-b51b-eec79f331b6c')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/4acf069b-4b5d-4d8c-a54e-cdd20891ec70')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/4d79b5ea-73fd-4427-80a3-21c5402286f5')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "EUMSites_Helper"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/4ebc7229-d1d4-4119-94ba-7f2e847ab59e')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/50dd56cd-d24c-49ed-9968-743f68a1b66c')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/559a7e37-059d-464a-80ac-2c7aac8a615f')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/561d7faa-9667-4d88-91b0-a2ffeffbccf8')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/5924b89d-5a32-41cd-a097-b4aa9dfbbfae')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/593adb58-5f61-4873-9649-c3172b7faf18')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/59cfa99c-c4f2-4ee6-a017-90aebc0a3dd6')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/5b27d60f-9cd1-4e70-9734-3863dc8baeff')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/5c0bf492-98a5-453d-93a7-993713815717')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/5cf6b898-bfee-4c90-8327-2361f11b9f73')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/5e7ce948-f971-43f0-b720-76edfa03e465')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/5fcedc7b-edc8-493e-b3eb-cc4baaa3c836')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "EUMSites_Helper"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/60bf2bac-5181-4cc4-9b51-48c838b64713')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/61300313-f6cc-4471-a3e6-33f31295269a')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/64d3ad19-0fe9-4665-97c4-0c957ac60a87')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/6512061c-a9e8-4c82-8841-3a0e1d337192')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/655f1657-adf5-4e12-961b-ef5a6dd2855b')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/691fcd81-767b-43f6-a0f8-3b2913197391')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/69bea0d5-f503-4308-944e-4eb1d20f3862')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/69e7010b-06b2-405f-a9c9-de38eb02bba9')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/6b28ad47-ada7-4b53-8a24-f7e68a37fa4b')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/6d47e52f-5f7c-40fe-b293-99171ecc9c13')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/6db1436e-4a5a-409d-a0cc-a7bb051a748d')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "EUMSites_Helper"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/6e2f8961-d3cb-44b6-b20d-e2389a38c722')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/6faf292e-8455-4c6e-91b2-674d788d1653')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/7322e76a-dace-498e-895f-b9cb3b4a8389')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/73772b2a-b9ba-4233-941c-f1ce7df27b35')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/7384a4bd-5143-49ca-b83a-2f93fd81bd43')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/746bcf58-4c81-446b-957c-b68c9b3789ca')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/758d50f2-0b03-4251-b348-077c1a698b78')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/760ef5dd-f6b5-4a8e-afda-5140e152db08')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/763deb3c-08f3-4894-a458-082d9b4b1398')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/78ccace7-79dd-4529-b46b-faf9c736175d')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "Update-AutomationAzureModulesForAccount"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/799bd940-6845-4b40-8894-57ad036cc7ee')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/79d4e431-e040-4422-82f0-d9e303d091d1')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/7ba36c86-86a3-4c09-81d1-49e9b2831257')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/7d6a357b-7e61-4c68-80be-5bffe0e90d92')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/8067623d-253f-4ace-a82c-45dec0f21ebc')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/81639b6d-740f-4e0a-a48a-e13351fa9784')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/8372c0f3-d0a1-400c-9675-a1bc4c70ebd3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/84b2b360-d25d-4147-84a1-e48f633a0b89')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/8573aa77-b957-4ad4-bf70-a3703b85d844')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/8900af3a-b5ef-4d4a-a0f9-8f2959121943')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "EUMSites_Helper"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/894e51ca-daf8-4b5b-92b7-9401b782f098')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/8b86be4d-04bd-47a9-9bc7-b0cfaba0f9e3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/8efcb56b-46fd-4e53-aedc-69c2dad14048')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/929264e6-bc82-450e-b1ab-1c32ee66b81e')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/92b95d23-d49e-4f91-9c64-ab8cc9aea76a')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/941501b0-b95f-4933-b4fe-1b7306c04d73')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/9627bee1-4341-4ab7-8c0d-735d05b5014e')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/9696c591-e33c-4cdd-ad51-5f1dbf435f26')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/9824793c-51e7-400b-948a-3ed38e757f1c')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/98c54e56-7111-473d-995d-fda26ee58a14')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/98fdf9f7-02b5-4609-aca1-bcda0d592ddf')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/9951edf5-8ef7-43fd-a3cb-e369388da2e3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/99fe6d3b-2957-40a7-b5d6-7cf5bc6be727')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/9c242731-1f7d-4ce4-9147-e8b90c3adb33')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/9f143398-dff0-4444-a34a-5f6e086d081d')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/a1b7d97e-97fc-475a-a477-254daf4b285d')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/a55cddca-a72c-4f6f-bf4e-31d222d3f66f')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/a968a627-d5b6-4dc5-a883-35cf20faf9fe')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/a9e0fd3b-d13d-44e8-bb70-c1bd2c101b5a')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/aafb0bff-ce5a-4d48-9fc6-906a9e27fdf6')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/b03f8abd-e6d1-4255-a6ad-84b37991549c')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/b70f2f28-d819-4628-8e16-1dcfb4b94bf5')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/b8802203-9067-48bb-9832-fc473d0c20cc')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/b982aeb5-7f29-4997-a41e-52978fa9d3d0')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/b983687e-e5f3-493c-978a-4a6a2f5892ac')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/bb36e476-d88a-4159-8ea8-0133ef8f0c4f')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/bba1bb86-b0be-46f6-8696-bc290f225afa')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/bbbdb596-5dc2-4f89-9a12-ac10d080b8e1')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/bcac33d5-c0b1-4c02-bb68-d3e296217db6')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/bcb2b7a4-48ae-43ca-a2de-e5b14c931a55')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/bd952243-82a3-449b-8e01-0bdffe80b617')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/c0f607ed-1223-411b-96da-25e241ead365')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/c1bfb7da-946e-459b-b0d2-6bd4e7b9ab77')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/c3af3e6f-643d-4c79-bb31-d4abae9c1b92')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/c45a63f9-c206-45fc-b17e-ebaae92a33e3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/c497a3cb-8da8-4f4c-8db3-fe34259b31b9')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/c7ad1472-6481-4229-b973-149d00d6566d')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/c854ff0b-a604-4e91-b5ca-69c4c77e78bd')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/c9428157-9958-4258-becd-b8df458f4c17')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ca004b91-51ba-498c-a4a1-ec5af03d11c8')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ca1f37a5-32a4-4b1b-8c13-3a15f06b9b1a')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/caaa117b-3030-42c1-a342-6a1120fbda7a')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/cb5bf10b-038b-46b4-87f3-962e12da898e')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ceb2b07c-391f-42f5-9c5f-2199704b45e3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/cf810fb9-55a5-4c51-b813-5e48db866bd2')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/d07db78f-a6ff-4ff4-8792-1fa613703236')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/d124a582-c51f-478c-ac43-c23fe26d0a79')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/d32015ff-a379-4a87-b311-4de5c97ce912')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/d39d840a-fcc4-425b-889f-3963740847f3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/d54ee3ba-d304-4012-9782-5d1b05053554')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/d6c64749-52b0-4cc5-a091-c2ee67be603c')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/d87abf12-77a1-4008-a582-232cf954056b')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/d957d941-8b93-4fca-b57a-aca2a70eb612')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/dc4116e5-7d56-4208-9371-9e8f19eefc06')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/de151ff2-a144-4bbd-8994-9e447a44efc3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/e001e69b-39b8-44b7-bfe2-51ce99619c51')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/e00656c9-6891-4004-a521-0af6ba8bd792')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/e07b2121-c467-4a56-a6d2-b8fd47a3b918')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/e10e3c30-4776-4627-9e22-9da38f08a07d')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/e15646f1-7278-44b5-a5e6-7732b4361009')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/e1da5497-cc44-4ff0-a8ad-86b75a0c5d38')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/e415deff-6b8a-42f3-a573-1693e81cbee6')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/e69540e9-be73-41c8-9ef9-9732e8d3d4b1')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/e9b6b407-047a-440c-9fe7-f2b82f70f9c1')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/e9fc435d-1787-4c45-aafc-04a2357469e1')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ea499bf5-d2c4-45a8-bc8f-1179c779820c')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ebc3c32b-4d48-4fb0-96aa-41902f1ea7c9')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ed995596-f4dd-425f-9e92-21299d739120')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ee0323c9-cbce-4c8e-aece-3ec319e0c391')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ee471ed0-8a23-4787-af30-ee8714629376')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/f14731a2-e107-40c1-a8f3-c9dca8f94d73')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/f1562375-ea91-4919-beb3-473a8430d695')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/f1965afd-c4fe-4b14-9d07-931cb7c0b859')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/f21ff40e-e9e7-4759-bfa5-2b89eb10c2a3')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/f7397243-56c3-46fa-8bbf-9a307029c3c4')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/f743f500-0a99-4464-8d18-b4be6c016c14')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/f8091f6b-8b97-40b3-b0d1-a56dacea1ecd')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/fa8ed9c8-1ae2-45e3-9595-f370e54b58ca')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/fb4703dd-a36c-4b08-968e-610233a9bff7')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/fd41d78e-7892-48fd-940a-76aeb9b64b1f')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/fe324190-925b-41d8-a028-7e24e12034db')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/fed4319d-ae35-46ec-8107-dc6d057630b6')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "EUMSites_Helper"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobs",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ffef4acb-1d72-4db8-ba18-422653c2e4e2')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "CreateSite"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AuditPolicyDsc')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Az.Accounts')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Az.Automation')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Az.KeyVault')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Az.Resources')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Azure')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Azure.Storage')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AzureAD')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AzureRM.Automation')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AzureRM.Compute')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AzureRM.Profile')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AzureRM.Resources')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AzureRM.Sql')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AzureRM.Storage')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ComputerManagementDsc')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/GPRegistryPolicyParser')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Microsoft.Online.SharePoint.PowerShell')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Microsoft.PowerShell.Core')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Microsoft.PowerShell.Diagnostics')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Microsoft.PowerShell.Management')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Microsoft.PowerShell.Security')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Microsoft.PowerShell.Utility')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Microsoft.WSMan.Management')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/MicrosoftTeams')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/Orchestrator.AssetManagement.Cmdlets')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/PnP.PowerShell')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/PSDscResources')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/SecurityPolicyDsc')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/StateConfigCompositeResources')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/xDSCDomainjoin')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/xPowerShellExecutionPolicy')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/xRemoteDesktopAdmin')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "contentLink": {}
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/runbooks",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/CreateSite')]",
+      "location": "canadacentral",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbookType": "PowerShell",
+        "logVerbose": true,
+        "logProgress": false,
+        "logActivityTrace": 0
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/runbooks",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/CreateSite-Customizations')]",
+      "location": "canadacentral",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbookType": "PowerShell",
+        "logVerbose": true,
+        "logProgress": false,
+        "logActivityTrace": 0
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/runbooks",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/EUMSites_Helper')]",
+      "location": "canadacentral",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbookType": "PowerShell",
+        "logVerbose": true,
+        "logProgress": false,
+        "logActivityTrace": 0
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/runbooks",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/UpdateSitesList')]",
+      "location": "canadacentral",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "runbookType": "PowerShell",
+        "logVerbose": false,
+        "logProgress": false,
+        "logActivityTrace": 0
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/AutomationAccountName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "\"eitdev-siteprovisioning\""
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/KeyVaultName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "\"kvEUMSites\""
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/PrimaryDomain')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "\"envisionitdev.onmicrosoft.com\""
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/ResourceGroupName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "\"EUMSites\""
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/RootURL')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "\"https://envisionitdev.sharepoint.com\""
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/SiteCollectionAdministrator')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "\"pcarson@envisionitdev.onmicrosoft.com\""
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/SiteCollectionRelativeURL')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "\"/sites/landing\""
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[concat(parameters('automationAccounts_eitdev_siteprovisioning_name'), '/TeamsSPFxAppId')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccounts_eitdev_siteprovisioning_name'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "\"c62c7bd0-0313-4438-895e-a26ac6a97024\""
+      }
+    }
+  ]
+}

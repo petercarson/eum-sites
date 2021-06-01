@@ -1,0 +1,104 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vaults_kvEUMSites_name": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2021-04-01-preview",
+      "name": "[parameters('vaults_kvEUMSites_name')]",
+      "location": "canadacentral",
+      "properties": {
+        "sku": {
+          "family": "A",
+          "name": "Standard"
+        },
+        "tenantId": "64a54bf1-8d0d-4741-a2ae-36eb0bfa4c58",
+        "accessPolicies": [
+          {
+            "tenantId": "64a54bf1-8d0d-4741-a2ae-36eb0bfa4c58",
+            "objectId": "0fbf43c8-839e-45f7-af2f-ca0b4738c770",
+            "permissions": {
+              "keys": [],
+              "secrets": [
+                "Get",
+                "List"
+              ],
+              "certificates": []
+            }
+          },
+          {
+            "tenantId": "64a54bf1-8d0d-4741-a2ae-36eb0bfa4c58",
+            "objectId": "88025026-b83b-4c51-aad5-d9ad755aeca3",
+            "permissions": {
+              "keys": [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore"
+              ],
+              "secrets": [
+                "Get",
+                "List",
+                "Set",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore"
+              ],
+              "certificates": [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore",
+                "ManageContacts",
+                "ManageIssuers",
+                "GetIssuers",
+                "ListIssuers",
+                "SetIssuers",
+                "DeleteIssuers"
+              ]
+            }
+          }
+        ],
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": false,
+        "enableSoftDelete": true,
+        "softDeleteRetentionInDays": 90,
+        "enableRbacAuthorization": false,
+        "vaultUri": "https://kveumsites.vault.azure.net/",
+        "provisioningState": "Succeeded"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2021-04-01-preview",
+      "name": "[concat(parameters('vaults_kvEUMSites_name'), '/PlannerRefreshToken')]",
+      "location": "canadacentral",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_kvEUMSites_name'))]"
+      ],
+      "properties": {
+        "attributes": {
+          "enabled": true
+        }
+      }
+    }
+  ]
+}
